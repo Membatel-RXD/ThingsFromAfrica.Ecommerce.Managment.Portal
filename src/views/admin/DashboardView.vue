@@ -408,20 +408,20 @@
   <script setup lang="ts">
   import { ref, computed, onMounted, nextTick } from 'vue'
   import { useUserStore } from '@/stores/user'
-  import { useProductStore } from '@/stores/product'
-  import { useOrderStore } from '@/stores/order'
-  import { useCustomerStore } from '@/stores/customer'
-  import { useInventoryStore } from '@/stores/inventory'
+
+  // import { useInventoryStore } from '@/stores/inventory'
   
-  // Chart.js import
   import Chart from 'chart.js/auto'
+  import { useCustomerStore } from '@/stores/customer'
+  import { useOrderStore } from '@/stores/Order'
+  import { useProductStore } from '@/stores/product'
   
   // Stores
   const userStore = useUserStore()
   const productStore = useProductStore()
   const orderStore = useOrderStore()
   const customerStore = useCustomerStore()
-  const inventoryStore = useInventoryStore()
+  // const inventoryStore = useInventoryStore()
   
   // Chart refs
   const revenueChart = ref<HTMLCanvasElement | null>(null)
@@ -636,9 +636,9 @@
     loading.value = true
     
     // Load data from stores
-    // await productStore.fetchProducts()
-    // await orderStore.fetchOrders()
-    // await customerStore.fetchCustomers()
+    await productStore.fetchProducts()
+    await orderStore.fetchOrders()
+    await customerStore.fetchCustomers()
     // await inventoryStore.fetchInventory()
     
     loading.value = false

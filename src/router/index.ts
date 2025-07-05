@@ -8,7 +8,7 @@ import {useUserStore} from "@/stores/user";
 const routes: RouteRecordRaw[] = [
   {
     path: "/",
-    redirect: "/shop",
+    redirect: "/login",
   },
   {
     path: "/login",
@@ -169,6 +169,18 @@ const routes: RouteRecordRaw[] = [
       roles: ["admin", "superadmin"],
     },
   },
+  // Dashboard route (alias for admin-dashboard)
+  {
+    path: "/dashboard",
+    name: "dashboard",
+    component: () => import("@/views/admin/DashboardView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager"],
+    },
+  },
+  // Product Management Routes
   {
     path: "/admin/products",
     name: "admin-products",
@@ -180,6 +192,22 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/products",
+    name: "products",
+    component: () => import("@/views/admin/ProductsView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager"],
+    },
+  },
+  {
+    path: '/products/:id',
+    name: 'product-details',
+    component: () => import("@/views/admin/ProductsView.vue"),
+    props: true // Pass route param as prop
+  },
+  {
     path: "/admin/products/create",
     name: "admin-product-create",
     component: () => import("@/views/admin/ProductCreateView.vue"),
@@ -187,6 +215,16 @@ const routes: RouteRecordRaw[] = [
       layout: "admin",
       requiresAuth: true,
       roles: ["admin", "superadmin"],
+    },
+  },
+  {
+    path: "/products/create",
+    name: "products-create",
+    component: () => import("@/views/admin/ProductCreateView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager"],
     },
   },
   {
@@ -209,10 +247,52 @@ const routes: RouteRecordRaw[] = [
       roles: ["admin", "superadmin"],
     },
   },
+  // Wood Types and Craft Types Routes
+  {
+    path: "/wood-types",
+    name: "wood-types",
+    component: () => import("@/views/admin/WoodTypesView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager"],
+    },
+  },
+  {
+    path: "/craft-types",
+    name: "craft-types",
+    component: () => import("@/views/admin/CraftTypesView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager"],
+    },
+  },
+  // Order Management Routes
   {
     path: "/admin/orders",
     name: "admin-orders",
     component: () => import("@/views/admin/OrdersView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager"],
+    },
+  },
+  {
+    path: "/orders-pending",
+    name: "orders-pending",
+    component: () => import("@/views/admin/OrdersPendingView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager"],
+    },
+  },
+  {
+    path: "/shipments",
+    name: "shipments",
+    component: () => import("@/views/admin/ShipmentsView.vue"),
     meta: {
       layout: "admin",
       requiresAuth: true,
@@ -229,6 +309,7 @@ const routes: RouteRecordRaw[] = [
       roles: ["admin", "superadmin", "manager"],
     },
   },
+  // Customer Management Routes
   {
     path: "/admin/customers",
     name: "admin-customers",
@@ -240,9 +321,204 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/customers",
+    name: "customers",
+    component: () => import("@/views/admin/CustomersView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager"],
+    },
+  },
+  {
+    path: "/artisans",
+    name: "artisans",
+    component: () => import("@/views/admin/ArtisansView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager"],
+    },
+  },
+  {
+    path: "/reviews",
+    name: "reviews",
+    component: () => import("@/views/admin/ReviewsView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager"],
+    },
+  },
+  // Inventory Management Routes
+  {
+    path: "/inventory-dashboard",
+    name: "inventory-dashboard",
+    component: () => import("@/views/admin/InventoryDashboardView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager", "inventory_manager"],
+    },
+  },
+  {
+    path: "/stock-alerts",
+    name: "stock-alerts",
+    component: () => import("@/views/admin/StockAlertsView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager", "inventory_manager"],
+    },
+  },
+  {
+    path: "/stock-movement",
+    name: "stock-movement",
+    component: () => import("@/views/admin/StockMovementView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager", "inventory_manager"],
+    },
+  },
+  // Financial Management Routes
+  {
+    path: "/payments",
+    name: "payments",
+    component: () => import("@/views/admin/PaymentsView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager", "accountant"],
+    },
+  },
+  {
+    path: "/revenue-reports",
+    name: "revenue-reports",
+    component: () => import("@/views/admin/RevenueReportsView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager", "accountant"],
+    },
+  },
+  {
+    path: "/artisan-payouts",
+    name: "artisan-payouts",
+    component: () => import("@/views/admin/ArtisanPayoutsView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager", "accountant"],
+    },
+  },
+  // Marketing & Promotions Routes
+  {
+    path: "/promotions",
+    name: "promotions",
+    component: () => import("@/views/admin/PromotionsView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager", "marketing"],
+    },
+  },
+  {
+    path: "/email-templates",
+    name: "email-templates",
+    component: () => import("@/views/admin/EmailTemplatesView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager", "marketing"],
+    },
+  },
+  {
+    path: "/newsletters",
+    name: "newsletters",
+    component: () => import("@/views/admin/NewslettersView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager", "marketing"],
+    },
+  },
+  // Reports & Analytics Routes
+  {
+    path: "/sales-reports",
+    name: "sales-reports",
+    component: () => import("@/views/admin/SalesReportsView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager"],
+    },
+  },
+  {
+    path: "/product-analytics",
+    name: "product-analytics",
+    component: () => import("@/views/admin/ProductAnalyticsView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager"],
+    },
+  },
+  {
+    path: "/customer-insights",
+    name: "customer-insights",
+    component: () => import("@/views/admin/CustomerInsightsView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager"],
+    },
+  },
+  {
     path: "/admin/analytics",
     name: "admin-analytics",
     component: () => import("@/views/admin/AnalyticsView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin"],
+    },
+  },
+  // System Settings Routes
+  {
+    path: "/general-settings",
+    name: "general-settings",
+    component: () => import("@/views/admin/GeneralSettingsView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin"],
+    },
+  },
+  {
+    path: "/user-management",
+    name: "user-management",
+    component: () => import("@/views/admin/UserManagementView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin"],
+    },
+  },
+  {
+    path: "/system-logs",
+    name: "system-logs",
+    component: () => import("@/views/admin/SystemLogsView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin"],
+    },
+  },
+  {
+    path: "/backup-restore",
+    name: "backup-restore",
+    component: () => import("@/views/admin/BackupRestoreView.vue"),
     meta: {
       layout: "admin",
       requiresAuth: true,
@@ -371,6 +647,11 @@ const loginDashboard = async (): Promise<string> => {
     superadmin: '/admin/dashboard',
     manager: '/admin/orders',
     vendor: '/vendor/dashboard',
+    artisan: '/vendor/dashboard',
+    inventory_manager: '/inventory-dashboard',
+    accountant: '/payments',
+    marketing: '/promotions',
+    customer_service: '/customers',
   };
 
   return roleNavigation[normalizedRole] || '/shop';
