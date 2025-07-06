@@ -19,9 +19,22 @@ export const useUserStore = defineStore('user', {
     role: null as string | null,
     token: null as string | null,
     users: [] as User[],
+    isInitialized: false, 
   }),
   getters: {
-    getUser: (state) => state.user
+    getUser: (state) => state.user,
+    isTokenExpired: (state) => {
+      if (!state.token) return true;
+      
+      try {
+        const tokenPayload = JSON.parse(atob(state.token.split('.')[1]));
+        const currentTime = Math.floor(Date.now() / 1000);
+        return tokenPayload.exp < currentTime;
+      } catch (error) {
+        console.error('Error parsing token:', error);
+        return true;
+      }
+    }
   },
 
   actions: {
@@ -30,7 +43,62 @@ export const useUserStore = defineStore('user', {
       this.isAuthenticated = false;
       this.token = null;
       this.role = null;
+      this.isInitialized = true;
+      
+      // Clear localStorage
+      localStorage.removeItem('user');
+      
+      // Redirect to login if router is available
+      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     },
+
+    async checkAuthStatus() {
+      try {
+        // If already initialized, don't check again
+        if (this.isInitialized) return;
+
+        // Check if we have persisted authentication state
+        if (this.isAuthenticated && this.token && this.user) {
+          // Check if token is expired
+          if (this.isTokenExpired) {
+            this.logout();
+            return;
+          }
+
+          // Optionally validate token with backend (you can skip this for faster loading)
+          try {
+            const response = await apiService.get<IAPIResponse<User>>(
+              `/Users/GetProfileData?email=${this.user?.email}`,
+            );
+
+            if (response?.isSuccessful && response.payload) {
+              // Token is valid, update user data if needed
+              this.user = { ...this.user, ...response.payload };
+              this.isAuthenticated = true;
+            } else {
+              // Token is invalid or user doesn't exist
+              this.logout();
+              return;
+            }
+          } catch (validationError) {
+            // If validation fails, log error but don't logout immediately
+            // This allows offline usage or handles temporary network issues
+            console.warn('Token validation failed, but keeping user logged in:', validationError);
+          }
+        } else {
+          // No persisted authentication state
+          this.logout();
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        this.logout();
+      } finally {
+        this.isInitialized = true;
+      }
+    },
+
 
     async getAllUsers() {
       try {
@@ -112,7 +180,7 @@ export const useUserStore = defineStore('user', {
           this.token = authResponse.token;
           this.role = authResponse.userRole.roleName;
           this.isAuthenticated = true;
-        }
+          this.isInitialized = true;        }
 
         return response;
       } catch (error) {
@@ -129,7 +197,7 @@ export const useUserStore = defineStore('user', {
     strategies: [
       {
         storage: localStorage,
-        paths: ['isAuthenticated', 'user', 'token', 'role', 'configurations']
+        paths: ['isAuthenticated', 'user', 'token', 'role']
       }
     ]
   },

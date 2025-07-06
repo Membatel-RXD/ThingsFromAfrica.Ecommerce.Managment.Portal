@@ -624,7 +624,6 @@ const routes: RouteRecordRaw[] = [
     redirect: "/404",
   },
 ];
-
 const router = createRouter({
   history: createWebHistory(),
   routes,
@@ -635,23 +634,17 @@ const loginDashboard = async (): Promise<string> => {
   const userRole = userStore.role;
 
   if (!userRole) {
-    return '/shop';
+    return '/login';
   }
 
   // Normalize user role to lowercase
   const normalizedRole = userRole.toLowerCase();
 
   const roleNavigation: Record<string, string> = {
-    customer: '/shop',
     admin: '/admin/dashboard',
     superadmin: '/admin/dashboard',
     manager: '/admin/orders',
     vendor: '/vendor/dashboard',
-    artisan: '/vendor/dashboard',
-    inventory_manager: '/inventory-dashboard',
-    accountant: '/payments',
-    marketing: '/promotions',
-    customer_service: '/customers',
   };
 
   return roleNavigation[normalizedRole] || '/shop';
@@ -665,6 +658,16 @@ const hasRequiredRole = (userRole: string, requiredRoles: string[]): boolean => 
 
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore();
+
+  // Wait for auth initialization to complete
+  if (!userStore.isInitialized) {
+    try {
+      await userStore.checkAuthStatus();
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      // If auth check fails, continue with unauthenticated state
+    }
+  }
 
   // Check if route requires authentication
   if (to.meta.requiresAuth && !userStore.isAuthenticated) {

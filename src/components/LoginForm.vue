@@ -8,7 +8,7 @@
             <v-icon icon="mdi-shopping-outline" size="x-large" color="primary"></v-icon>
           </div>
           <h1 class="title">Welcome Back</h1>
-          <p class="subtitle">Sign in to your account and start shopping</p>
+          <p class="subtitle">Sign in to your account</p>
         </div>
 
         <!-- Login Form -->
