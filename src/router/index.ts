@@ -610,6 +610,16 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/logout",
+    name: "logout",
+    component: () => import("@/components/EmptyComponent.vue"), // Need a component or redirect
+    beforeEnter: (to, from, next) => {
+      const userStore = useUserStore();
+      userStore.logout();
+      next("/login");
+    }
+  },
+  {
     path: "/403",
     name: "forbidden",
     component: () => import("@/views/errors/ForbiddenView.vue"),

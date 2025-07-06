@@ -467,7 +467,6 @@ const saveWoodType = async () => {
         ...formData.value,
         createdAt: new Date().toISOString()
       }
-      delete createData.id
       await woodStore.createWoodType(createData)
       showSnackbar('Wood type created successfully')
     }
