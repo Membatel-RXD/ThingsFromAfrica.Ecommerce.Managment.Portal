@@ -254,3 +254,19 @@ export interface Order {
 export interface Customer{
   
 }
+
+export interface WoodCreatetionRequest {
+  woodName: string;
+  woodDescription: string;
+  woodCharacteristics: string;
+  woodOrigin: string;
+  woodHardness: string;
+  woodColor: string;
+  isNative: boolean;
+  isRare: boolean;
+  isActive: boolean;
+  createdAt: string; 
+}
+export interface WoodType extends WoodCreatetionRequest {
+  woodTypeId: number;
+}
