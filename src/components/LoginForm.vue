@@ -226,8 +226,8 @@ const handleLogin = async () => {
 
     const loginResponse = await userStore.login(loginCredentials);
 
-    if (loginResponse.isSuccessful && loginResponse.data) {
-      const authResponse = loginResponse.data;
+    if (loginResponse.isSuccessful && loginResponse.payload) {
+      const authResponse = loginResponse.payload;
 
       await nextTick();
 
@@ -243,7 +243,7 @@ const handleLogin = async () => {
         
         if (!userRole) {
           console.warn("No role assigned to user, redirecting to shop");
-          await router.push('/shop');
+          await router.push('/admin/dashboard');
           return;
         }
 
@@ -251,7 +251,6 @@ const handleLogin = async () => {
         const roleNavigation = {
           [UserRole.SuperAdmin?.toLowerCase()]: '/admin/dashboard',
           [UserRole.Admin?.toLowerCase()]: '/admin/dashboard',
-          [UserRole.Customer?.toLowerCase()]: '/shop', 
           [UserRole.Manager?.toLowerCase()]: '/admin/orders'
         };
 
@@ -276,7 +275,7 @@ const handleLogin = async () => {
       }
     } else {
       // Handle unsuccessful login
-      const errorMessage = loginResponse.message || "Invalid login credentials";
+      const errorMessage = loginResponse.message || "Invalid login credentials chadzunda";
       showNotification(errorMessage, 'error');
     }
   } catch (error) {
@@ -326,12 +325,6 @@ const showNotification = (text:string, color:string) => {
   };
 };
 
-// Check for existing token on component mount
-if (localStorage.getItem('token')) {
-  console.log(localStorage.getItem('token'));
-  // For e-commerce, redirect to shop instead of dashboard
-  router.push('/shop');
-}
 </script>
 
 <style scoped>
