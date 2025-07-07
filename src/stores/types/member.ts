@@ -270,3 +270,26 @@ export interface WoodCreatetionRequest {
 export interface WoodType extends WoodCreatetionRequest {
   woodTypeId: number;
 }
+export interface CreateProductCategory{
+  categoryName: string;
+  categorySlug: string;
+  categoryDescription: string;
+  categoryImageUrl: string;
+  isTouristFavorite: boolean;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt?: string; 
+}
+export interface  ProductCategory  extends CreateProductCategory{
+  categoryId: number;
+}
+export interface CraftTypeCreationRequest {
+  craftTypeName: string;
+  craftTypeDescription: string;
+  isActive: boolean;
+  createdAt: string; 
+}
+export interface CraftType extends CraftTypeCreationRequest {
+  craftTypeId: number;
+}
+

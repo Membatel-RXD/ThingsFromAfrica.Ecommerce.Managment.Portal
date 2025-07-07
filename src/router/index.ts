@@ -59,7 +59,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: "/categories",
     name: "categories",
-    component: () => import("@/views/shop/CategoriesView.vue"),
+    component: () => import("@/views/admin/CategoriesView.vue"),
     meta: {
       layout: "default",
       requiresAuth: false,
