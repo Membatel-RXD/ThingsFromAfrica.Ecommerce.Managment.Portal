@@ -130,7 +130,7 @@
             </v-list-item>
           </template>
 
-          <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'orders' }">
+          <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'admin-orders' }">
             <template v-slot:prepend>
               <v-icon size="small" icon="mdi-format-list-bulleted" />
             </template>

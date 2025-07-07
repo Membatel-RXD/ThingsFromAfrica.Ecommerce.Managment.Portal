@@ -996,245 +996,335 @@
       </v-container>
     </div>
   </template>
+<script setup lang="ts">
+import { ref, reactive, computed, watch } from 'vue'
 
-  <script>
-  export default {
-    name: 'CreateWoodCraftProduct',
-    data() {
-      return {
-        currentStep: 1,
-        isSubmitting: false,
-        stepperItems: [
-          { title: 'Basic Information', value: 1 },
-          { title: 'Wood & Craft Details', value: 2 },
-          { title: 'Artisan Information', value: 3 },
-          { title: 'Pricing & Inventory', value: 4 },
-          { title: 'Dimensions & Specifications', value: 5 },
-          { title: 'Images & Media', value: 6 },
-          { title: 'Settings & Options', value: 7 },
-          { title: 'Care & Instructions', value: 8 },
-          { title: 'SEO & Marketing', value: 9 }
-        ],
-        productForm: {
-          weight: 0,
-          length: 0,
-          width: 0,
-          height: 0,
-          basePrice: 0,
-          productName: '',
-          productSlug: '',
-          sku: '',
-          itemCode: '',
-          categoryId: null,
-          craftTypeId: null,
-          woodTypeId: null,
-          productDescription: '',
-          shortDescription: '',
-          touristPrice: 0,
-          localPrice: 0,
-          costPrice: 0,
-          currency: 'USD',
-          usdPrice: 0,
-          woodType: '',
-          woodOrigin: '',
-          craftingTechnique: '',
-          craftingTime: '',
-          difficultyLevel: '',
-          artisanId: null,
-          artisanName: '',
-          artisanVillage: '',
-          artisanStory: '',
-          culturalSignificance: '',
-          tribalOrigin: '',
-          culturalStory: '',
-          traditionalUse: '',
-          woodGrain: '',
-          woodColor: '',
-          woodHardness: '',
-          woodFinish: '',
-          condition: '',
-          qualityGrade: '',
-          handmadeLevel: '',
-          stockQuantity: 0,
-          isUnique: false,
-          lowStockThreshold: 0,
-          stockStatus: '',
-          productStatus: 'draft',
-          isVisible: true,
-          isFeatured: false,
-          isAuthentic: true,
-          isCertified: false,
-          mainImageUrl: '',
-          galleryImages: '',
-          processImages: '',
-          artisanImage: '',
-          videoUrl: '',
-          isPopularWithTourists: false,
-          touristFriendlySize: false,
-          packingFriendly: false,
-          shippingFragile: false,
-          isSouvenir: false,
-          souvenirType: '',
-          giftWrappingAvailable: false,
-          personalizationAvailable: false,
-          careInstructions: '',
-          cleaningInstructions: '',
-          storageInstructions: '',
-          shippingWeight: 0,
-          packagingRequired: '',
-          shippingRestrictions: '',
-          customsCode: '',
-          requiresPhytosanitaryCertificate: false,
-          averageRating: 0,
-          reviewCount: 0,
-          metaTitle: '',
-          metaDescription: '',
-          metaKeywords: '',
-          yearMade: new Date().getFullYear(),
-          isAntique: false,
-          ageCategory: '',
-          customAttributes: '',
-          createdBy: 1,
-          modifiedBy: 1,
-          isDeleted: false
-        },
-        rules: {
-          required: value => !!value || 'This field is required',
-          positive: value => value > 0 || 'Must be greater than 0',
-          nonNegative: value => value >= 0 || 'Must be 0 or greater'
-        },
-        // Mock data - replace with actual API calls
-        categories: [
-          { id: 1, name: 'Sculptures' },
-          { id: 2, name: 'Furniture' },
-          { id: 3, name: 'Decorative Items' },
-          { id: 4, name: 'Utensils' },
-          { id: 5, name: 'Masks' }
-        ],
-        woodTypes: [
-          { id: 1, name: 'Mahogany' },
-          { id: 2, name: 'Teak' },
-          { id: 3, name: 'Ebony' },
-          { id: 4, name: 'Rosewood' },
-          { id: 5, name: 'Baobab' }
-        ],
-        craftTypes: [
-          { id: 1, name: 'Hand Carving' },
-          { id: 2, name: 'Turning' },
-          { id: 3, name: 'Burning' },
-          { id: 4, name: 'Inlay Work' },
-          { id: 5, name: 'Assembly' }
-        ],
-        artisans: [
+// Interfaces
+interface ProductForm {
+  weight: number
+  length: number
+  width: number
+  height: number
+  basePrice: number
+  productName: string
+  productSlug: string
+  sku: string
+  itemCode: string
+  categoryId: number | null
+  craftTypeId: number | null
+  woodTypeId: number | null
+  productDescription: string
+  shortDescription: string
+  touristPrice: number
+  localPrice: number
+  costPrice: number
+  currency: string
+  usdPrice: number
+  woodType: string
+  woodOrigin: string
+  craftingTechnique: string
+  craftingTime: string
+  difficultyLevel: string
+  artisanId: number | null
+  artisanName: string
+  artisanVillage: string
+  artisanStory: string
+  culturalSignificance: string
+  tribalOrigin: string
+  culturalStory: string
+  traditionalUse: string
+  woodGrain: string
+  woodColor: string
+  woodHardness: string
+  woodFinish: string
+  condition: string
+  qualityGrade: string
+  handmadeLevel: string
+  stockQuantity: number
+  isUnique: boolean
+  lowStockThreshold: number
+  stockStatus: string
+  productStatus: string
+  isVisible: boolean
+  isFeatured: boolean
+  isAuthentic: boolean
+  isCertified: boolean
+  mainImageUrl: string
+  galleryImages: string
+  processImages: string
+  artisanImage: string
+  videoUrl: string
+  isPopularWithTourists: boolean
+  touristFriendlySize: boolean
+  packingFriendly: boolean
+  shippingFragile: boolean
+  isSouvenir: boolean
+  souvenirType: string
+  giftWrappingAvailable: boolean
+  personalizationAvailable: boolean
+  careInstructions: string
+  cleaningInstructions: string
+  storageInstructions: string
+  shippingWeight: number
+  packagingRequired: string
+  shippingRestrictions: string
+  customsCode: string
+  requiresPhytosanitaryCertificate: boolean
+  averageRating: number
+  reviewCount: number
+  metaTitle: string
+  metaDescription: string
+  metaKeywords: string
+  yearMade: number
+  isAntique: boolean
+  ageCategory: string
+  customAttributes: string
+  createdBy: number
+  modifiedBy: number
+  isDeleted: boolean
+  createdAt?: string
+  modifiedAt?: string
+}
+
+// Reactive State
+const currentStep = ref(1)
+const isSubmitting = ref(false)
+
+const stepperItems = [
+  { title: 'Basic Information', value: 1 },
+  { title: 'Wood & Craft Details', value: 2 },
+  { title: 'Artisan Information', value: 3 },
+  { title: 'Pricing & Inventory', value: 4 },
+  { title: 'Dimensions & Specifications', value: 5 },
+  { title: 'Images & Media', value: 6 },
+  { title: 'Settings & Options', value: 7 },
+  { title: 'Care & Instructions', value: 8 },
+  { title: 'SEO & Marketing', value: 9 }
+]
+
+// Form Data
+const productForm = reactive<ProductForm>({
+  weight: 0,
+  length: 0,
+  width: 0,
+  height: 0,
+  basePrice: 0,
+  productName: '',
+  productSlug: '',
+  sku: '',
+  itemCode: '',
+  categoryId: null,
+  craftTypeId: null,
+  woodTypeId: null,
+  productDescription: '',
+  shortDescription: '',
+  touristPrice: 0,
+  localPrice: 0,
+  costPrice: 0,
+  currency: 'USD',
+  usdPrice: 0,
+  woodType: '',
+  woodOrigin: '',
+  craftingTechnique: '',
+  craftingTime: '',
+  difficultyLevel: '',
+  artisanId: null,
+  artisanName: '',
+  artisanVillage: '',
+  artisanStory: '',
+  culturalSignificance: '',
+  tribalOrigin: '',
+  culturalStory: '',
+  traditionalUse: '',
+  woodGrain: '',
+  woodColor: '',
+  woodHardness: '',
+  woodFinish: '',
+  condition: '',
+  qualityGrade: '',
+  handmadeLevel: '',
+  stockQuantity: 0,
+  isUnique: false,
+  lowStockThreshold: 0,
+  stockStatus: '',
+  productStatus: 'draft',
+  isVisible: true,
+  isFeatured: false,
+  isAuthentic: true,
+  isCertified: false,
+  mainImageUrl: '',
+  galleryImages: '',
+  processImages: '',
+  artisanImage: '',
+  videoUrl: '',
+  isPopularWithTourists: false,
+  touristFriendlySize: false,
+  packingFriendly: false,
+  shippingFragile: false,
+  isSouvenir: false,
+  souvenirType: '',
+  giftWrappingAvailable: false,
+  personalizationAvailable: false,
+  careInstructions: '',
+  cleaningInstructions: '',
+  storageInstructions: '',
+  shippingWeight: 0,
+  packagingRequired: '',
+  shippingRestrictions: '',
+  customsCode: '',
+  requiresPhytosanitaryCertificate: false,
+  averageRating: 0,
+  reviewCount: 0,
+  metaTitle: '',
+  metaDescription: '',
+  metaKeywords: '',
+  yearMade: new Date().getFullYear(),
+  isAntique: false,
+  ageCategory: '',
+  customAttributes: '',
+  createdBy: 1,
+  modifiedBy: 1,
+  isDeleted: false
+})
+
+// Validation rules
+const rules = {
+  required: (value: any) => !!value || 'This field is required',
+  positive: (value: number) => value > 0 || 'Must be greater than 0',
+  nonNegative: (value: number) => value >= 0 || 'Must be 0 or greater'
+}
+
+// Mock Data
+const categories = ref([
+  { id: 1, name: 'Sculptures' },
+  { id: 2, name: 'Furniture' },
+  { id: 3, name: 'Decorative Items' },
+  { id: 4, name: 'Utensils' },
+  { id: 5, name: 'Masks' }
+])
+
+const woodTypes = ref([
+  { id: 1, name: 'Mahogany' },
+  { id: 2, name: 'Teak' },
+  { id: 3, name: 'Ebony' },
+  { id: 4, name: 'Rosewood' },
+  { id: 5, name: 'Baobab' }
+])
+
+const craftTypes = ref([
+  { id: 1, name: 'Hand Carving' },
+  { id: 2, name: 'Turning' },
+  { id: 3, name: 'Burning' },
+  { id: 4, name: 'Inlay Work' },
+  { id: 5, name: 'Assembly' }
+]);
+
+const artisans = ref( [
           { id: 1, name: 'John Banda' },
           { id: 2, name: 'Mary Mwanza' },
           { id: 3, name: 'Peter Chisala' },
           { id: 4, name: 'Grace Tembo' },
           { id: 5, name: 'Joseph Mulenga' }
-        ],
-        difficultyLevels: [
+        ]);
+  const  difficultyLevels = ref([
           'Beginner',
           'Intermediate',
           'Advanced',
           'Expert',
           'Master'
-        ],
-        handmadeLevels: [
+        ]);
+        const  handmadeLevels =ref( [
           'Fully Handmade',
           'Mostly Handmade',
           'Partially Handmade',
           'Machine Assisted'
-        ],
-        hardnessLevels: [
+        ]);
+        const hardnessLevels=[
           'Soft',
           'Medium',
           'Hard',
           'Very Hard'
-        ],
-        conditionOptions: [
+        ];
+        const conditionOptions= [
           'New',
           'Excellent',
           'Good',
           'Fair',
           'Antique'
-        ],
-        currencies: [
+        ];
+       const  currencies=[
           'USD',
           'EUR',
           'GBP',
           'MWK'
-        ],
-        stockStatuses: [
+        ];
+        const stockStatuses=[
           'In Stock',
           'Low Stock',
           'Out of Stock',
           'Pre-Order'
-        ],
-        qualityGrades: [
+        ];
+       const  qualityGrades=[
           'Premium',
           'Standard',
           'Economy',
           'Collector'
-        ]
-      }
-    },
-    watch: {
-      'productForm.productName'(newVal) {
-        if (newVal) {
-          this.productForm.productSlug = newVal.toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/(^-|-$)/g, '');
-        }
-      }
-    },
-    methods: {
-      async submitForm() {
-        this.isSubmitting = true;
-        try {
-          // Add timestamps
-          const now = new Date().toISOString();
-          this.productForm.createdAt = now;
-          this.productForm.modifiedAt = now;
-          
-          // Here you would make your API call
-          console.log('Submitting product:', this.productForm);
-          
-          // Simulate API call
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          
-          this.$emit('product-created', this.productForm);
-          this.resetForm();
-        } catch (error) {
-          console.error('Error creating product:', error);
-        } finally {
-          this.isSubmitting = false;
-        }
-      },
-      resetForm() {
-        this.currentStep = 1;
-        // Reset form to initial state
-        Object.keys(this.productForm).forEach(key => {
-          if (typeof this.productForm[key] === 'string') {
-            this.productForm[key] = '';
-          } else if (typeof this.productForm[key] === 'number') {
-            this.productForm[key] = 0;
-          } else if (typeof this.productForm[key] === 'boolean') {
-            this.productForm[key] = false;
-          }
-        });
-        // Set defaults
-        this.productForm.currency = 'USD';
-        this.productForm.productStatus = 'draft';
-        this.productForm.isVisible = true;
-        this.productForm.isAuthentic = true;
-        this.productForm.yearMade = new Date().getFullYear();
-        this.productForm.createdBy = 1;
-        this.productForm.modifiedBy = 1;
-        this.productForm.isDeleted = false;
-      }
-    }
+        ];
+
+// Watchers
+watch(() => productForm.productName, (newVal) => {
+  if (newVal) {
+    productForm.productSlug = newVal.toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '')
   }
-  </script>
+})
+
+// Methods
+const submitForm = async () => {
+  isSubmitting.value = true
+  try {
+    const now = new Date().toISOString()
+    productForm.createdAt = now
+    productForm.modifiedAt = now
+
+    console.log('Submitting product:', { ...productForm })
+
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 2000))
+
+    resetForm()
+  } catch (error) {
+    console.error('Error creating product:', error)
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+const resetForm = () => {
+  Object.keys(productForm).forEach(key => {
+    if (typeof (productForm as any)[key] === 'string') {
+      (productForm as any)[key] = ''
+    } else if (typeof (productForm as any)[key] === 'number') {
+      (productForm as any)[key] = 0
+    } else if (typeof (productForm as any)[key] === 'boolean') {
+      (productForm as any)[key] = false
+    } else {
+      (productForm as any)[key] = null
+    }
+  })
+  productForm.currency = 'USD'
+  productForm.productStatus = 'draft'
+  productForm.isVisible = true
+  productForm.isAuthentic = true
+  productForm.yearMade = new Date().getFullYear()
+  productForm.createdBy = 1
+  productForm.modifiedBy = 1
+  productForm.isDeleted = false
+  currentStep.value = 1
+}
+</script>
+
 
   <style scoped>
   .v-stepper {

@@ -51,7 +51,9 @@ export const useOrderStore = defineStore("order", {
       try {
         this.loading = true;
         const response = await apiService.post<IAPIResponse<Order>>("/orders", data);
-        this.orders.push(response.payload);
+        if(response && response.isSuccessful && response.payload){
+            this.orders.push(response.payload);
+        }
         return response;
       } catch (error) {
         this.error = "Failed to create order";
@@ -66,8 +68,11 @@ export const useOrderStore = defineStore("order", {
         this.loading = true;
         const response = await apiService.put<IAPIResponse<Order>>(`/orders/${id}/status`, { status });
         const index = this.orders.findIndex(o => o.orderId === id);
-        if (index !== -1) {
-          this.orders[index] = response.payload;
+        if (response && response.isSuccessful && response.payload) {
+          
+          if (index !== -1) {
+            this.orders[index] = response.payload;
+          }
         }
         return response;
       } catch (error) {

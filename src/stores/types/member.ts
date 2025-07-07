@@ -293,3 +293,87 @@ export interface CraftType extends CraftTypeCreationRequest {
   craftTypeId: number;
 }
 
+export interface OrderDto {
+  statusId: number;
+  orderStatus: string;
+  customerEmail: string;
+  orderId: number;
+  orderNumber: string;
+  billingFirstName: string;
+  billingLastName: string;
+  billingAddressLine1: string;
+  billingCity: string;
+  billingCountryCode: string;
+  billingCountryName: string;
+  shippingFirstName: string;
+  shippingLastName: string;
+  shippingAddressLine1: string;
+  shippingCity: string;
+  shippingCountryCode: string;
+  shippingCountryName: string;
+  subTotal: number;
+  totalAmount: number;
+  currency: string;
+  isTouristOrder: boolean;
+  touristCountry: string;
+  requiresPhytosanitaryCertificate: boolean;
+  customerNotes: string;
+  adminNotes: string;
+  orderDate: string; // ISO 8601 date string
+  requiredDate: string;
+  shippedDate: string;
+  deliveredDate: string;
+  createdAt: string;
+  modifiedAt: string;
+  createdBy: number;
+  modifiedBy: number;
+  taxAmount: number;
+  shippingAmount: number;
+  discountAmount: number;
+  shippingStateProvince: string;
+  shippingPostalCode: string;
+  shippingAddressLine2: string;
+  shippingCompany: string;
+  billingStateProvince: string;
+  billingPostalCode: string;
+  billingAddressLine2: string;
+  billingCompany: string;
+  customerId: number;
+  customerPhone: string;
+}
+
+export interface OrderCreationRequest {
+  customerEmail: string;
+  billingFirstName: string;
+  billingLastName: string;
+  billingAddressLine1: string;
+  billingCity: string;
+  billingCountryCode: string;
+  shippingFirstName: string;
+  shippingLastName: string;
+  shippingAddressLine1: string;
+  shippingCity: string;
+  shippingCountryCode: string;
+  subTotal: number;
+  totalAmount: number;
+  currency: string;
+  isTouristOrder?: boolean;
+  touristCountry?: string;
+  requiresPhytosanitaryCertificate?: boolean;
+  customerNotes?: string;
+  adminNotes?: string;
+  requiredDate?: string;
+  taxAmount?: number;
+  shippingAmount?: number;
+  discountAmount?: number;
+  shippingStateProvince?: string;
+  shippingPostalCode?: string;
+  shippingAddressLine2?: string;
+  shippingCompany?: string;
+  billingStateProvince?: string;
+  billingPostalCode?: string;
+  billingAddressLine2?: string;
+  billingCompany?: string;
+  customerId: number;
+  customerPhone?: string;
+}
