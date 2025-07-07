@@ -233,6 +233,12 @@
               </template>
               <v-list-item-title>Payments</v-list-item-title>
             </v-list-item>
+            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'payment-methods' }">
+              <template v-slot:prepend>
+                <v-icon size="small" icon="mdi-credit-card" />
+              </template>
+              <v-list-item-title>Payment Methods</v-list-item-title>
+            </v-list-item>
 
             <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'revenue-reports' }">
               <template v-slot:prepend>
