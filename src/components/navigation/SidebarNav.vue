@@ -179,7 +179,7 @@
         </v-list-item>
 
         <!-- Inventory Management -->
-        <template v-if="hasRole([UserRole.Admin, UserRole.Manager])">
+        <template v-if="hasRole([UserRole.SuperAdmin, UserRole.Manager])">
           <v-list-subheader class="text-uppercase font-weight-bold text-yellow-lighten-2">
             Inventory Management
           </v-list-subheader>
@@ -215,7 +215,7 @@
         </template>
 
         <!-- Financial Management -->
-        <template v-if="hasRole([UserRole.Admin, UserRole.Manager])">
+        <template v-if="hasRole([UserRole.SuperAdmin, UserRole.Manager])">
           <v-list-subheader class="text-uppercase font-weight-bold text-yellow-lighten-2">
             Financial Management
           </v-list-subheader>
@@ -251,7 +251,7 @@
         </template>
 
         <!-- Marketing & Promotions -->
-        <template v-if="hasRole([UserRole.Admin, UserRole.Manager])">
+        <template v-if="hasRole([UserRole.SuperAdmin, UserRole.Manager])">
           <v-list-subheader class="text-uppercase font-weight-bold text-yellow-lighten-2">
             Marketing & Promotions
           </v-list-subheader>
@@ -287,7 +287,7 @@
         </template>
 
         <!-- Reports & Analytics -->
-        <template v-if="hasRole([UserRole.Admin, UserRole.Manager])">
+        <template v-if="hasRole([UserRole.SuperAdmin, UserRole.Manager])">
           <v-list-subheader class="text-uppercase font-weight-bold text-yellow-lighten-2">
             Reports & Analytics
           </v-list-subheader>
@@ -323,7 +323,7 @@
         </template>
 
         <!-- System Settings -->
-        <template v-if="hasRole([UserRole.Admin])">
+        <template v-if="hasRole([UserRole.SuperAdmin])">
           <v-list-subheader class="text-uppercase font-weight-bold text-yellow-lighten-2">
             System Settings
           </v-list-subheader>

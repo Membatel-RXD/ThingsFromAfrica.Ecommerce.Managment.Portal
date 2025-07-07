@@ -1220,12 +1220,12 @@ const craftTypes = ref([
 ]);
 
 const artisans = ref( [
-          { id: 1, name: 'John Banda' },
-          { id: 2, name: 'Mary Mwanza' },
-          { id: 3, name: 'Peter Chisala' },
-          { id: 4, name: 'Grace Tembo' },
-          { id: 5, name: 'Joseph Mulenga' }
-        ]);
+  { id: 1, name: 'John Banda' },
+  { id: 2, name: 'Mary Mwanza' },
+  { id: 3, name: 'Peter Chisala' },
+  { id: 4, name: 'Grace Tembo' },
+  { id: 5, name: 'Joseph Mulenga' }
+]);
   const  difficultyLevels = ref([
           'Beginner',
           'Intermediate',

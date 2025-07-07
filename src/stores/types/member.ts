@@ -377,3 +377,72 @@ export interface OrderCreationRequest {
   customerId: number;
   customerPhone?: string;
 }
+
+export interface ArtisanDTO {
+ // ISO 8601 date string
+ artisanId: number
+ artisanName: string
+ artisanSlug: string
+ village: string
+ region: string
+ biography: string
+ yearsOfExperience: number
+ specialization: string
+ contactPhone: string
+ contactEmail: string
+ profileImageUrl: string
+ isActive: boolean
+ createdAt?: string // ISO 8601 date string
+ modifiedAt?: string
+}
+
+export type CreateArtisanRequest = Omit<ArtisanDTO, 'artisanId' | 'createdAt' | 'modifiedAt'>
+export interface PromotionDTO {
+  discountTypeId: number
+  discountValue: number
+  promotionId: number
+  promotionName: string
+  startDate: string // ISO 8601 date string e.g. "2025-07-07T12:05:36.980Z"
+  endDate: string   // ISO 8601 date string
+  isActive: boolean
+  createdAt: string // ISO 8601 date string
+  createdBy: number
+  promotionCode: string
+  description: string
+  isPercentage: boolean
+  minimumOrderAmount: number
+  maximumDiscountAmount: number
+  maxUsageCount: number
+  currentUsageCount: number
+  maxUsagePerCustomer: number
+  isTouristOnly: boolean
+  applicableCountries: string // comma-separated country codes or names
+}
+export type CreatePromotionRequest = Omit<PromotionDTO, 'promotionId' | 'createdAt'>
+export interface PaymentDTO {
+  paymentId: number
+  orderId: number
+  paymentMethodId: number
+  paymentAmount: number
+  currency: string
+  paymentStatus: string
+  transactionId: string
+  paymentReference: string
+  paymentGateway: string
+  processorResponse: string
+  paymentDate: string // ISO 8601 date string
+  processedDate: string // ISO 8601 date string
+  createdAt: string // ISO 8601 date string
+  createdBy: number
+}
+export interface CreatePaymentRequest extends Omit<PaymentDTO, 'paymentId' | 'createdAt' | 'processedDate'> {}
+export interface PaymentMethodDTO {
+  paymentMethodId: number
+  methodName: string
+  methodCode: string
+  isActive: boolean
+  isOnline: boolean
+  sortOrder: number
+  description: string
+}
+export interface CreatePaymentMethodRequest extends Omit<PaymentMethodDTO, 'paymentMethodId'> {}
