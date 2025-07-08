@@ -628,6 +628,54 @@ const routes: RouteRecordRaw[] = [
       requiresAuth: false,
     },
   },
+  {
+    path: '/settings/system-user-management',
+    name: 'system-user-management',
+    component: () => import('@/components/EmptyComponent.vue'),
+    meta: { layout: 'admin', requiresAuth: true },
+  },
+  {
+    path: '/settings/security',
+    name: 'security',
+    component: () => import('@/components/EmptyComponent.vue'),
+    meta: { layout: 'admin', requiresAuth: true },
+  },
+  {
+    path: '/settings/support',
+    name: 'support',
+    component: () => import('@/components/EmptyComponent.vue'),
+    meta: { layout: 'admin', requiresAuth: true },
+  },
+  { path: '/products/categories', name: 'product-categories', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/products/reviews', name: 'product-reviews', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/products/care-instructions', name: 'product-care-instructions', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/discount-types', name: 'discount-types', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/promotions/usage', name: 'promotion-usage', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/orders/items', name: 'order-items', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/orders/status', name: 'order-status', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/orders/status-history', name: 'order-status-history', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/shipments/items', name: 'shipment-items', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/shipping/methods', name: 'shipping-methods', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/shipping/rates', name: 'shipping-rates', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/shipping/restrictions', name: 'shipping-restrictions', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/cart', name: 'shopping-cart', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/inventory/transactions', name: 'inventory-transactions', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/customers/profiles', name: 'customer-profiles', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/customers/addresses', name: 'user-addresses', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/payments/artisan-payouts', name: 'artisan-payouts', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/payments/methods', name: 'payment-methods', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/marketing/email-queue', name: 'email-queue', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/analytics/sales', name: 'sales-analytics', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/analytics/website', name: 'website-analytics', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/user-management/roles', name: 'roles', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/user-management/permissions', name: 'permissions', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/user-management/role-permissions', name: 'role-permissions', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/user-management/login-history', name: 'user-login-history', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/user-management/sessions', name: 'user-sessions', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/user-management/oauth-providers', name: 'oauth-providers', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/user-management/oauth-connections', name: 'user-oauth-connections', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/settings/general', name: 'general-settings', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/settings/logged-crud-operations', name: 'logged-crud-operations', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
   // Catch all route
   {
     path: "/:pathMatch(.*)*",
@@ -669,16 +717,6 @@ const hasRequiredRole = (userRole: string, requiredRoles: string[]): boolean => 
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore();
 
-  // Wait for auth initialization to complete
-  if (!userStore.isInitialized) {
-    try {
-      await userStore.checkAuthStatus();
-    } catch (error) {
-      console.error('Auth check failed:', error);
-      // If auth check fails, continue with unauthenticated state
-    }
-  }
-
   // Check if route requires authentication
   if (to.meta.requiresAuth && !userStore.isAuthenticated) {
     next("/login");
@@ -687,15 +725,14 @@ router.beforeEach(async (to, from, next) => {
 
   // Check if user is logged in and trying to access login page
   if (to.path === "/login" && userStore.isAuthenticated) {
-    const url = await loginDashboard();
-    next(url);
+    next("/admin/dashboard");
     return;
   }
 
   // Check role-based access
   if (to.meta.requiresAuth && to.meta.roles && userStore.isAuthenticated) {
     const userRole = userStore.role;
-    if (!userRole || !hasRequiredRole(userRole, to.meta.roles as string[])) {
+    if (!userRole || !to.meta.roles.includes(userRole)) {
       next("/403"); // Forbidden
       return;
     }

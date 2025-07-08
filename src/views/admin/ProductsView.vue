@@ -237,160 +237,8 @@
       </v-container>
   
       <!-- Add/Edit Product Dialog -->
-      <v-dialog v-model="productDialog" max-width="800px" persistent>
-        <v-card>
-          <v-card-title class="text-h5 font-weight-bold text-orange-darken-4">
-            {{ isEditing ? 'Edit Product' : 'Add New Product' }}
-          </v-card-title>
-          
-          <v-card-text>
-            <v-form ref="productForm" v-model="formValid">
-              <v-row>
-                <v-col cols="12" md="6">
-                  <v-text-field
-                    v-model="editedProduct.productName"
-                    label="Product Name"
-                    :rules="[v => !!v || 'Product name is required']"
-                    variant="outlined"
-                    required
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" md="6">
-                  <v-text-field
-                    v-model="editedProduct.sku"
-                    label="SKU"
-                    :rules="[v => !!v || 'SKU is required']"
-                    variant="outlined"
-                    required
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <v-textarea
-                    v-model="editedProduct.productDescription"
-                    label="Product Description"
-                    variant="outlined"
-                    rows="3"
-                  ></v-textarea>
-                </v-col>
-                <v-col cols="12" md="4">
-                  <v-text-field
-                    v-model.number="editedProduct.touristPrice"
-                    label="Tourist Price"
-                    type="number"
-                    step="0.01"
-                    prefix="$"
-                    variant="outlined"
-                    :rules="[v => v >= 0 || 'Price must be positive']"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" md="4">
-                  <v-text-field
-                    v-model.number="editedProduct.localPrice"
-                    label="Local Price"
-                    type="number"
-                    step="0.01"
-                    prefix="$"
-                    variant="outlined"
-                    :rules="[v => v >= 0 || 'Price must be positive']"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" md="4">
-                  <v-text-field
-                    v-model.number="editedProduct.costPrice"
-                    label="Cost Price"
-                    type="number"
-                    step="0.01"
-                    prefix="$"
-                    variant="outlined"
-                    :rules="[v => v >= 0 || 'Cost must be positive']"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" md="6">
-                  <v-text-field
-                    v-model.number="editedProduct.stockQuantity"
-                    label="Stock Quantity"
-                    type="number"
-                    variant="outlined"
-                    :rules="[v => v >= 0 || 'Stock must be positive']"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" md="6">
-                  <v-text-field
-                    v-model.number="editedProduct.lowStockThreshold"
-                    label="Low Stock Threshold"
-                    type="number"
-                    variant="outlined"
-                    :rules="[v => v >= 0 || 'Threshold must be positive']"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" md="6">
-                  <v-select
-                    v-model="editedProduct.productStatus"
-                    label="Product Status"
-                    :items="['Active', 'Inactive', 'Draft', 'Out of Stock']"
-                    variant="outlined"
-                    required
-                  ></v-select>
-                </v-col>
-                <v-col cols="12" md="6">
-                  <v-text-field
-                    v-model="editedProduct.woodType"
-                    label="Wood Type"
-                    variant="outlined"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="editedProduct.mainImageUrl"
-                    label="Main Image URL"
-                    variant="outlined"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <div class="d-flex ga-4">
-                    <v-switch
-                      v-model="editedProduct.isVisible"
-                      label="Visible"
-                      color="orange-darken-2"
-                      hide-details
-                    ></v-switch>
-                    <v-switch
-                      v-model="editedProduct.isFeatured"
-                      label="Featured"
-                      color="orange-darken-2"
-                      hide-details
-                    ></v-switch>
-                    <v-switch
-                      v-model="editedProduct.isAuthentic"
-                      label="Authentic"
-                      color="orange-darken-2"
-                      hide-details
-                    ></v-switch>
-                  </div>
-                </v-col>
-              </v-row>
-            </v-form>
-          </v-card-text>
-  
-          <v-card-actions class="pa-6">
-            <v-spacer></v-spacer>
-            <v-btn
-              variant="text"
-              @click="closeProductDialog"
-            >
-              Cancel
-            </v-btn>
-            <v-btn
-              color="orange-darken-2"
-              variant="elevated"
-              :disabled="!formValid"
-              :loading="saving"
-              @click="saveProduct"
-            >
-              {{ isEditing ? 'Update' : 'Create' }}
-            </v-btn>
-          </v-card-actions>
-        </v-card>
+      <v-dialog v-model="productDialog" max-width="900px" persistent>
+        <ProductForm @submit="handleProductSubmit" @cancel="closeProductDialog" />
       </v-dialog>
   
       <!-- Delete Confirmation Dialog -->
@@ -510,6 +358,9 @@
   
   <script setup lang="ts">
   import { ref, computed, onMounted, watch } from 'vue'
+  import ProductForm from '@/components/ProductForm.vue';
+  import { useProductStore } from '@/stores/product';
+  import { useSnackbarStore } from '@/stores/snackbar';
   
   // Product interface based on your model
   interface Product {
@@ -750,25 +601,8 @@
     }
   }
   
-  const openAddProductDialog = () => {
-    isEditing.value = false
-    editedProduct.value = {
-      productName: '',
-      sku: '',
-      productDescription: '',
-      touristPrice: 0,
-      localPrice: 0,
-      costPrice: 0,
-      stockQuantity: 0,
-      lowStockThreshold: 5,
-      productStatus: 'Active',
-      woodType: '',
-      mainImageUrl: '',
-      isVisible: true,
-      isFeatured: false,
-      isAuthentic: false
-    }
-    productDialog.value = true
+  function openAddProductDialog() {
+    productDialog.value = true;
   }
   
   const editProduct = (product: Product) => {
@@ -783,9 +617,20 @@
     detailsDialog.value = true
   }
   
-  const closeProductDialog = () => {
-    productDialog.value = false
-    editedProduct.value = {}
+  function closeProductDialog() {
+    productDialog.value = false;
+  }
+
+  async function handleProductSubmit(productData: any) {
+    try {
+      await productStore.createProduct(productData);
+      closeProductDialog();
+      await productStore.fetchProducts();
+      if (snackbarStore) snackbarStore.show('Product created successfully!', 'success');
+    } catch (error) {
+      if (snackbarStore) snackbarStore.show('Failed to create product', 'error');
+      else alert('Failed to create product');
+    }
   }
   
 </script>

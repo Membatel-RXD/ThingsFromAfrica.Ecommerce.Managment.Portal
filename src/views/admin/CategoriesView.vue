@@ -179,6 +179,13 @@
                 color="error"
                 @click="deleteCategory(item)"
               />
+              <v-btn
+                icon="mdi-eye"
+                variant="text"
+                size="small"
+                color="blue"
+                @click="viewCategory(item)"
+              />
             </template>
           </v-data-table>
         </v-card>
@@ -235,11 +242,27 @@
                   <v-col cols="12" md="6">
                     <v-text-field
                       v-model="formData.categoryImageUrl"
-                      label="Category Icon"
+                      label="Category Image URL"
                       variant="outlined"
-                      prepend-inner-icon="mdi-star"
-                      hint="Material Design Icon name (e.g., mdi-home)"
+                      prepend-inner-icon="mdi-image"
+                      hint="Paste image URL or upload below"
                     />
+                  </v-col>
+                  <v-col cols="12" md="6">
+                    <v-file-input
+                      label="Upload Image"
+                      accept="image/*"
+                      variant="outlined"
+                      prepend-inner-icon="mdi-upload"
+                      @change="onImageUpload"
+                      hide-details
+                    />
+                    <div v-if="formData.categoryImageUrl" class="mt-2 d-flex align-center">
+                      <v-avatar size="60">
+                        <v-img :src="formData.categoryImageUrl" alt="Category Image" />
+                      </v-avatar>
+                      <span class="ms-3">Preview</span>
+                    </div>
                   </v-col>
                   <v-col cols="12" md="4">
                     <v-switch
@@ -290,7 +313,39 @@
           </v-card>
         </v-dialog>
   
-       
+        <!-- Details Dialog -->
+        <v-dialog v-model="detailsDialog" max-width="600px">
+          <v-card v-if="selectedCategory">
+            <v-card-title class="text-h5 font-weight-bold text-orange-darken-4">
+              <v-icon class="me-2" color="orange-darken-3">mdi-folder-multiple</v-icon>
+              {{ selectedCategory.categoryName }}
+            </v-card-title>
+            <v-card-text>
+              <v-row>
+                <v-col cols="12" md="4">
+                  <v-img :src="selectedCategory.categoryImageUrl" alt="Category Image" class="rounded" height="120" />
+                </v-col>
+                <v-col cols="12" md="8">
+                  <div class="mb-2"><strong>Slug:</strong> {{ selectedCategory.categorySlug }}</div>
+                  <div class="mb-2"><strong>Description:</strong> {{ selectedCategory.categoryDescription }}</div>
+                  <div class="mb-2"><strong>Sort Order:</strong> {{ selectedCategory.sortOrder }}</div>
+                  <div class="mb-2"><strong>Created At:</strong> {{ selectedCategory.createdAt }}</div>
+                  <v-chip :color="selectedCategory.isActive ? 'green' : 'grey'" class="me-2" size="small">
+                    {{ selectedCategory.isActive ? 'Active' : 'Inactive' }}
+                  </v-chip>
+                  <v-chip :color="selectedCategory.isTouristFavorite ? 'star' : 'grey'" size="small">
+                    {{ selectedCategory.isTouristFavorite ? 'Tourist Favorite' : 'Standard' }}
+                  </v-chip>
+                </v-col>
+              </v-row>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn variant="text" @click="detailsDialog = false">Close</v-btn>
+              <v-btn color="orange-darken-2" variant="elevated" @click="editCategory(selectedCategory)">Edit</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-container>
     </div>
   </template>
@@ -309,6 +364,8 @@ import { ref, computed, onMounted } from 'vue'
   const search = ref('')
   const statusFilter = ref('all')
   const favoriteFilter = ref('all')
+  const detailsDialog = ref(false)
+  const selectedCategory = ref(null)
   
 
   // Form data
@@ -418,27 +475,37 @@ import { ref, computed, onMounted } from 'vue'
     }
   }
   
+  const onImageUpload = (files: FileList | File[] | null) => {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      formData.value.categoryImageUrl = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+  
   const saveCategory = async () => {
     saving.value = true
-    
     try {
+      const now = new Date().toISOString();
       if (editMode.value && formData.value.categoryId) {
         // Update existing category
-        const response = await categoryStore.updateCategory(formData.value.categoryId, formData.value)
+        const response = await categoryStore.updateCategory(formData.value.categoryId, { ...formData.value, createdAt: now })
         if (response.isSuccessful) {
-            snackbar.success('Category updated successfully')
+          snackbar.success('Category updated successfully')
           closeDialog()
         } else {
-            snackbar.error('Error updating category')
+          snackbar.error('Error updating category')
         }
       } else {
         // Create new category
-        const response = await categoryStore.createCategory(formData.value)
+        const response = await categoryStore.createCategory({ ...formData.value, createdAt: now })
         if (response.isSuccessful) {
-            snackbar.success('Category created successfully')
+          snackbar.success('Category created successfully')
           closeDialog()
         } else {
-            snackbar.error('Error creating category')
+          snackbar.error('Error creating category')
         }
       }
     } catch (error) {
@@ -497,6 +564,11 @@ import { ref, computed, onMounted } from 'vue'
     search.value = ''
     statusFilter.value = 'all'
     favoriteFilter.value = 'all'
+  }
+  
+  const viewCategory = (item: any) => {
+    selectedCategory.value = item
+    detailsDialog.value = true
   }
   
   onMounted(async () => {

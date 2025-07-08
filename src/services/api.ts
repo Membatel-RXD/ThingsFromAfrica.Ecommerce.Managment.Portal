@@ -9,7 +9,6 @@ import axios, {
   AxiosError,
 } from "axios";
 import { API_CONFIG } from "../config/api-config";
-import {useUserStore} from "@/stores/user";
 
 class ApiService {
   private api: AxiosInstance;
@@ -20,34 +19,6 @@ class ApiService {
       timeout: API_CONFIG.TIMEOUT,
       headers: API_CONFIG.HEADERS,
     });
-    // Request interceptor
-    this.api.interceptors.request.use(
-      (config) => {
-        // Get token from localStorage or your auth store
-        const userStore = useUserStore(); // Call it here instead
-        const token = userStore.token;
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-      },
-      (error) => {
-        return Promise.reject(error);
-      }
-    );
-
-    // Response interceptor
-    this.api.interceptors.response.use(
-      (response) => response,
-      (error: AxiosError) => {
-        // Handle global error cases
-        if (error.response?.status === 401) {
-          // Handle unauthorized access
-          // You might want to redirect to login or refresh token
-        }
-        return Promise.reject(error);
-      }
-    );
   }
 
   // Generic GET method
