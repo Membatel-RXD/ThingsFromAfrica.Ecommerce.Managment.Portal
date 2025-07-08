@@ -265,8 +265,13 @@ const showNotification = (text:string, color:string) => {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #fff !important;
   font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .login-overlay {
@@ -277,16 +282,20 @@ const showNotification = (text:string, color:string) => {
   width: 100%;
   max-width: 100%;
   height: 100vh;
+  /* Remove any padding */
+  padding: 0;
+  margin: 0;
 }
 
 .login-card {
   width: 100%;
   max-width: 450px;
   padding: 2.5rem;
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: #fff;
   border-radius: 16px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
   overflow: hidden;
+  border: none;
 }
 
 .header {
@@ -404,5 +413,17 @@ const showNotification = (text:string, color:string) => {
     flex-direction: column;
     gap: 0.5rem;
   }
+}
+</style>
+
+<style>
+html, body, #app {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: #fff !important;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 </style>

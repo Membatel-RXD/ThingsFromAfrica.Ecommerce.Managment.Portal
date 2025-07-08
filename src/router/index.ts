@@ -444,6 +444,16 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/email-queue",
+    name: "email-queue",
+    component: () => import("@/views/admin/EmailQueueView.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager", "marketing"],
+    },
+  },
+  {
     path: "/newsletters",
     name: "newsletters",
     component: () => import("@/views/admin/NewslettersView.vue"),
@@ -674,7 +684,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/customers/addresses', name: 'user-addresses', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
   { path: '/payments/artisan-payouts', name: 'artisan-payouts', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
   { path: '/payments/methods', name: 'payment-methods', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
-  { path: '/marketing/email-queue', name: 'email-queue', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+
   { path: '/analytics/sales', name: 'sales-analytics', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
   { path: '/analytics/website', name: 'website-analytics', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
   { path: '/user-management/roles', name: 'roles', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },

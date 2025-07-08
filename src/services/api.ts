@@ -19,6 +19,44 @@ class ApiService {
       timeout: API_CONFIG.TIMEOUT,
       headers: API_CONFIG.HEADERS,
     });
+
+    // Add request interceptor for debugging
+    this.api.interceptors.request.use(
+      (config) => {
+        console.log('API Request:', {
+          method: config.method?.toUpperCase(),
+          url: (config.baseURL || '') + (config.url || ''),
+          data: config.data,
+          params: config.params
+        });
+        return config;
+      },
+      (error) => {
+        console.error('API Request Error:', error);
+        return Promise.reject(error);
+      }
+    );
+
+    // Add response interceptor for debugging
+    this.api.interceptors.response.use(
+      (response) => {
+        console.log('API Response:', {
+          status: response.status,
+          url: response.config?.url || 'unknown',
+          data: response.data
+        });
+        return response;
+      },
+      (error) => {
+        console.error('API Response Error:', {
+          status: error.response?.status,
+          url: error.config?.url || 'unknown',
+          message: error.message,
+          data: error.response?.data
+        });
+        return Promise.reject(error);
+      }
+    );
   }
 
   // Generic GET method

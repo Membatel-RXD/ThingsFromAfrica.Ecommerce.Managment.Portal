@@ -93,13 +93,6 @@ export default {
 
 
 <style scoped>
-#app {
-  background-color: aliceblue;
-}
-#outer {
-  background-color: aliceblue;
-  height: 100%;
-}
 .main {
   height: 100%;
 }

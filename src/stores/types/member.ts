@@ -458,3 +458,19 @@ export interface EmailTemplate {
   createdAt: string;
   modifiedAt: string;
 }
+
+export interface EmailQueue {
+  emailId: number;
+  subject: string;
+  body: string;
+  toEmail: string;
+  toName: string;
+  priority: number;
+  maxAttempts: number;
+  attemptCount: number;
+  status: string;
+  scheduledAt: string;
+  sentAt: string;
+  errorMessage: string;
+  createdAt: string;
+}
