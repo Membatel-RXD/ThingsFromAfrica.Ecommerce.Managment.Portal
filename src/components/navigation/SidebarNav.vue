@@ -154,12 +154,21 @@
             <v-list-item v-bind="props" prepend-icon="mdi-credit-card">
               <v-list-item-title>Payments</v-list-item-title>
             </v-list-item>
+<<<<<<< HEAD
           </template>
           <v-list-item :to="{ name: 'payments' }"><v-list-item-title>All Payments</v-list-item-title></v-list-item>
           <v-list-item :to="{ name: 'payment-methods' }"><v-list-item-title>Payment Methods</v-list-item-title></v-list-item>
           <v-list-item :to="{ name: 'revenue-reports' }"><v-list-item-title>Revenue Reports</v-list-item-title></v-list-item>
           <v-list-item :to="{ name: 'artisan-payouts' }"><v-list-item-title>Artisan Payouts</v-list-item-title></v-list-item>
         </v-list-group>
+=======
+            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'payment-methods' }">
+              <template v-slot:prepend>
+                <v-icon size="small" icon="mdi-credit-card" />
+              </template>
+              <v-list-item-title>Payment Methods</v-list-item-title>
+            </v-list-item>
+>>>>>>> e9e1ce2726c97fc3b753209940c068185e666658
 
         <!-- Marketing -->
         <v-list-group value="marketing">

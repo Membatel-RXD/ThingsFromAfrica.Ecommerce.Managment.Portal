@@ -393,6 +393,16 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/payments-methods",
+    name: "payment-methods",
+    component: () => import("@/views/admin/PaymentMethods.vue"),
+    meta: {
+      layout: "admin",
+      requiresAuth: true,
+      roles: ["admin", "superadmin", "manager", "accountant"],
+    },
+  },
+  {
     path: "/revenue-reports",
     name: "revenue-reports",
     component: () => import("@/views/admin/RevenueReportsView.vue"),
