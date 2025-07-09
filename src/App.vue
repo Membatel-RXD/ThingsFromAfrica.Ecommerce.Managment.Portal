@@ -2,24 +2,11 @@
   <v-app>
     <SidebarNav v-if="isAuthenticated" />
     <v-main>
-      <v-card flat class="mx-2 rounded-lg" height="100%">
-        <v-card-title v-if="isAuthenticated">
-          <v-icon @click="drawer = !drawer">mdi-menu</v-icon>
-          <v-spacer></v-spacer>
-          <p class="text-right text-subtitle-1">
-            {{ date }}, {{ time }} {{ currentDate }}
-          </p>
-        </v-card-title>
-        <v-divider v-if="isAuthenticated" />
-        <v-card-text :class="isAuthenticated ? '' : 'main'">
-          <router-view />
-        </v-card-text>
-
-        <!-- Snackbar -->
-        <v-snackbar v-model="snackbar.visible" :color="snackbar.color" :timeout="snackbar.timeout">
-          {{ snackbar.message }}
-        </v-snackbar>
-      </v-card>
+      <router-view />
+      <!-- Snackbar -->
+      <v-snackbar v-model="snackbar.visible" :color="snackbar.color" :timeout="snackbar.timeout">
+        {{ snackbar.message }}
+      </v-snackbar>
     </v-main>
     <FooterNav v-if="isAuthenticated" />
   </v-app>

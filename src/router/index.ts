@@ -696,6 +696,31 @@ const routes: RouteRecordRaw[] = [
   { path: '/user-management/oauth-connections', name: 'user-oauth-connections', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
   { path: '/settings/general', name: 'general-settings', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
   { path: '/settings/logged-crud-operations', name: 'logged-crud-operations', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  {
+    path: '/admin/care-instructions',
+    name: 'CareInstructions',
+    component: () => import('@/views/admin/CareInstructionsView.vue')
+  },
+  {
+    path: '/admin/discount-types',
+    name: 'DiscountTypes',
+    component: () => import('@/views/admin/DiscountTypesView.vue')
+  },
+  {
+    path: '/admin/promotion-usage',
+    name: 'PromotionUsage',
+    component: () => import('@/views/admin/PromotionUsageView.vue')
+  },
+  {
+    path: '/admin/customers',
+    name: 'AllCustomers',
+    component: () => import('@/views/admin/AllCustomersView.vue')
+  },
+  {
+    path: '/admin/customers/:id',
+    name: 'CustomerDetail',
+    component: () => import('@/views/admin/CustomerDetailView.vue')
+  },
   // Catch all route
   {
     path: "/:pathMatch(.*)*",

@@ -121,7 +121,7 @@
 import { ref, onMounted } from 'vue';
 import { useArtisanStore } from '@/stores/artisan';
 import { useWoodTypeStore } from '@/stores/woodStore';
-import { useCategoryStore } from '@/stores/productCategory';
+import { useProductCategoryStore } from '@/stores/productCategory';
 import { useCraftTypeStore } from '@/stores/craftStore';
 
 const formData = ref({
@@ -153,7 +153,7 @@ const isSubmitting = ref(false);
 // Dropdown data
 const artisanStore = useArtisanStore();
 const woodTypeStore = useWoodTypeStore();
-const categoryStore = useCategoryStore();
+const categoryStore = useProductCategoryStore();
 const craftTypeStore = useCraftTypeStore();
 
 const artisanOptions = ref([]);

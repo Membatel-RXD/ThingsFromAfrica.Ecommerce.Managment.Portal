@@ -352,7 +352,7 @@
   
   <script setup lang="ts">
   import { useProductCategoryStore } from '@/stores/productCategory'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
   import { useSnackbarStore } from '@/stores/snackbar'
   const categoryStore = useProductCategoryStore()
   const snackbar = useSnackbarStore();
@@ -380,7 +380,45 @@ import { ref, computed, onMounted } from 'vue'
     isTouristFavorite: false,
     isShowOnHomePage: false
   })
-  
+
+  // Track if the user has manually edited the slug
+  const slugManuallyEdited = ref(false)
+
+  // Slugify function
+  function slugify(text: string) {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')           // Replace spaces with -
+      .replace(/[^a-z0-9\-]/g, '')    // Remove all non-alphanumeric except -
+      .replace(/-+/g, '-')             // Replace multiple - with single -
+      .replace(/^-+|-+$/g, '');        // Trim - from start/end
+  }
+
+  // Watch categoryName and auto-generate slug unless user edits slug
+  watch(
+    () => formData.value.categoryName,
+    (newName) => {
+      if (!slugManuallyEdited.value) {
+        formData.value.categorySlug = slugify(newName || '')
+      }
+    }
+  )
+
+  // Watch for manual slug edits
+  watch(
+    () => formData.value.categorySlug,
+    (newSlug, oldSlug) => {
+      // If the user types in the slug field, mark as manually edited
+      if (newSlug !== slugify(formData.value.categoryName || '')) {
+        slugManuallyEdited.value = true
+      } else if (!newSlug) {
+        slugManuallyEdited.value = false
+      }
+    }
+  )
+
   // Options
   const statusOptions = [
     { title: 'All', value: 'all' },
@@ -452,12 +490,14 @@ import { ref, computed, onMounted } from 'vue'
       isShowOnHomePage: false
     }
     dialog.value = true
+    slugManuallyEdited.value = false
   }
   
   const editCategory = (item: any) => {
     editMode.value = true
     formData.value = { ...item }
     dialog.value = true
+    slugManuallyEdited.value = false
   }
   
   const closeDialog = () => {

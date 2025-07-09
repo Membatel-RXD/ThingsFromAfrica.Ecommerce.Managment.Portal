@@ -1,5 +1,15 @@
 <template>
     <div>
+      <!-- Loading Overlay -->
+      <v-overlay v-model="loading" class="align-center justify-center">
+        <v-progress-circular
+          size="64"
+          color="orange-darken-2"
+          indeterminate
+        ></v-progress-circular>
+        <div class="text-h6 mt-4 text-white">Loading Dashboard Data...</div>
+      </v-overlay>
+
       <!-- Header Section -->
       <v-container fluid class="pa-6">
         <v-row>
@@ -13,6 +23,16 @@
                   Welcome back, {{ username }}! Here's what's happening with your wood craft business.
                 </p>
               </div>
+              <v-btn
+                @click="loadDashboardData"
+                color="orange-darken-2"
+                variant="outlined"
+                :loading="loading"
+                :disabled="loading"
+              >
+                <v-icon start icon="mdi-refresh"></v-icon>
+                Refresh
+              </v-btn>
               <v-chip
                 :color="getBusinessStatusColor()"
                 variant="elevated"
@@ -26,6 +46,33 @@
           </v-col>
         </v-row>
   
+        <!-- Error Alert -->
+        <v-row v-if="error">
+          <v-col cols="12">
+            <v-alert
+              type="error"
+              variant="outlined"
+              prominent
+              closable
+              @click:close="error = null"
+            >
+              <v-alert-title class="font-weight-bold">Error Loading Dashboard</v-alert-title>
+              <div>{{ error }}</div>
+              <template v-slot:append>
+                <v-btn
+                  @click="loadDashboardData"
+                  color="orange-darken-2"
+                  variant="outlined"
+                  size="small"
+                  :loading="loading"
+                >
+                  Retry
+                </v-btn>
+              </template>
+            </v-alert>
+          </v-col>
+        </v-row>
+
         <!-- Key Metrics Cards -->
         <v-row>
           <v-col cols="12" sm="6" md="3">
@@ -37,19 +84,19 @@
               <v-card-text class="text-center pa-6">
                 <v-icon size="48" color="yellow-lighten-2" icon="mdi-currency-usd" class="mb-3"></v-icon>
                 <h3 class="text-h4 font-weight-bold text-white mb-2">
-                  ${{ formatCurrency(totalRevenue) }}
+                  ${{ formatCurrency(stats.totalRevenue) }}
                 </h3>
                 <p class="text-orange-lighten-4 mb-0">Total Revenue</p>
                 <v-chip 
                   size="small" 
-                  :color="revenueGrowth >= 0 ? 'green-lighten-1' : 'red-lighten-1'"
+                  :color="stats.revenueGrowth >= 0 ? 'green-lighten-1' : 'red-lighten-1'"
                   class="mt-2"
                 >
                   <v-icon 
                     start 
-                    :icon="revenueGrowth >= 0 ? 'mdi-trending-up' : 'mdi-trending-down'"
+                    :icon="stats.revenueGrowth >= 0 ? 'mdi-trending-up' : 'mdi-trending-down'"
                   ></v-icon>
-                  {{ Math.abs(revenueGrowth) }}%
+                  {{ Math.abs(stats.revenueGrowth) }}%
                 </v-chip>
               </v-card-text>
             </v-card>
@@ -64,19 +111,19 @@
               <v-card-text class="text-center pa-6">
                 <v-icon size="48" color="yellow-lighten-2" icon="mdi-shopping" class="mb-3"></v-icon>
                 <h3 class="text-h4 font-weight-bold text-white mb-2">
-                  {{ totalOrders.toLocaleString() }}
+                  {{ stats.totalOrders.toLocaleString() }}
                 </h3>
                 <p class="text-orange-lighten-4 mb-0">Total Orders</p>
                 <v-chip 
                   size="small" 
-                  :color="orderGrowth >= 0 ? 'green-lighten-1' : 'red-lighten-1'"
+                  :color="stats.orderGrowth >= 0 ? 'green-lighten-1' : 'red-lighten-1'"
                   class="mt-2"
                 >
                   <v-icon 
                     start 
-                    :icon="orderGrowth >= 0 ? 'mdi-trending-up' : 'mdi-trending-down'"
+                    :icon="stats.orderGrowth >= 0 ? 'mdi-trending-up' : 'mdi-trending-down'"
                   ></v-icon>
-                  {{ Math.abs(orderGrowth) }}%
+                  {{ Math.abs(stats.orderGrowth) }}%
                 </v-chip>
               </v-card-text>
             </v-card>
@@ -91,19 +138,19 @@
               <v-card-text class="text-center pa-6">
                 <v-icon size="48" color="yellow-lighten-2" icon="mdi-account-group" class="mb-3"></v-icon>
                 <h3 class="text-h4 font-weight-bold text-white mb-2">
-                  {{ totalCustomers.toLocaleString() }}
+                  {{ stats.totalCustomers.toLocaleString() }}
                 </h3>
                 <p class="text-orange-lighten-4 mb-0">Total Customers</p>
                 <v-chip 
                   size="small" 
-                  :color="customerGrowth >= 0 ? 'green-lighten-1' : 'red-lighten-1'"
+                  :color="stats.customerGrowth >= 0 ? 'green-lighten-1' : 'red-lighten-1'"
                   class="mt-2"
                 >
                   <v-icon 
                     start 
-                    :icon="customerGrowth >= 0 ? 'mdi-trending-up' : 'mdi-trending-down'"
+                    :icon="stats.customerGrowth >= 0 ? 'mdi-trending-up' : 'mdi-trending-down'"
                   ></v-icon>
-                  {{ Math.abs(customerGrowth) }}%
+                  {{ Math.abs(stats.customerGrowth) }}%
                 </v-chip>
               </v-card-text>
             </v-card>
@@ -118,7 +165,7 @@
               <v-card-text class="text-center pa-6">
                 <v-icon size="48" color="yellow-lighten-2" icon="mdi-package-variant" class="mb-3"></v-icon>
                 <h3 class="text-h4 font-weight-bold text-white mb-2">
-                  {{ totalProducts.toLocaleString() }}
+                  {{ stats.totalProducts.toLocaleString() }}
                 </h3>
                 <p class="text-orange-lighten-4 mb-0">Total Products</p>
                 <v-chip 
@@ -127,7 +174,7 @@
                   class="mt-2"
                 >
                   <v-icon start icon="mdi-package"></v-icon>
-                  {{ activeProducts }} Active
+                  {{ stats.activeProducts }} Active
                 </v-chip>
               </v-card-text>
             </v-card>
@@ -173,7 +220,7 @@
                 <v-list>
                   <v-list-item
                     v-for="order in recentOrders"
-                    :key="order.id"
+                    :key="order.orderId"
                     class="px-6 py-3"
                   >
                     <template v-slot:prepend>
@@ -182,7 +229,7 @@
                       </v-avatar>
                     </template>
                     <v-list-item-title class="font-weight-medium">
-                      Order #{{ order.id }}
+                      Order #{{ order.orderId }}
                     </v-list-item-title>
                     <v-list-item-subtitle>
                       {{ order.customerName }} • ${{ order.total }}
@@ -286,7 +333,7 @@
                       class="mb-4"
                     >
                       <v-alert-title class="font-weight-bold">Low Stock Alert</v-alert-title>
-                      <div>{{ lowStockCount }} products are running low on inventory</div>
+                      <div>{{ stats.lowStockCount }} products are running low on inventory</div>
                       <template v-slot:append>
                         <v-btn
                           :to="{ name: 'stock-alerts' }"
@@ -307,7 +354,7 @@
                       class="mb-4"
                     >
                       <v-alert-title class="font-weight-bold">Pending Orders</v-alert-title>
-                      <div>{{ pendingOrdersCount }} orders await processing</div>
+                      <div>{{ stats.pendingOrdersCount }} orders await processing</div>
                       <template v-slot:append>
                         <v-btn
                           :to="{ name: 'orders-pending' }"
@@ -328,7 +375,7 @@
                       class="mb-4"
                     >
                       <v-alert-title class="font-weight-bold">New Reviews</v-alert-title>
-                      <div>{{ newReviewsCount }} new customer reviews received</div>
+                      <div>{{ stats.newReviewsCount }} new customer reviews received</div>
                       <template v-slot:append>
                         <v-btn
                           :to="{ name: 'reviews' }"
@@ -388,7 +435,7 @@
                   </template>
                   <template v-slot:item.actions="{ item }">
                     <v-btn
-                      :to="{ name: 'product-details', params: { id: item.id } }"
+                      :to="{ name: 'product-details', params: { id: item.productId } }"
                       color="orange-darken-2"
                       variant="outlined"
                       size="small"
@@ -408,20 +455,11 @@
   <script setup lang="ts">
   import { ref, computed, onMounted, nextTick } from 'vue'
   import { useUserStore } from '@/stores/user'
-
-  // import { useInventoryStore } from '@/stores/inventory'
-  
   import Chart from 'chart.js/auto'
-  import { useCustomerStore } from '@/stores/customer'
-  import { useOrderStore } from '@/stores/Order'
-  import { useProductStore } from '@/stores/product'
+  import { dashboardService, type DashboardData, type DashboardStats, type RecentOrder, type TopProduct } from '@/services/dashboard'
   
   // Stores
   const userStore = useUserStore()
-  const productStore = useProductStore()
-  const orderStore = useOrderStore()
-  const customerStore = useCustomerStore()
-  // const inventoryStore = useInventoryStore()
   
   // Chart refs
   const revenueChart = ref<HTMLCanvasElement | null>(null)
@@ -433,81 +471,28 @@
   // Computed properties
   const username = computed(() => userStore.user?.username || 'Admin')
   
-  // Mock data - replace with actual store data
-  const totalRevenue = ref(125000)
-  const revenueGrowth = ref(15.3)
-  const totalOrders = ref(1247)
-  const orderGrowth = ref(8.7)
-  const totalCustomers = ref(892)
-  const customerGrowth = ref(12.1)
-  const totalProducts = ref(156)
-  const activeProducts = ref(142)
-  const lowStockCount = ref(12)
-  const pendingOrdersCount = ref(23)
-  const newReviewsCount = ref(18)
+  // Dashboard data
+  const dashboardData = ref<DashboardData | null>(null)
+  const stats = ref<DashboardStats>({
+    totalRevenue: 0,
+    totalOrders: 0,
+    totalCustomers: 0,
+    totalProducts: 0,
+    activeProducts: 0,
+    lowStockCount: 0,
+    pendingOrdersCount: 0,
+    newReviewsCount: 0,
+    revenueGrowth: 0,
+    orderGrowth: 0,
+    customerGrowth: 0
+  })
+  const error = ref<string | null>(null)
   
   // Recent orders data
-  const recentOrders = ref([
-    { id: 'ORD-001', customerName: 'John Doe', total: 299.99, status: 'Processing' },
-    { id: 'ORD-002', customerName: 'Jane Smith', total: 149.50, status: 'Shipped' },
-    { id: 'ORD-003', customerName: 'Mike Johnson', total: 399.00, status: 'Delivered' },
-    { id: 'ORD-004', customerName: 'Sarah Wilson', total: 199.75, status: 'Pending' },
-    { id: 'ORD-005', customerName: 'Tom Brown', total: 450.25, status: 'Processing' }
-  ])
+  const recentOrders = ref<RecentOrder[]>([])
   
   // Top products data
-  const topProducts = ref([
-    {
-      id: 1,
-      name: 'Handcrafted Oak Table',
-      category: 'Furniture',
-      sales: 12500,
-      unitsSold: 25,
-      rating: 4.8,
-      reviewCount: 42,
-      image: '/api/placeholder/150/150'
-    },
-    {
-      id: 2,
-      name: 'Wooden Jewelry Box',
-      category: 'Accessories',
-      sales: 8750,
-      unitsSold: 175,
-      rating: 4.6,
-      reviewCount: 89,
-      image: '/api/placeholder/150/150'
-    },
-    {
-      id: 3,
-      name: 'Mahogany Bookshelf',
-      category: 'Furniture',
-      sales: 9200,
-      unitsSold: 23,
-      rating: 4.9,
-      reviewCount: 31,
-      image: '/api/placeholder/150/150'
-    },
-    {
-      id: 4,
-      name: 'Carved Wooden Bowl Set',
-      category: 'Kitchenware',
-      sales: 6800,
-      unitsSold: 136,
-      rating: 4.7,
-      reviewCount: 67,
-      image: '/api/placeholder/150/150'
-    },
-    {
-      id: 5,
-      name: 'Pine Wood Wall Art',
-      category: 'Decor',
-      sales: 5400,
-      unitsSold: 54,
-      rating: 4.5,
-      reviewCount: 28,
-      image: '/api/placeholder/150/150'
-    }
-  ])
+  const topProducts = ref<TopProduct[]>([])
   
   // Table headers
   const productHeaders = [
@@ -528,16 +513,16 @@
   }
   
   const getBusinessStatus = () => {
-    if (revenueGrowth.value >= 15) return 'Excellent'
-    if (revenueGrowth.value >= 10) return 'Good'
-    if (revenueGrowth.value >= 5) return 'Stable'
+    if (stats.value.revenueGrowth >= 15) return 'Excellent'
+    if (stats.value.revenueGrowth >= 10) return 'Good'
+    if (stats.value.revenueGrowth >= 5) return 'Stable'
     return 'Needs Attention'
   }
   
   const getBusinessStatusColor = () => {
-    if (revenueGrowth.value >= 15) return 'green'
-    if (revenueGrowth.value >= 10) return 'orange'
-    if (revenueGrowth.value >= 5) return 'blue'
+    if (stats.value.revenueGrowth >= 15) return 'green'
+    if (stats.value.revenueGrowth >= 10) return 'orange'
+    if (stats.value.revenueGrowth >= 5) return 'blue'
     return 'red'
   }
   
@@ -631,17 +616,27 @@
     }
   }
   
+  // Load dashboard data
+  const loadDashboardData = async () => {
+    try {
+      loading.value = true
+      error.value = null
+      const data = await dashboardService.getDashboardData()
+      dashboardData.value = data
+      stats.value = data.stats
+      recentOrders.value = data.recentOrders
+      topProducts.value = data.topProducts
+    } catch (err) {
+      console.error('Error loading dashboard data:', err)
+      error.value = 'Failed to load dashboard data. Please try again.'
+    } finally {
+      loading.value = false
+    }
+  }
+
   // Lifecycle
   onMounted(async () => {
-    loading.value = true
-    
-    // Load data from stores
-    await productStore.fetchProducts()
-    await orderStore.fetchOrders()
-    await customerStore.fetchCustomers()
-    // await inventoryStore.fetchInventory()
-    
-    loading.value = false
+    await loadDashboardData()
     
     // Initialize charts after DOM is ready
     await nextTick()

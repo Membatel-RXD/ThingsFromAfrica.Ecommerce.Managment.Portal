@@ -10,6 +10,17 @@ import axios, {
 } from "axios";
 import { API_CONFIG } from "../config/api-config";
 
+export interface AuthenticationResponse {
+  token: string;
+  tokenExpiration: string;
+  userId: number;
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  userRole: any;
+  userName: string;
+}
+
 class ApiService {
   private api: AxiosInstance;
 
@@ -82,6 +93,14 @@ class ApiService {
     const response: AxiosResponse<T> = await this.api.delete(url);
     return response.data;
   }
+
+  // User verification (login) method
+  async verifyUser(email: string, password: string): Promise<AuthenticationResponse> {
+    const credentials = { Email: email, password };
+    // The API returns the AuthenticationResponse directly
+    return await this.post<AuthenticationResponse>("/Auth/Login", credentials);
+  }
 }
 
 export const apiService = new ApiService();
+export { AuthenticationResponse };

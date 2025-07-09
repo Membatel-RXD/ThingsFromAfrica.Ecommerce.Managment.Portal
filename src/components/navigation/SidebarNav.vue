@@ -88,18 +88,15 @@
               <v-list-item-title>Products</v-list-item-title>
             </v-list-item>
           </template>
-          <router-link :to="{ name: 'products' }" style="text-decoration: none; color: inherit;">
-            <v-list-item link>
-              <v-list-item-title>All Products</v-list-item-title>
-            </v-list-item>
-          </router-link>
+          <v-list-item :to="{ name: 'admin-products' }" link exact>
+            <v-list-item-title>All Products</v-list-item-title>
+          </v-list-item>
           <v-list-item :to="{ name: 'admin-categories' }"><v-list-item-title>Categories</v-list-item-title></v-list-item>
           <v-list-item :to="{ name: 'reviews' }"><v-list-item-title>Reviews</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'product-care-instructions' }"><v-list-item-title>Care Instructions</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'discount-types' }"><v-list-item-title>Discount Types</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'CareInstructions' }"><v-list-item-title>Care Instructions</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'DiscountTypes' }"><v-list-item-title>Discount Types</v-list-item-title></v-list-item>
           <v-list-item :to="{ name: 'promotions' }"><v-list-item-title>Promotions</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'promotion-usage' }"><v-list-item-title>Promotion Usage</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'products-create' }"><v-list-item-title>Add Product</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'PromotionUsage' }"><v-list-item-title>Promotion Usage</v-list-item-title></v-list-item>
         </v-list-group>
 
         <!-- Order Management -->
@@ -130,10 +127,7 @@
               <v-list-item-title>Customers</v-list-item-title>
             </v-list-item>
           </template>
-          <v-list-item :to="{ name: 'customers' }"><v-list-item-title>All Customers</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'customer-profiles' }"><v-list-item-title>Customer Profiles</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'user-addresses' }"><v-list-item-title>Addresses</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'wishlist' }"><v-list-item-title>Wishlist</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'AllCustomers' }"><v-list-item-title>All Customers</v-list-item-title></v-list-item>
         </v-list-group>
 
         <!-- Artisans & Vendors -->
