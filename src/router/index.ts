@@ -644,6 +644,7 @@ const routes: RouteRecordRaw[] = [
     redirect: "/404",
   },
 ];
+
 const router = createRouter({
   history: createWebHistory(),
   routes,
@@ -676,10 +677,30 @@ const hasRequiredRole = (userRole: string, requiredRoles: string[]): boolean => 
   return requiredRoles.includes(userRole.toLowerCase());
 };
 
+// Add a small delay to ensure store hydration completes
+const waitForStoreHydration = async (userStore: any, maxWait = 100): Promise<void> => {
+  let attempts = 0;
+  const maxAttempts = 10;
+  
+  while (attempts < maxAttempts) {
+    // Check if store has been hydrated (has token or isInitialized)
+    if (userStore.token || userStore.isInitialized) {
+      break;
+    }
+    
+    // Wait a bit and try again
+    await new Promise(resolve => setTimeout(resolve, maxWait / maxAttempts));
+    attempts++;
+  }
+};
+
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore();
 
-  // Wait for auth initialization to complete
+  // Wait for store hydration to complete
+  await waitForStoreHydration(userStore);
+
+  // Now check auth status if not already initialized
   if (!userStore.isInitialized) {
     try {
       await userStore.checkAuthStatus();
@@ -689,16 +710,21 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
-  // Check if route requires authentication
-  if (to.meta.requiresAuth && !userStore.isAuthenticated) {
-    next("/login");
+  // Handle public routes
+  if (!to.meta.requiresAuth) {
+    // If user is authenticated and trying to access login page, redirect to dashboard
+    if (to.path === "/login" && userStore.isAuthenticated) {
+      const url = await loginDashboard();
+      next(url);
+      return;
+    }
+    next();
     return;
   }
 
-  // Check if user is logged in and trying to access login page
-  if (to.path === "/login" && userStore.isAuthenticated) {
-    const url = await loginDashboard();
-    next(url);
+  // Check if route requires authentication
+  if (to.meta.requiresAuth && !userStore.isAuthenticated) {
+    next("/login");
     return;
   }
 

@@ -1,8 +1,7 @@
+// stores/user.ts
 import { defineStore } from "pinia";
 import { apiService, type IAPIResponse } from "@/services/api";
-
 import { UserRole, type AuthenticationResponse, type CreateUsersRequest, type LoginCredentials, type UserRoleRequest } from "./types/member";
-
 
 interface User {
   userId: number;
@@ -20,7 +19,9 @@ export const useUserStore = defineStore('user', {
     token: null as string | null,
     users: [] as User[],
     isInitialized: false, 
+    isHydrated: false, // Track if store has been hydrated from localStorage
   }),
+
   getters: {
     getUser: (state) => state.user,
     isTokenExpired: (state) => {
@@ -38,15 +39,40 @@ export const useUserStore = defineStore('user', {
   },
 
   actions: {
+    // Initialize the store - call this when app starts
+    async initialize() {
+      if (this.isInitialized) return;
+      
+      // Give time for persistence plugin to hydrate
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      // Check if we have data from localStorage
+      if (this.token || this.user) {
+        this.isHydrated = true;
+        await this.checkAuthStatus();
+      } else {
+        this.isInitialized = true;
+      }
+    },
+
     logout() {
       this.user = null;
       this.isAuthenticated = false;
       this.token = null;
       this.role = null;
       this.isInitialized = true;
+      this.isHydrated = false;
       
-      // Clear localStorage
-      localStorage.removeItem('user');
+      // Clear localStorage - the persistence plugin will handle this
+      // but we'll be explicit
+      if (typeof window !== 'undefined') {
+        const keys = Object.keys(localStorage);
+        keys.forEach(key => {
+          if (key.startsWith('user-')) {
+            localStorage.removeItem(key);
+          }
+        });
+      }
       
       // Redirect to login if router is available
       if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
@@ -55,19 +81,19 @@ export const useUserStore = defineStore('user', {
     },
 
     async checkAuthStatus() {
+      if (this.isInitialized) return;
+      
       try {
-        // If already initialized, don't check again
-        if (this.isInitialized) return;
-
         // Check if we have persisted authentication state
         if (this.isAuthenticated && this.token && this.user) {
           // Check if token is expired
           if (this.isTokenExpired) {
+            console.log('Token expired, logging out');
             this.logout();
             return;
           }
 
-          // Optionally validate token with backend (you can skip this for faster loading)
+          // Validate token with backend (optional but recommended)
           try {
             const response = await apiService.get<IAPIResponse<User>>(
               `/Users/GetProfileData?email=${this.user?.email}`,
@@ -77,8 +103,10 @@ export const useUserStore = defineStore('user', {
               // Token is valid, update user data if needed
               this.user = { ...this.user, ...response.payload };
               this.isAuthenticated = true;
+              console.log('User authenticated successfully');
             } else {
               // Token is invalid or user doesn't exist
+              console.log('User validation failed, logging out');
               this.logout();
               return;
             }
@@ -89,7 +117,11 @@ export const useUserStore = defineStore('user', {
           }
         } else {
           // No persisted authentication state
-          this.logout();
+          console.log('No authentication state found');
+          this.isAuthenticated = false;
+          this.token = null;
+          this.user = null;
+          this.role = null;
         }
       } catch (error) {
         console.error('Auth check failed:', error);
@@ -99,11 +131,8 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-
     async getAllUsers() {
       try {
-       
-
         const response = await apiService.get<IAPIResponse<User[]>>(
           "/Users/GetUsers",
         );
@@ -121,7 +150,6 @@ export const useUserStore = defineStore('user', {
 
     async getUserData() {
       try {
-       
         const response = await apiService.get<IAPIResponse<User>>(
           `/Users/GetProfileData?email=${this.user?.email}`,
         );
@@ -139,8 +167,6 @@ export const useUserStore = defineStore('user', {
 
     async CreateNewUser(userCreationRequest: CreateUsersRequest): Promise<IAPIResponse<object>> {
       try {
-
-       
         const response = await apiService.post<IAPIResponse<object>>(
           "/Users/Add",
           userCreationRequest
@@ -163,7 +189,7 @@ export const useUserStore = defineStore('user', {
           credentials
         );
 
-        console.log(JSON.stringify(response));
+        console.log('Login response:', JSON.stringify(response));
 
         if (response?.isSuccessful && response.payload) {
           const authResponse = response.payload;
@@ -180,13 +206,19 @@ export const useUserStore = defineStore('user', {
           this.token = authResponse.token;
           this.role = authResponse.userRole.roleName;
           this.isAuthenticated = true;
-          this.isInitialized = true;        }
+          this.isInitialized = true;
+          this.isHydrated = true;
+          
+          console.log('User logged in successfully:', this.user);
+        }
 
         return response;
       } catch (error) {
+        console.error('Login error:', error);
         throw error;
       }
     },
+
     hasRole(requiredRole: UserRole): boolean {
       return this.role === requiredRole;
     }
@@ -196,8 +228,14 @@ export const useUserStore = defineStore('user', {
     enabled: true,
     strategies: [
       {
+        key: 'user-store',
         storage: localStorage,
-        paths: ['isAuthenticated', 'user', 'token', 'role']
+        paths: ['isAuthenticated', 'user', 'token', 'role'],
+        // Add serializer to handle complex objects
+        serializer: {
+          serialize: JSON.stringify,
+          deserialize: JSON.parse,
+        },
       }
     ]
   },
