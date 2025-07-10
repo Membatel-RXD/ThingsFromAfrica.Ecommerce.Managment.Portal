@@ -523,3 +523,27 @@ export interface ReviewCreateOrUpdate {
   createdAt: string;
   modifiedAt: string;
 }
+
+export interface ShipmentDTO {
+  shipmentId: number;
+  orderId: number;
+  shippingMethodId: number;
+  trackingNumber: string;
+  carrierName: string;
+  shippingLabelUrl: string;
+  shipmentStatus: string;
+  packageWeight: number;
+  packageLength: number;
+  packageWidth: number;
+  packageHeight: number;
+  packagingNotes: string;
+  requiresPhytosanitaryCertificate: boolean;
+  phytosanitaryCertificateNumber: string;
+  customsDeclarationNumber: string;
+  shippedDate: string; // ISO 8601 date string
+  estimatedDeliveryDate: string; // ISO 8601 date string
+  actualDeliveryDate: string; // ISO 8601 date string
+  createdAt: string; // ISO 8601 date string
+  createdBy: number;
+}
+export interface CreateShipment extends Omit<ShipmentDTO,'shipmentId'>{}

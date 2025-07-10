@@ -154,11 +154,11 @@
               {{ formatDate(item.shippedDate) }}
             </template>
   
-            <template v-slot:item.estimatedDelivery="{ item }">
+            <template v-slot:item.estimatedDeliveryDate="{ item }">
               <div>
-                {{ formatDate(item.estimatedDelivery) }}
+                {{ formatDate(item.estimatedDeliveryDate) }}
                 <v-chip
-                  v-if="isDelayed(item.estimatedDelivery)"
+                  v-if="isDelayed(item.estimatedDeliveryDate)"
                   color="red"
                   size="x-small"
                   class="ml-2"
@@ -168,8 +168,8 @@
               </div>
             </template>
   
-            <template v-slot:item.actualDelivery="{ item }">
-              {{ item.actualDelivery ? formatDate(item.actualDelivery) : 'Pending' }}
+            <template v-slot:item.actualDeliveryDate="{ item }">
+              {{ item.actualDeliveryDate ? formatDate(item.actualDeliveryDate) : 'Pending' }}
             </template>
   
             <template v-slot:item.totalAmount="{ item }">
@@ -186,12 +186,12 @@
               </v-chip>
             </template>
   
-            <template v-slot:item.carrier="{ item }">
+            <template v-slot:item.carrierName="{ item }">
               <div class="d-flex align-center">
-                <v-icon :color="getCarrierColor(item.carrier)" size="small" class="me-2">
-                  {{ getCarrierIcon(item.carrier) }}
+                <v-icon :color="getCarrierColor(item.carrierName)" size="small" class="me-2">
+                  {{ getCarrierIcon(item.carrierName) }}
                 </v-icon>
-                {{ item.carrier }}
+                {{ item.carrierName }}
               </div>
             </template>
   
@@ -494,10 +494,8 @@
   <script setup lang="ts">
   import { ref, computed, onMounted } from 'vue'
   import { useSnackbarStore } from '@/stores/snackbar'
-  import { useOrderStore } from '@/stores/orderStore'
-  import { OrderDto } from '@/stores/types/member'
-  
-  const orderStore = useOrderStore()
+  import { useShipmentStore } from '@/stores/shipment'
+  const orderStore = useShipmentStore()
   const snackbar = useSnackbarStore()
   
   // Data
@@ -574,25 +572,25 @@
   
   // Computed properties
   const filteredShipments = computed(() => {
-    let filtered = orderStore.getOrders.filter(order => 
-      order.orderStatus.toLowerCase() === 'shipped' || 
-      order.orderStatus.toLowerCase() === 'delivered'
+    let filtered = orderStore.getShipments.filter(order => 
+      order.shipmentStatus.toLowerCase() === 'shipped' || 
+      order.shipmentStatus.toLowerCase() === 'delivered'
     )
   
     if (statusFilter.value !== 'all') {
-      filtered = filtered.filter(order => 
+      filtered = filtered.filter((order: { shipmentStatus: string }) => 
         order.shipmentStatus?.toLowerCase() === statusFilter.value
       )
     }
   
     if (carrierFilter.value !== 'all') {
-      filtered = filtered.filter(order => 
-        order.carrier === carrierFilter.value
+      filtered = filtered.filter((order) => 
+        order.carrierName === carrierFilter.value
       )
     }
   
     if (startDate.value && endDate.value) {
-      filtered = filtered.filter(order => {
+      filtered = filtered.filter((order: { shippedDate: string | number | Date }) => {
         const shippedDate = new Date(order.shippedDate)
         return shippedDate >= new Date(startDate.value) && shippedDate <= new Date(endDate.value)
       })
@@ -602,8 +600,8 @@
   })
   
   const availableOrders = computed(() => {
-    return orderStore.getOrders.filter(order => 
-      order.orderStatus.toLowerCase() === 'pending'
+    return orderStore.shipments.filter(order => 
+      order.shipmentStatus.toLowerCase() === 'pending'
     )
   })
   
@@ -613,7 +611,7 @@
       shipped: shipments.filter(s => s.shipmentStatus === 'shipped').length,
       inTransit: shipments.filter(s => s.shipmentStatus === 'in_transit').length,
       delivered: shipments.filter(s => s.shipmentStatus === 'delivered').length,
-      delayed: shipments.filter(s => isDelayed(s.estimatedDelivery)).length
+      delayed: shipments.filter(s => isDelayed(s.estimatedDeliveryDate)).length
     }
   })
   
@@ -706,7 +704,7 @@
           notes: ''
         }
         
-        await orderStore.fetchOrders()
+        await orderStore.fetchShipments()
       } else {
         snackbar.error('Error creating shipment')
       }
@@ -726,7 +724,7 @@
       if (response.isSuccessful) {
         snackbar.success('Shipment updated successfully')
         editShipmentDialog.value = false
-        await orderStore.fetchOrders()
+        await orderStore.fetchShipments()
       } else {
         snackbar.error('Error updating shipment')
       }
@@ -743,7 +741,7 @@
       const response = await orderStore.markAsDelivered(item.orderId)
       if (response.isSuccessful) {
         snackbar.success('Shipment marked as delivered')
-        await orderStore.fetchOrders()
+        await orderStore.fetchShipments()
       } else {
         snackbar.error('Error marking shipment as delivered')
       }
@@ -787,7 +785,7 @@
   
   onMounted(async () => {
     try {
-      await orderStore.fetchOrders()
+      await orderStore.fetchShipments()
     } catch (error) {
       console.error('Error fetching orders:', error)
       snackbar.error('Error loading orders')

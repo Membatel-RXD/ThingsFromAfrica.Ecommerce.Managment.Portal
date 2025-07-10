@@ -1,7 +1,6 @@
 <template>
     <div class="orders-view">
       <v-container fluid class="pa-6">
-        <!-- Page Header -->
         <div class="d-flex justify-space-between align-center mb-6">
           <div>
             <h1 class="text-h4 font-weight-bold text-orange-darken-3">Orders Management</h1>
@@ -20,7 +19,7 @@
         </div>
   
         <!-- Statistics Cards -->
-        <!-- <v-row class="mb-6">
+        <v-row class="mb-6">
           <v-col cols="12" md="3">
             <v-card color="orange-lighten-4" class="pa-4">
               <div class="d-flex align-center">
@@ -65,7 +64,7 @@
               </div>
             </v-card>
           </v-col>
-        </v-row> -->
+        </v-row>
   
         <!-- Filters and Search -->
         <v-card class="mb-6">
@@ -246,175 +245,86 @@
             </v-card-title>
   
             <v-card-text class="pa-6">
-              <v-form ref="form" v-model="valid">
-                <v-row>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="formData.customerEmail"
-                      label="Customer Email"
-                      :rules="[rules.required, rules.email]"
-                      variant="outlined"
-                      prepend-inner-icon="mdi-email"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="formData.customerPhone"
-                      label="Customer Phone"
-                      variant="outlined"
-                      prepend-inner-icon="mdi-phone"
-                    />
-                  </v-col>
-                </v-row>
-  
-                <v-divider class="my-4" />
-                <h3 class="text-h6 mb-3">Billing Address</h3>
-                <v-row>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="formData.billingFirstName"
-                      label="First Name"
-                      :rules="[rules.required]"
-                      variant="outlined"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="formData.billingLastName"
-                      label="Last Name"
-                      :rules="[rules.required]"
-                      variant="outlined"
-                    />
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="formData.billingAddressLine1"
-                      label="Address Line 1"
-                      :rules="[rules.required]"
-                      variant="outlined"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="formData.billingCity"
-                      label="City"
-                      :rules="[rules.required]"
-                      variant="outlined"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="formData.billingCountryCode"
-                      label="Country Code"
-                      :rules="[rules.required]"
-                      variant="outlined"
-                    />
-                  </v-col>
-                </v-row>
-  
-                <v-divider class="my-4" />
-                <h3 class="text-h6 mb-3">Shipping Address</h3>
-                <v-row>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="formData.shippingFirstName"
-                      label="First Name"
-                      :rules="[rules.required]"
-                      variant="outlined"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="formData.shippingLastName"
-                      label="Last Name"
-                      :rules="[rules.required]"
-                      variant="outlined"
-                    />
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="formData.shippingAddressLine1"
-                      label="Address Line 1"
-                      :rules="[rules.required]"
-                      variant="outlined"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="formData.shippingCity"
-                      label="City"
-                      :rules="[rules.required]"
-                      variant="outlined"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="formData.shippingCountryCode"
-                      label="Country Code"
-                      :rules="[rules.required]"
-                      variant="outlined"
-                    />
-                  </v-col>
-                </v-row>
-  
-                <v-divider class="my-4" />
-                <h3 class="text-h6 mb-3">Order Details</h3>
-                <v-row>
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      v-model.number="formData.subTotal"
-                      label="Subtotal"
-                      type="number"
-                      step="0.01"
-                      :rules="[rules.required, rules.number]"
-                      variant="outlined"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      v-model.number="formData.totalAmount"
-                      label="Total Amount"
-                      type="number"
-                      step="0.01"
-                      :rules="[rules.required, rules.number]"
-                      variant="outlined"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      v-model="formData.currency"
-                      label="Currency"
-                      :rules="[rules.required]"
-                      variant="outlined"
-                    />
-                  </v-col>
-                  <v-col cols="12">
-                    <v-textarea
-                      v-model="formData.customerNotes"
-                      label="Customer Notes"
-                      rows="3"
-                      variant="outlined"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-switch
-                      v-model="formData.isTouristOrder"
-                      label="Tourist Order"
-                      color="blue"
-                      hide-details
-                    />
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-switch
-                      v-model="formData.requiresPhytosanitaryCertificate"
-                      label="Requires Phytosanitary Certificate"
-                      color="green"
-                      hide-details
-                    />
-                  </v-col>
-                </v-row>
-              </v-form>
+                <v-form ref="form" v-model="valid">
+                    <v-row>
+                    <v-col cols="12" md="6">
+                        <v-text-field
+                        v-model="formData.customerEmail"
+                        label="Customer Email"
+                        :rules="[rules.required, rules.email]"
+                        variant="outlined"
+                        prepend-inner-icon="mdi-email"
+                        />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-text-field
+                        v-model="formData.customerPhone"
+                        label="Customer Phone"
+                        variant="outlined"
+                        prepend-inner-icon="mdi-phone"
+                        />
+                    </v-col>
+                    </v-row>
+
+                    <v-divider class="my-4" />
+                    <h3 class="text-h6 mb-3">Order Details</h3>
+                    <v-row>
+                    <v-col cols="12" md="4">
+                        <v-text-field
+                        v-model.number="formData.subTotal"
+                        label="Subtotal"
+                        type="number"
+                        step="0.01"
+                        :rules="[rules.required, rules.number]"
+                        variant="outlined"
+                        />
+                    </v-col>
+                    <v-col cols="12" md="4">
+                        <v-text-field
+                        v-model.number="formData.totalAmount"
+                        label="Total Amount"
+                        type="number"
+                        step="0.01"
+                        :rules="[rules.required, rules.number]"
+                        variant="outlined"
+                        />
+                    </v-col>
+                    <v-col cols="12" md="4">
+                        <v-text-field
+                        v-model="formData.currency"
+                        label="Currency"
+                        :rules="[rules.required]"
+                        variant="outlined"
+                        />
+                    </v-col>
+                    <v-col cols="12">
+                        <v-textarea
+                        v-model="formData.customerNotes"
+                        label="Customer Notes"
+                        rows="3"
+                        variant="outlined"
+                        />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-switch
+                        v-model="formData.isTouristOrder"
+                        label="Tourist Order"
+                        color="blue"
+                        hide-details
+                        />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-switch
+                        v-model="formData.requiresPhytosanitaryCertificate"
+                        label="Requires Phytosanitary Certificate"
+                        color="green"
+                        hide-details
+                        />
+                    </v-col>
+                    </v-row>
+                </v-form>
             </v-card-text>
+
   
             <v-card-actions class="pa-6">
               <v-spacer />
