@@ -509,7 +509,7 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, computed, onMounted, watch } from 'vue'
+  import { ref, computed } from 'vue'
   
   // Product interface based on your model
   interface Product {

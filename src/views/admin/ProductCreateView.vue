@@ -90,8 +90,8 @@
                         <v-select
                           v-model="productForm.categoryId"
                           :items="categories"
-                          item-title="name"
-                          item-value="id"
+                          item-title="categoryName"
+                          item-value="categoryId"
                           label="Category"
                           :rules="[rules.required]"
                           variant="outlined"
@@ -140,8 +140,8 @@
                         <v-select
                           v-model="productForm.woodTypeId"
                           :items="woodTypes"
-                          item-title="name"
-                          item-value="id"
+                          item-title="woodName"
+                          item-value="woodTypeId"
                           label="Wood Type"
                           :rules="[rules.required]"
                           variant="outlined"
@@ -163,8 +163,8 @@
                         <v-select
                           v-model="productForm.craftTypeId"
                           :items="craftTypes"
-                          item-title="name"
-                          item-value="id"
+                          item-title="craftTypeName"
+                          item-value="craftTypeId"
                           label="Craft Type"
                           :rules="[rules.required]"
                           variant="outlined"
@@ -277,8 +277,8 @@
                         <v-select
                           v-model="productForm.artisanId"
                           :items="artisans"
-                          item-title="name"
-                          item-value="id"
+                          item-title="artisanName"
+                          item-value="artisanId"
                           label="Artisan"
                           variant="outlined"
                           color="orange-darken-2"
@@ -997,8 +997,17 @@
     </div>
   </template>
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue'
-
+import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { useProductCategoryStore } from '@/stores/productCategory'
+import { useWoodTypeStore } from '@/stores/woodStore';
+import { useCraftTypeStore } from '@/stores/craftStore';
+import { useSnackbarStore } from '@/stores/snackbar';
+import { useArtisanStore } from '@/stores/artisan';
+const productCategory = useProductCategoryStore();
+const craftType = useCraftTypeStore();
+const woodType = useWoodTypeStore();
+const snackbar = useSnackbarStore();
+const artisanStore = useArtisanStore();
 // Interfaces
 interface ProductForm {
   weight: number
@@ -1194,38 +1203,14 @@ const rules = {
   nonNegative: (value: number) => value >= 0 || 'Must be 0 or greater'
 }
 
-// Mock Data
-const categories = ref([
-  { id: 1, name: 'Sculptures' },
-  { id: 2, name: 'Furniture' },
-  { id: 3, name: 'Decorative Items' },
-  { id: 4, name: 'Utensils' },
-  { id: 5, name: 'Masks' }
-])
 
-const woodTypes = ref([
-  { id: 1, name: 'Mahogany' },
-  { id: 2, name: 'Teak' },
-  { id: 3, name: 'Ebony' },
-  { id: 4, name: 'Rosewood' },
-  { id: 5, name: 'Baobab' }
-])
+const categories  =  computed(()=>productCategory.categories);
 
-const craftTypes = ref([
-  { id: 1, name: 'Hand Carving' },
-  { id: 2, name: 'Turning' },
-  { id: 3, name: 'Burning' },
-  { id: 4, name: 'Inlay Work' },
-  { id: 5, name: 'Assembly' }
-]);
+const woodTypes = computed(()=>woodType.woodTypes);
 
-const artisans = ref( [
-  { id: 1, name: 'John Banda' },
-  { id: 2, name: 'Mary Mwanza' },
-  { id: 3, name: 'Peter Chisala' },
-  { id: 4, name: 'Grace Tembo' },
-  { id: 5, name: 'Joseph Mulenga' }
-]);
+const craftTypes = computed(()=>craftType.craftTypes);
+
+const artisans = computed(()=>artisanStore.artisans);
   const  difficultyLevels = ref([
           'Beginner',
           'Intermediate',
@@ -1288,8 +1273,6 @@ const submitForm = async () => {
     productForm.createdAt = now
     productForm.modifiedAt = now
 
-    console.log('Submitting product:', { ...productForm })
-
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 2000))
 
@@ -1322,6 +1305,20 @@ const resetForm = () => {
   productForm.modifiedBy = 1
   productForm.isDeleted = false
   currentStep.value = 1
+
+  onMounted(async () => {
+    try {
+    Promise.all( [
+      await productCategory.fetchCategories(),
+      await craftType.fetchCraftTypes(),
+      await woodType.fetchWoodTypes()
+    ]
+    )
+    } catch (error) {
+      console.error('Error fetching payments:', error)
+      snackbar.error('Error loading product categories')
+    }
+  })
 }
 </script>
 
