@@ -215,8 +215,7 @@ const handleLogin = async () => {
   if (!isFormValid.value) return;
   isLoading.value = true;
   try {
-    // Use hardcoded login for now
-    const success = userStore.loginLocal(email.value, password.value);
+    const success = userStore.login(email.value, password.value);
     if (success) {
       showNotification('Login successful!', 'success');
       await nextTick();

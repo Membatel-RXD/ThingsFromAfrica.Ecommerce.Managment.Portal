@@ -491,7 +491,7 @@
   import { ref, computed, onMounted } from 'vue'
   import { useSnackbarStore } from '@/stores/snackbar'
   import { useOrderStore } from '@/stores/orderStore'
-  import { OrderDto } from '@/stores/types/member'
+  import type{ OrderDto } from '@/stores/types/member'
 
   const orderStore = useOrderStore()
   const snackbar = useSnackbarStore()

@@ -48,7 +48,7 @@ export const useEmailQueueStore = defineStore('emailQueue', {
           this.emails = response.payload || [];
           console.log('Emails loaded:', this.emails.length);
         } else {
-          this.error = response.remark || 'Failed to fetch emails';
+          this.error = response.message || 'Failed to fetch emails';
           console.error('API Error:', this.error);
         }
       } catch (e: any) {
@@ -65,9 +65,9 @@ export const useEmailQueueStore = defineStore('emailQueue', {
       try {
         const response = await apiService.get<IAPIResponse<EmailQueue>>(`/api/v1/EmailQueue/GetById/${id}`);
         if (response.isSuccessful) {
-          this.selectedEmail = response.payload;
+          this.selectedEmail = response.payload || null;
         } else {
-          this.error = response.remark || 'Failed to fetch email';
+          this.error = response.message || 'Failed to fetch email';
         }
       } catch (e: any) {
         this.error = e.message || 'Failed to fetch email';
@@ -87,7 +87,7 @@ export const useEmailQueueStore = defineStore('emailQueue', {
           if (idx !== -1) this.emails[idx] = response.payload;
           return response.payload;
         } else {
-          this.error = response.remark || 'Failed to retry email';
+          this.error = response.message || 'Failed to retry email';
           throw new Error(this.error);
         }
       } catch (e: any) {
@@ -107,7 +107,7 @@ export const useEmailQueueStore = defineStore('emailQueue', {
           this.emails = this.emails.filter(e => e.emailId !== id);
           return true;
         } else {
-          this.error = response.remark || 'Failed to delete email';
+          this.error = response.message || 'Failed to delete email';
           throw new Error(this.error);
         }
       } catch (e: any) {
@@ -127,7 +127,7 @@ export const useEmailQueueStore = defineStore('emailQueue', {
           this.emails = this.emails.filter(e => e.status !== 'Failed');
           return true;
         } else {
-          this.error = response.remark || 'Failed to clear failed emails';
+          this.error = response.message || 'Failed to clear failed emails';
           throw new Error(this.error);
         }
       } catch (e: any) {
@@ -147,7 +147,7 @@ export const useEmailQueueStore = defineStore('emailQueue', {
           this.emails = this.emails.filter(e => e.status !== 'Sent');
           return true;
         } else {
-          this.error = response.remark || 'Failed to clear sent emails';
+          this.error = response.message || 'Failed to clear sent emails';
           throw new Error(this.error);
         }
       } catch (e: any) {
