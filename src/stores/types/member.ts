@@ -41,6 +41,7 @@ export interface User {
   passwordHash: string
   username: string
   email: string
+  userId:number;
   emailVerified: boolean
   emailVerificationToken: string
   emailVerificationExpiry: string // ISO date string
@@ -251,7 +252,7 @@ export interface Order {
   customerPhone: string;
   status: string;
 }
-export interface Customer{
+export interface Customer extends User{
   
 }
 

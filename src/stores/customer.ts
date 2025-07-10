@@ -53,7 +53,7 @@ export const useCustomerStore = defineStore("customer", {
       try {
         this.loading = true;
         const response = await apiService.put<IAPIResponse<Customer>>(`/CustomerProfiles/Update`, data);
-        const index = this.customers.findIndex(c => c.id === id);
+        const index = this.customers.findIndex(c => c.userId === id);
         if (index !== -1 && response.payload) {
           this.customers[index] = response.payload;
         }
@@ -70,7 +70,7 @@ export const useCustomerStore = defineStore("customer", {
       try {
         this.loading = true;
         const response = await apiService.delete<IAPIResponse<object>>(`/CustomerProfiles/Delete`);
-        this.customers = this.customers.filter(c => c.id !== id);
+        this.customers = this.customers.filter(c => c.userId !== id);
         return response;
       } catch (error) {
         this.error = "Failed to delete customer";

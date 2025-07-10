@@ -28,7 +28,7 @@ export const useEmailTemplateStore = defineStore('emailTemplate', {
           this.templates = response.payload || [];
           console.log('Templates loaded:', this.templates.length);
         } else {
-          this.error = response.remark || 'Failed to fetch templates';
+          this.error = response.message || 'Failed to fetch templates';
           console.error('API Error:', this.error);
         }
       } catch (e: any) {
@@ -45,9 +45,9 @@ export const useEmailTemplateStore = defineStore('emailTemplate', {
       try {
         const response = await apiService.get<IAPIResponse<EmailTemplate>>(`/api/v1/EmailTemplates/GetById/${id}`);
         if (response.isSuccessful) {
-          this.selectedTemplate = response.payload;
+          this.selectedTemplate = response.payload || null;
         } else {
-          this.error = response.remark || 'Failed to fetch template';
+          this.error = response.message || 'Failed to fetch template';
         }
       } catch (e: any) {
         this.error = e.message || 'Failed to fetch template';
@@ -69,7 +69,7 @@ export const useEmailTemplateStore = defineStore('emailTemplate', {
           this.templates.push(response.payload);
           return response.payload;
         } else {
-          this.error = response.remark || 'Failed to create template';
+          this.error = response.message || 'Failed to create template';
           throw new Error(this.error);
         }
       } catch (e: any) {
@@ -94,7 +94,7 @@ export const useEmailTemplateStore = defineStore('emailTemplate', {
           if (idx !== -1) this.templates[idx] = response.payload;
           return response.payload;
         } else {
-          this.error = response.remark || 'Failed to update template';
+          this.error = response.message || 'Failed to update template';
           throw new Error(this.error);
         }
       } catch (e: any) {
@@ -114,7 +114,7 @@ export const useEmailTemplateStore = defineStore('emailTemplate', {
           this.templates = this.templates.filter(t => t.templateId !== id);
           return true;
         } else {
-          this.error = response.remark || 'Failed to delete template';
+          this.error = response.message || 'Failed to delete template';
           throw new Error(this.error);
         }
       } catch (e: any) {
