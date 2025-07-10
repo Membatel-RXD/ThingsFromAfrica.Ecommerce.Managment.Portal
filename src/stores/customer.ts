@@ -1,11 +1,9 @@
-// stores/customer.ts
 import { defineStore } from "pinia";
 import { apiService, type IAPIResponse } from "@/services/api";
-import type { Customer } from "./types/member";
-
+import type { Customer, CustomerProfileContainerDTO } from "./types/member";
 export const useCustomerStore = defineStore("customer", {
   state: () => ({
-    customers: [] as Customer[],
+    customers: [] as CustomerProfileContainerDTO[],
     loading: false,
     error: null as string | null,
     success: null as string | null,
@@ -15,7 +13,7 @@ export const useCustomerStore = defineStore("customer", {
     getCustomers: (state) => state.customers,
     getTotalCustomers: (state) => state.customers.length,
     getTopCustomers: (state) => [...state.customers]
-      .sort((a, b) => b.totalSpent - a.totalSpent)
+      .sort((a, b) => b.customerProfile.totalOrders - a.customerProfile.totalSpent)
       .slice(0, 10),
   },
 
@@ -23,7 +21,7 @@ export const useCustomerStore = defineStore("customer", {
     async fetchCustomers() {
       try {
         this.loading = true;
-        const response = await apiService.get<IAPIResponse<Customer[]>>("/customers");
+        const response = await apiService.get<IAPIResponse<CustomerProfileContainerDTO[]>>(`/CustomerProfiles/GetAll`);
         this.customers = response.payload || [];
       } catch (error) {
         this.error = "Failed to fetch customers";
@@ -36,8 +34,8 @@ export const useCustomerStore = defineStore("customer", {
     async createCustomer(data: Omit<Customer, 'id' | 'totalOrders' | 'totalSpent' | 'createdAt' | 'updatedAt'>): Promise<IAPIResponse<Customer>> {
       try {
         this.loading = true;
-        const response = await apiService.post<IAPIResponse<Customer>>("/customers", data);
-        this.customers.push(response.payload);
+        const response = await apiService.post<IAPIResponse<Customer>>("/CustomerProfiles/Add", data);
+      
         return response;
       } catch (error) {
         this.error = "Failed to create customer";
@@ -50,11 +48,9 @@ export const useCustomerStore = defineStore("customer", {
     async updateCustomer(id: number, data: Partial<Customer>): Promise<IAPIResponse<Customer>> {
       try {
         this.loading = true;
-        const response = await apiService.put<IAPIResponse<Customer>>(`/customers/${id}`, data);
-        const index = this.customers.findIndex(c => c.id === id);
-        if (index !== -1) {
-          this.customers[index] = response.payload;
-        }
+        const response = await apiService.put<IAPIResponse<Customer>>(`/CustomerProfiles/Update?userid=${id}`, data);
+        const index = this.customers.findIndex(c => c.userDetails.userId === id);
+       
         return response;
       } catch (error) {
         this.error = "Failed to update customer";
@@ -68,7 +64,9 @@ export const useCustomerStore = defineStore("customer", {
       try {
         this.loading = true;
         const response = await apiService.delete<IAPIResponse<object>>(`/customers/${id}`);
-        this.customers = this.customers.filter(c => c.id !== id);
+        if(response && response.isSuccessful && response.payload){
+          this.customers = this.customers.filter(c => c.userDetails.userId !== id);
+        }
         return response;
       } catch (error) {
         this.error = "Failed to delete customer";

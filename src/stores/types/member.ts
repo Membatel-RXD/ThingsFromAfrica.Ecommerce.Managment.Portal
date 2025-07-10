@@ -40,6 +40,7 @@ export interface User {
   roleId: number
   passwordHash: string
   username: string
+  userId:number;
   email: string
   emailVerified: boolean
   emailVerificationToken: string
@@ -251,8 +252,48 @@ export interface Order {
   customerPhone: string;
   status: string;
 }
+
+export interface AddressDTO {
+  addressId: number
+  userId: number
+  addressLine1: string
+  addressLine2: string
+  city: string
+  stateProvince: string
+  postalCode: string
+  country: string
+  contactName: string
+  contactPhone: string
+  addressType: string
+  isActive: boolean
+  isDefault: boolean
+  createdAt: string // ISO 8601 date string
+  modifiedAt: string // ISO 8601 date string
+}
+
 export interface Customer{
-  
+  userId: number
+  customerType: string
+  companyName: string
+  taxId: string
+  marketingOptIn: boolean
+  newsletterOptIn: boolean
+  smsOptIn: boolean
+  totalOrders: number
+  totalSpent: number
+  averageOrderValue: number
+  lastOrderDate: string // ISO 8601 date string
+  customerLifetimeValue: number
+  loyaltyPoints: number
+  loyaltyTier: string
+  createdAt: string // ISO 8601 date string
+  modifiedAt: string // ISO 8601 date string
+}
+
+export interface CustomerProfileContainerDTO {
+  customerProfile: Customer
+  userDetails: User
+  userAddresses: AddressDTO[]
 }
 
 export interface WoodCreatetionRequest {
