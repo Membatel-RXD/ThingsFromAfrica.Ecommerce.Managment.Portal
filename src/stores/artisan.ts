@@ -58,8 +58,8 @@ export const useArtisanStore = defineStore("artisan", {
     async updateArtisan(id: number, data: Partial<ArtisanDTO>): Promise<IAPIResponse<ArtisanDTO>> {
       try {
         this.loading = true;
-        const response = await apiService.put<IAPIResponse<ArtisanDTO>>(`/Artisans/Update?artisanid=${id}`, data);
-        const index = this.artisans.findIndex(a => a.artisanSlug === data.artisanSlug);
+        const response = await apiService.put<IAPIResponse<ArtisanDTO>>(`/Artisans/Update?artisanId=${id}`, data);
+        const index = this.artisans.findIndex(a => a.artisanId === id);
         if (index !== -1 && response && response.isSuccessful && response.payload) {
           this.artisans[index] = response.payload;
         }
@@ -75,9 +75,9 @@ export const useArtisanStore = defineStore("artisan", {
     async deleteArtisan(id: number): Promise<IAPIResponse<object>> {
       try {
         this.loading = true;
-        const response = await apiService.delete<IAPIResponse<object>>(`/Artisans/Delete?artisanid=${id}`);
-        if (response && response.isSuccessful && response.payload) {
-          this.artisans = this.artisans.filter(a => a.artisanSlug !== id.toString());
+        const response = await apiService.delete<IAPIResponse<object>>(`/Artisans/Delete?artisanId=${id}`);
+        if (response && response.isSuccessful) {
+          this.artisans = this.artisans.filter(a => a.artisanId !== id);
         }
         return response;
       } catch (error) {

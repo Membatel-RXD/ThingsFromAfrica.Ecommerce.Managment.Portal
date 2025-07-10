@@ -176,10 +176,10 @@
 <script lang="ts" setup>
 import {nextTick, ref} from 'vue';
 import { useRouter } from 'vue-router';
-import { useUserStore} from "@/stores/user";
-import { LoginCredentials, UserRole } from '@/stores/types/member';
+import { useUserStore } from '@/stores/user';
 
 const router = useRouter();
+const userStore = useUserStore();
 
 // Form data
 const email = ref('');
@@ -188,8 +188,6 @@ const showPassword = ref(false);
 const rememberMe = ref(false);
 const isFormValid = ref(false);
 const isLoading = ref(false);
-
-const userStore = useUserStore();
 
 // Reset password
 const forgotPasswordDialog = ref(false);
@@ -212,87 +210,22 @@ const rules = {
   }
 };
 
-// Login handler
+// Local login handler
 const handleLogin = async () => {
   if (!isFormValid.value) return;
-
   isLoading.value = true;
-
   try {
-    const loginCredentials = {
-      Email: email.value,
-      password: password.value,
-    } as LoginCredentials;
-
-    const loginResponse = await userStore.login(loginCredentials);
-
-    if (loginResponse.isSuccessful && loginResponse.payload) {
-      const authResponse = loginResponse.payload;
-
+    // Use hardcoded login for now
+    const success = userStore.loginLocal(email.value, password.value);
+    if (success) {
+      showNotification('Login successful!', 'success');
       await nextTick();
-
-      try {
-        // Handle password change requirement first
-        // if (authResponse.shouldChangePassword) {
-        //   await router.push("/user/profile");
-        //   return;
-        // }
-
-        // Get user role and handle navigation for e-commerce
-        const userRole = userStore.role;
-        
-        if (!userRole) {
-          console.warn("No role assigned to user, redirecting to shop");
-          await router.push('/admin/dashboard');
-          return;
-        }
-
-        // E-commerce role-based navigation
-        const roleNavigation = {
-          [UserRole.SuperAdmin?.toLowerCase()]: '/admin/dashboard',
-          [UserRole.Admin?.toLowerCase()]: '/admin/dashboard',
-          [UserRole.Manager?.toLowerCase()]: '/admin/orders'
-        };
-
-        const targetRoute = roleNavigation[userRole.toLowerCase()];
-        console.log("The role navigation is this: "+targetRoute);
-        if (targetRoute) {
-         // await router.push(targetRoute);
-         await router.push({ name: "admin-dashboard" });
-  
-        } else {
-          // Default fallback for customers
-          console.warn(`Unknown role: ${userRole}, redirecting to shop`);
-          await router.push('/shop');
-        }
-
-        // Show success notification
-        showNotification(`Welcome back, ${authResponse.fULLname || userStore.user?.username}!`, 'success');
-
-      } catch (navigationError) {
-        console.error("Navigation failed:", navigationError);
-        showNotification('Login successful, but navigation failed. Please try refreshing the page.', 'warning');
-      }
+      router.push('/admin/dashboard');
     } else {
-      // Handle unsuccessful login
-      const errorMessage = loginResponse.message || "Invalid login credentials chadzunda";
-      showNotification(errorMessage, 'error');
+      showNotification('Invalid username or password', 'error');
     }
-  } catch (error) {
-    console.error('Login error:', error);
-    
-    // More specific error handling
-    if (error instanceof Error) {
-      if (error.message.includes('Network')) {
-        showNotification('Network error. Please check your connection and try again.', 'error');
-      } else if (error.message.includes('timeout')) {
-        showNotification('Request timeout. Please try again.', 'error');
-      } else {
-        showNotification('Error logging in. Please try again.', 'error');
-      }
-    } else {
-      showNotification('An unexpected error occurred. Please try again.', 'error');
-    }
+  } catch (e) {
+    showNotification('Login failed. Please try again.', 'error');
   } finally {
     isLoading.value = false;
   }
@@ -301,7 +234,6 @@ const handleLogin = async () => {
 // Reset password handler
 const sendResetLink = () => {
   if (!isResetFormValid.value) return;
-
   forgotPasswordDialog.value = false;
   showNotification(`Password reset link sent to ${resetEmail.value}`, 'info');
   resetEmail.value = '';
@@ -333,8 +265,13 @@ const showNotification = (text:string, color:string) => {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #fff !important;
   font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .login-overlay {
@@ -345,16 +282,20 @@ const showNotification = (text:string, color:string) => {
   width: 100%;
   max-width: 100%;
   height: 100vh;
+  /* Remove any padding */
+  padding: 0;
+  margin: 0;
 }
 
 .login-card {
   width: 100%;
   max-width: 450px;
   padding: 2.5rem;
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: #fff;
   border-radius: 16px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
   overflow: hidden;
+  border: none;
 }
 
 .header {
@@ -472,5 +413,17 @@ const showNotification = (text:string, color:string) => {
     flex-direction: column;
     gap: 0.5rem;
   }
+}
+</style>
+
+<style>
+html, body, #app {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: #fff !important;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 </style>

@@ -26,8 +26,29 @@ body {
   margin: 0;
   display: flex;
   place-items: center;
-  min-width: 320px;
+  width: 100vw;
+  height: 100vh;
+  background: none;
+}
+
+html, body, #app {
+  height: 100%;
   min-height: 100vh;
+}
+
+.v-application {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  box-sizing: border-box;
 }
 
 h1 {
@@ -59,9 +80,12 @@ button:focus-visible {
 }
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: none;
   text-align: center;
 }
 

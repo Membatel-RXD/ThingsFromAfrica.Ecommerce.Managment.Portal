@@ -446,3 +446,31 @@ export interface PaymentMethodDTO {
   description: string
 }
 export interface CreatePaymentMethodRequest extends Omit<PaymentMethodDTO, 'paymentMethodId'> {}
+
+// Email Template interface for API integration
+export interface EmailTemplate {
+  templateId: number;
+  templateName: string;
+  templateCode: string;
+  subject: string;
+  body: string;
+  isActive: boolean;
+  createdAt: string;
+  modifiedAt: string;
+}
+
+export interface EmailQueue {
+  emailId: number;
+  subject: string;
+  body: string;
+  toEmail: string;
+  toName: string;
+  priority: number;
+  maxAttempts: number;
+  attemptCount: number;
+  status: string;
+  scheduledAt: string;
+  sentAt: string;
+  errorMessage: string;
+  createdAt: string;
+}

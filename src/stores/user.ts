@@ -1,15 +1,13 @@
 import { defineStore } from "pinia";
-import { apiService, type IAPIResponse } from "@/services/api";
-
-import { UserRole, type AuthenticationResponse, type CreateUsersRequest, type LoginCredentials, type UserRoleRequest } from "./types/member";
-
+import { apiService } from "@/services/api";
+import type { LoginCredentials, AuthenticationResponse } from "./types/member";
 
 interface User {
   userId: number;
   username: string;
   email: string;
   token: string;
-  role: UserRoleRequest;
+  role: any; // simplified, since UserRoleRequest is removed
 }
 
 export const useUserStore = defineStore('user', {
@@ -53,142 +51,66 @@ export const useUserStore = defineStore('user', {
         window.location.href = '/login';
       }
     },
-
-    async checkAuthStatus() {
-      try {
-        // If already initialized, don't check again
-        if (this.isInitialized) return;
-
-        // Check if we have persisted authentication state
-        if (this.isAuthenticated && this.token && this.user) {
-          // Check if token is expired
-          if (this.isTokenExpired) {
-            this.logout();
-            return;
-          }
-
-          // Optionally validate token with backend (you can skip this for faster loading)
-          try {
-            const response = await apiService.get<IAPIResponse<User>>(
-              `/Users/GetProfileData?email=${this.user?.email}`,
-            );
-
-            if (response?.isSuccessful && response.payload) {
-              // Token is valid, update user data if needed
-              this.user = { ...this.user, ...response.payload };
-              this.isAuthenticated = true;
-            } else {
-              // Token is invalid or user doesn't exist
-              this.logout();
-              return;
-            }
-          } catch (validationError) {
-            // If validation fails, log error but don't logout immediately
-            // This allows offline usage or handles temporary network issues
-            console.warn('Token validation failed, but keeping user logged in:', validationError);
-          }
-        } else {
-          // No persisted authentication state
-          this.logout();
-        }
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        this.logout();
-      } finally {
-        this.isInitialized = true;
-      }
-    },
-
-
-    async getAllUsers() {
-      try {
-       
-
-        const response = await apiService.get<IAPIResponse<User[]>>(
-          "/Users/GetUsers",
-        );
-        if (response != null) {
-          if (response.isSuccessful) {
-            this.users = response.payload || [];
-          } else {
-            this.users = [];
-          }
-        }
-      } catch (e: unknown) {
-        throw e;
-      }
-    },
-
-    async getUserData() {
-      try {
-       
-        const response = await apiService.get<IAPIResponse<User>>(
-          `/Users/GetProfileData?email=${this.user?.email}`,
-        );
-        if (response != null) {
-          if (response.isSuccessful && response.payload) {
-            this.user = response.payload;
-          } else {
-            this.user = null;
-          }
-        }
-      } catch (e: unknown) {
-        throw e;
-      }
-    },
-
-    async CreateNewUser(userCreationRequest: CreateUsersRequest): Promise<IAPIResponse<object>> {
-      try {
-
-       
-        const response = await apiService.post<IAPIResponse<object>>(
-          "/Users/Add",
-          userCreationRequest
-        );
-        if (response !== null) {
-          if (response.isSuccessful) {
-            await this.getAllUsers();
-          }
-        }
-        return response;
-      } catch (error) {
-        throw error;
-      }
-    },
-
-    async login(credentials: LoginCredentials): Promise<IAPIResponse<AuthenticationResponse>> {
-      try {
-        const response = await apiService.post<IAPIResponse<AuthenticationResponse>>(
-          "/Users/Authenticate",
-          credentials
-        );
-
-        console.log(JSON.stringify(response));
-
-        if (response?.isSuccessful && response.payload) {
-          const authResponse = response.payload;
-          const tokenPayload = JSON.parse(atob(authResponse.token.split('.')[1]));
-          const fullName = tokenPayload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"];
-
-          this.user = {
-            userId: authResponse.userId,
-            username: fullName,
-            email: authResponse.email,
-            role: authResponse.userRole,
-            token: authResponse.token,
-          };
-          this.token = authResponse.token;
-          this.role = authResponse.userRole.roleName;
-          this.isAuthenticated = true;
-          this.isInitialized = true;        }
-
-        return response;
-      } catch (error) {
-        throw error;
-      }
-    },
-    hasRole(requiredRole: UserRole): boolean {
+    hasRole(requiredRole: string): boolean {
       return this.role === requiredRole;
+    },
+    async login(email: string, password: string) {
+      try {
+        const credentials: LoginCredentials = { Email: email, password };
+        const response = await apiService.post<AuthenticationResponse>("/Auth/Login", credentials);
+        if (response && response.token) {
+          this.user = {
+            userId: response.userId,
+            username: response.userName,
+            email: response.email,
+            token: response.token,
+            role: response.userRole?.roleName,
+          };
+          this.isAuthenticated = true;
+          this.token = response.token;
+          this.role = response.userRole?.roleName;
+          localStorage.setItem('user', JSON.stringify(this.user));
+          return true;
+        } else {
+          this.isAuthenticated = false;
+          return false;
+        }
+      } catch (error) {
+        this.isAuthenticated = false;
+        throw error;
+      }
+    },
+    loginLocal(email: string, password: string): boolean {
+      // Hardcoded credentials for development only
+      const validUser = {
+        email: 'admin@thingsfromafrica.com',
+        password: 'admin123!',
+        role: 'superadmin',
+        username: 'admin',
+        userId: 1,
+        token: 'local-dev-token',
+      };
+      if (email === validUser.email && password === validUser.password) {
+        this.user = {
+          userId: validUser.userId,
+          username: validUser.username,
+          email: validUser.email,
+          token: validUser.token,
+          role: validUser.role,
+        };
+        this.isAuthenticated = true;
+        this.token = validUser.token;
+        this.role = validUser.role;
+        this.isInitialized = true;
+        localStorage.setItem('user', JSON.stringify(this.user));
+        return true;
+      } else {
+        this.user = null;
+        this.isAuthenticated = false;
+        this.token = null;
+        this.role = null;
+        return false;
+      }
     }
   },
 

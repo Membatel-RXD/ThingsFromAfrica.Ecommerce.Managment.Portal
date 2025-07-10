@@ -21,14 +21,14 @@
           <p class="text-caption text-orange-lighten-3">Things From Africa</p>
         </div>
         <v-spacer />
-        <p class="my-auto me-3 text-yellow-lighten-2" v-if="userStore.user">Hello {{ username }}!</p>
         <v-menu>
           <template v-slot:activator="{ props }">
-            <v-btn v-bind="props" color="yellow-lighten-2">
+            <v-btn v-bind="props" color="yellow-lighten-2" class="d-flex align-center user-dropdown-btn" style="min-width: 0;">
               <v-icon color="orange-darken-2" size="27" icon="mdi-account-circle" />
+              <span class="mx-2 user-navbar-username" v-if="userStore.user">{{ username }}</span>
+              <v-icon color="orange-darken-2" size="20" icon="mdi-chevron-down" />
             </v-btn>
           </template>
-          
           <v-list>
             <v-list-item :to="{ name: 'profile' }">
               <template v-slot:prepend>
@@ -36,15 +36,26 @@
               </template>
               <v-list-item-title>Profile</v-list-item-title>
             </v-list-item>
-            
-            <v-list-item @click="logout">
+            <v-divider></v-divider>
+            <v-list-item @click="logoutDialog = true">
               <template v-slot:prepend>
-                <v-icon icon="mdi-logout" />
+                <v-icon color="error" icon="mdi-logout" />
               </template>
-              <v-list-item-title>Logout ({{username}})</v-list-item-title>
+              <v-list-item-title class="text-error">Logout</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
+        <v-dialog v-model="logoutDialog" max-width="400">
+          <v-card>
+            <v-card-title class="headline">Confirm Logout</v-card-title>
+            <v-card-text>Do you want to logout?</v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="grey" variant="text" @click="logoutDialog = false">Cancel</v-btn>
+              <v-btn color="error" variant="elevated" @click="confirmLogout">Logout</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </div>
     </v-app-bar>
 
@@ -71,168 +82,78 @@
         </v-list-item>
 
         <!-- Product Management -->
-        <v-list-subheader class="text-uppercase font-weight-bold text-yellow-lighten-2">
-          Product Management
-        </v-list-subheader>
-
         <v-list-group value="products">
           <template v-slot:activator="{ props }">
             <v-list-item v-bind="props" prepend-icon="mdi-package-variant">
               <v-list-item-title>Products</v-list-item-title>
             </v-list-item>
           </template>
-
-          <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'products' }">
-            <template v-slot:prepend>
-              <v-icon size="small" icon="mdi-eye" />
-            </template>
+          <v-list-item :to="{ name: 'admin-products' }" link exact>
             <v-list-item-title>All Products</v-list-item-title>
           </v-list-item>
-
-          <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'products-create' }">
-            <template v-slot:prepend>
-              <v-icon size="small" icon="mdi-plus" />
-            </template>
-            <v-list-item-title>Add Product</v-list-item-title>
-          </v-list-item>
-
-          <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'wood-types' }">
-            <template v-slot:prepend>
-              <v-icon size="small" icon="mdi-tree" />
-            </template>
-            <v-list-item-title>Wood Types</v-list-item-title>
-          </v-list-item>
-
-          <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'craft-types' }">
-            <template v-slot:prepend>
-              <v-icon size="small" icon="mdi-palette" />
-            </template>
-            <v-list-item-title>Craft Types</v-list-item-title>
-          </v-list-item>
-
-          <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'categories' }">
-            <template v-slot:prepend>
-              <v-icon size="small" icon="mdi-tag-multiple" />
-            </template>
-            <v-list-item-title>Categories</v-list-item-title>
-          </v-list-item>
+          <v-list-item :to="{ name: 'admin-categories' }"><v-list-item-title>Categories</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'reviews' }"><v-list-item-title>Reviews</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'CareInstructions' }"><v-list-item-title>Care Instructions</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'DiscountTypes' }"><v-list-item-title>Discount Types</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'promotions' }"><v-list-item-title>Promotions</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'PromotionUsage' }"><v-list-item-title>Promotion Usage</v-list-item-title></v-list-item>
         </v-list-group>
 
         <!-- Order Management -->
-        <v-list-subheader class="text-uppercase font-weight-bold text-yellow-lighten-2">
-          Order Management
-        </v-list-subheader>
-
         <v-list-group value="orders">
           <template v-slot:activator="{ props }">
             <v-list-item v-bind="props" prepend-icon="mdi-shopping">
               <v-list-item-title>Orders</v-list-item-title>
             </v-list-item>
           </template>
-
-          <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'admin-orders' }">
-            <template v-slot:prepend>
-              <v-icon size="small" icon="mdi-format-list-bulleted" />
-            </template>
-            <v-list-item-title>All Orders</v-list-item-title>
-          </v-list-item>
-
-          <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'orders-pending' }">
-            <template v-slot:prepend>
-              <v-icon size="small" icon="mdi-clock-outline" />
-            </template>
-            <v-list-item-title>Pending Orders</v-list-item-title>
-          </v-list-item>
-
-          <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'shipments' }">
-            <template v-slot:prepend>
-              <v-icon size="small" icon="mdi-truck-delivery" />
-            </template>
-            <v-list-item-title>Shipments</v-list-item-title>
-          </v-list-item>
+          <v-list-item :to="{ name: 'admin-orders' }"><v-list-item-title>All Orders</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'order-items' }"><v-list-item-title>Order Items</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'order-status' }"><v-list-item-title>Order Status</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'order-status-history' }"><v-list-item-title>Status History</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'shipments' }"><v-list-item-title>Shipments</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'shipment-items' }"><v-list-item-title>Shipment Items</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'shipping-methods' }"><v-list-item-title>Shipping Methods</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'shipping-rates' }"><v-list-item-title>Shipping Rates</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'shipping-restrictions' }"><v-list-item-title>Shipping Restrictions</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'shopping-cart' }"><v-list-item-title>Shopping Cart</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'stock-alerts' }"><v-list-item-title>Stock Alerts</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'inventory-transactions' }"><v-list-item-title>Inventory Transactions</v-list-item-title></v-list-item>
         </v-list-group>
 
-        <!-- Customer & Artisan Management -->
-        <v-list-subheader class="text-uppercase font-weight-bold text-yellow-lighten-2">
-          User Management
-        </v-list-subheader>
-
-        <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'customers' }">
-          <template v-slot:prepend>
-            <v-icon icon="mdi-account-group" color="yellow-lighten-2" />
-          </template>
-          <v-list-item-title>Customers</v-list-item-title>
-        </v-list-item>
-
-        <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'artisans' }">
-          <template v-slot:prepend>
-            <v-icon icon="mdi-account-hard-hat" color="yellow-lighten-2" />
-          </template>
-          <v-list-item-title>Artisans</v-list-item-title>
-        </v-list-item>
-
-        <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'reviews' }">
-          <template v-slot:prepend>
-            <v-icon icon="mdi-star" color="yellow-lighten-2" />
-          </template>
-          <v-list-item-title>Reviews</v-list-item-title>
-        </v-list-item>
-
-        <!-- Inventory Management -->
-        <template v-if="hasRole([UserRole.SuperAdmin, UserRole.Manager])">
-          <v-list-subheader class="text-uppercase font-weight-bold text-yellow-lighten-2">
-            Inventory Management
-          </v-list-subheader>
-
-          <v-list-group value="inventory">
-            <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" prepend-icon="mdi-warehouse">
-                <v-list-item-title>Inventory</v-list-item-title>
-              </v-list-item>
-            </template>
-
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'inventory-dashboard' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-view-dashboard-outline" />
-              </template>
-              <v-list-item-title>Inventory Dashboard</v-list-item-title>
+        <!-- Customer Management -->
+        <v-list-group value="customers">
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props" prepend-icon="mdi-account-group">
+              <v-list-item-title>Customers</v-list-item-title>
             </v-list-item>
+          </template>
+          <v-list-item :to="{ name: 'AllCustomers' }"><v-list-item-title>All Customers</v-list-item-title></v-list-item>
+        </v-list-group>
 
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'stock-alerts' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-alert-circle-outline" />
-              </template>
-              <v-list-item-title>Stock Alerts</v-list-item-title>
+        <!-- Artisans & Vendors -->
+        <v-list-group value="artisans-vendors">
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props" prepend-icon="mdi-account-hard-hat">
+              <v-list-item-title>Artisans & Vendors</v-list-item-title>
             </v-list-item>
+          </template>
+          <v-list-item :to="{ name: 'artisans' }"><v-list-item-title>Artisans</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'wood-types' }"><v-list-item-title>Wood Types</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'craft-types' }"><v-list-item-title>Craft Types</v-list-item-title></v-list-item>
+        </v-list-group>
 
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'stock-movement' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-swap-horizontal" />
-              </template>
-              <v-list-item-title>Stock Movement</v-list-item-title>
-            </v-list-item>
-          </v-list-group>
-        </template>
-
-        <!-- Financial Management -->
-        <template v-if="hasRole([UserRole.SuperAdmin, UserRole.Manager])">
-          <v-list-subheader class="text-uppercase font-weight-bold text-yellow-lighten-2">
-            Financial Management
-          </v-list-subheader>
-
-          <v-list-group value="finances">
-            <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" prepend-icon="mdi-currency-usd">
-                <v-list-item-title>Finances</v-list-item-title>
-              </v-list-item>
-            </template>
-
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'payments' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-credit-card" />
-              </template>
+        <!-- Payments -->
+        <v-list-group value="payments">
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props" prepend-icon="mdi-credit-card">
               <v-list-item-title>Payments</v-list-item-title>
             </v-list-item>
+          </template>
+          <v-list-item :to="{ name: 'payments' }"><v-list-item-title>All Payments</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'payment-methods' }"><v-list-item-title>Payment Methods</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'revenue-reports' }"><v-list-item-title>Revenue Reports</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'artisan-payouts' }"><v-list-item-title>Artisan Payouts</v-list-item-title></v-list-item>
+        </v-list-group>
             <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'payment-methods' }">
               <template v-slot:prepend>
                 <v-icon size="small" icon="mdi-credit-card" />
@@ -240,136 +161,60 @@
               <v-list-item-title>Payment Methods</v-list-item-title>
             </v-list-item>
 
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'revenue-reports' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-chart-line" />
-              </template>
-              <v-list-item-title>Revenue Reports</v-list-item-title>
+        <!-- Marketing -->
+        <v-list-group value="marketing">
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props" prepend-icon="mdi-bullhorn">
+              <v-list-item-title>Marketing</v-list-item-title>
             </v-list-item>
+          </template>
+          <v-list-item :to="{ name: 'email-templates' }"><v-list-item-title>Email Templates</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'email-queue' }"><v-list-item-title>Email Queue</v-list-item-title></v-list-item>
+        </v-list-group>
 
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'artisan-payouts' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-account-cash" />
-              </template>
-              <v-list-item-title>Artisan Payouts</v-list-item-title>
+        <!-- Analytics -->
+        <v-list-group value="analytics">
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props" prepend-icon="mdi-chart-bar">
+              <v-list-item-title>Analytics</v-list-item-title>
             </v-list-item>
-          </v-list-group>
-        </template>
+          </template>
+          <v-list-item :to="{ name: 'sales-analytics' }"><v-list-item-title>Sales Analytics</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'product-analytics' }"><v-list-item-title>Product Analytics</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'customer-insights' }"><v-list-item-title>Customer Insights</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'website-analytics' }"><v-list-item-title>Website Analytics</v-list-item-title></v-list-item>
+        </v-list-group>
 
-        <!-- Marketing & Promotions -->
-        <template v-if="hasRole([UserRole.SuperAdmin, UserRole.Manager])">
-          <v-list-subheader class="text-uppercase font-weight-bold text-yellow-lighten-2">
-            Marketing & Promotions
-          </v-list-subheader>
-
-          <v-list-group value="marketing">
+        <!-- Settings -->
+        <v-list-group value="settings">
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props" prepend-icon="mdi-cog">
+              <v-list-item-title>Settings</v-list-item-title>
+            </v-list-item>
+          </template>
+          <!-- Core System Settings -->
+          <v-list-item :to="{ name: 'general-settings' }"><v-list-item-title>General Settings</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'security' }"><v-list-item-title>Security</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'system-logs' }"><v-list-item-title>System Logs</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'backup-restore' }"><v-list-item-title>Backup & Restore</v-list-item-title></v-list-item>
+          <!-- User Management Essentials -->
+          <v-list-item :to="{ name: 'system-user-management' }"><v-list-item-title>System Users</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'roles' }"><v-list-item-title>Roles</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'permissions' }"><v-list-item-title>Permissions</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'role-permissions' }"><v-list-item-title>Role Permissions</v-list-item-title></v-list-item>
+          <!-- Advanced User Management (optional, collapsed) -->
+          <v-list-group value="advanced-user-management">
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" prepend-icon="mdi-bullhorn">
-                <v-list-item-title>Marketing</v-list-item-title>
+              <v-list-item v-bind="props" prepend-icon="mdi-shield-account">
+                <v-list-item-title>Advanced User Management</v-list-item-title>
               </v-list-item>
             </template>
-
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'promotions' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-sale" />
-              </template>
-              <v-list-item-title>Promotions</v-list-item-title>
-            </v-list-item>
-
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'email-templates' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-email-outline" />
-              </template>
-              <v-list-item-title>Email Templates</v-list-item-title>
-            </v-list-item>
-
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'newsletters' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-newspaper" />
-              </template>
-              <v-list-item-title>Newsletters</v-list-item-title>
-            </v-list-item>
+            <v-list-item :to="{ name: 'user-login-history' }"><v-list-item-title>User Login History</v-list-item-title></v-list-item>
+            <v-list-item :to="{ name: 'user-sessions' }"><v-list-item-title>User Sessions</v-list-item-title></v-list-item>
+            <v-list-item :to="{ name: 'oauth-providers' }"><v-list-item-title>OAuth Providers</v-list-item-title></v-list-item>
+            <v-list-item :to="{ name: 'user-oauth-connections' }"><v-list-item-title>User OAuth Connections</v-list-item-title></v-list-item>
           </v-list-group>
-        </template>
-
-        <!-- Reports & Analytics -->
-        <template v-if="hasRole([UserRole.SuperAdmin, UserRole.Manager])">
-          <v-list-subheader class="text-uppercase font-weight-bold text-yellow-lighten-2">
-            Reports & Analytics
-          </v-list-subheader>
-
-          <v-list-group value="reports">
-            <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" prepend-icon="mdi-file-chart">
-                <v-list-item-title>Reports</v-list-item-title>
-              </v-list-item>
-            </template>
-
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'sales-reports' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-chart-bar" />
-              </template>
-              <v-list-item-title>Sales Reports</v-list-item-title>
-            </v-list-item>
-
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'product-analytics' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-analytics" />
-              </template>
-              <v-list-item-title>Product Analytics</v-list-item-title>
-            </v-list-item>
-
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'customer-insights' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-account-search" />
-              </template>
-              <v-list-item-title>Customer Insights</v-list-item-title>
-            </v-list-item>
-          </v-list-group>
-        </template>
-
-        <!-- System Settings -->
-        <template v-if="hasRole([UserRole.SuperAdmin])">
-          <v-list-subheader class="text-uppercase font-weight-bold text-yellow-lighten-2">
-            System Settings
-          </v-list-subheader>
-
-          <v-list-group value="settings">
-            <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" prepend-icon="mdi-cog">
-                <v-list-item-title>Settings</v-list-item-title>
-              </v-list-item>
-            </template>
-
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'general-settings' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-cog-outline" />
-              </template>
-              <v-list-item-title>General Settings</v-list-item-title>
-            </v-list-item>
-
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'user-management' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-account-multiple" />
-              </template>
-              <v-list-item-title>User Management</v-list-item-title>
-            </v-list-item>
-
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'system-logs' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-file-document-outline" />
-              </template>
-              <v-list-item-title>System Logs</v-list-item-title>
-            </v-list-item>
-
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'backup-restore' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-backup-restore" />
-              </template>
-              <v-list-item-title>Backup & Restore</v-list-item-title>
-            </v-list-item>
-          </v-list-group>
-        </template>
+        </v-list-group>
 
       </v-list>
     </v-navigation-drawer>
@@ -399,6 +244,12 @@ import { UserRole } from "@/stores/types/member";
   };
 
   const { drawer } = storeToRefs(appStore);
+
+  const logoutDialog = ref(false);
+  function confirmLogout() {
+    logoutDialog.value = false;
+    logout();
+  }
 
   // Helper function to check if the current user has any of the specified roles
   const hasRole = (allowedRoles: string[]) => {
@@ -440,5 +291,26 @@ import { UserRole } from "@/stores/types/member";
     width: auto;
     max-width: 40px;
     object-fit: contain;
+  }
+
+  .logout-btn {
+    background-color: #fff !important;
+    color: #B00020 !important;
+    border: 1px solid #B00020 !important;
+  }
+
+  .user-navbar-username {
+    color: #222 !important;
+    font-size: 1.15rem;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.10);
+  }
+
+  .user-dropdown-btn {
+    background: #FFF59D !important; /* Vuetify yellow-lighten-2 */
+    border-radius: 24px !important;
+    padding: 0 10px 0 16px !important;
+    min-height: 40px;
   }
 </style>

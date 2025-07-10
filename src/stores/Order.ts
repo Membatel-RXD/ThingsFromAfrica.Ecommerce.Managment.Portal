@@ -24,7 +24,7 @@ export const useOrderStore = defineStore("order", {
     async fetchOrders() {
       try {
         this.loading = true;
-        const response = await apiService.get<IAPIResponse<Order[]>>("/orders");
+        const response = await apiService.get<IAPIResponse<Order[]>>("/Orders/GetAll");
         this.orders = response.payload || [];
       } catch (error) {
         this.error = "Failed to fetch orders";
@@ -37,8 +37,9 @@ export const useOrderStore = defineStore("order", {
     async fetchRecentOrders() {
       try {
         this.loading = true;
-        const response = await apiService.get<IAPIResponse<Order[]>>("/orders/recent");
-        this.recentOrders = response.payload || [];
+        // For now, we'll get all orders and take the most recent ones
+        const response = await apiService.get<IAPIResponse<Order[]>>("/Orders/GetAll");
+        this.recentOrders = (response.payload || []).slice(0, 5); // Get recent 5
       } catch (error) {
         this.error = "Failed to fetch recent orders";
         throw error;
@@ -50,7 +51,7 @@ export const useOrderStore = defineStore("order", {
     async createOrder(data: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>): Promise<IAPIResponse<Order>> {
       try {
         this.loading = true;
-        const response = await apiService.post<IAPIResponse<Order>>("/orders", data);
+        const response = await apiService.post<IAPIResponse<Order>>("/Orders/Add", data);
         if(response && response.isSuccessful && response.payload){
             this.orders.push(response.payload);
         }
@@ -66,7 +67,7 @@ export const useOrderStore = defineStore("order", {
     async updateOrderStatus(id: number, status: Order['status']): Promise<IAPIResponse<Order>> {
       try {
         this.loading = true;
-        const response = await apiService.put<IAPIResponse<Order>>(`/orders/${id}/status`, { status });
+        const response = await apiService.put<IAPIResponse<Order>>(`/Orders/Update`, { orderId: id, status });
         const index = this.orders.findIndex(o => o.orderId === id);
         if (response && response.isSuccessful && response.payload) {
           
@@ -86,7 +87,7 @@ export const useOrderStore = defineStore("order", {
     async deleteOrder(id: number): Promise<IAPIResponse<object>> {
       try {
         this.loading = true;
-        const response = await apiService.delete<IAPIResponse<object>>(`/orders/${id}`);
+        const response = await apiService.delete<IAPIResponse<object>>(`/Orders/Delete`);
         this.orders = this.orders.filter(o => o.orderId !== id);
         return response;
       } catch (error) {

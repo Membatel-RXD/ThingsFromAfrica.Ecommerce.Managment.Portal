@@ -9,7 +9,17 @@ import axios, {
   AxiosError,
 } from "axios";
 import { API_CONFIG } from "../config/api-config";
-import {useUserStore} from "@/stores/user";
+
+export interface AuthenticationResponse {
+  token: string;
+  tokenExpiration: string;
+  userId: number;
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  userRole: any;
+  userName: string;
+}
 
 class ApiService {
   private api: AxiosInstance;
@@ -20,31 +30,41 @@ class ApiService {
       timeout: API_CONFIG.TIMEOUT,
       headers: API_CONFIG.HEADERS,
     });
-    // Request interceptor
+
+    // Add request interceptor for debugging
     this.api.interceptors.request.use(
       (config) => {
-        // Get token from localStorage or your auth store
-        const userStore = useUserStore(); // Call it here instead
-        const token = userStore.token;
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
+        console.log('API Request:', {
+          method: config.method?.toUpperCase(),
+          url: (config.baseURL || '') + (config.url || ''),
+          data: config.data,
+          params: config.params
+        });
         return config;
       },
       (error) => {
+        console.error('API Request Error:', error);
         return Promise.reject(error);
       }
     );
 
-    // Response interceptor
+    // Add response interceptor for debugging
     this.api.interceptors.response.use(
-      (response) => response,
-      (error: AxiosError) => {
-        // Handle global error cases
-        if (error.response?.status === 401) {
-          // Handle unauthorized access
-          // You might want to redirect to login or refresh token
-        }
+      (response) => {
+        console.log('API Response:', {
+          status: response.status,
+          url: response.config?.url || 'unknown',
+          data: response.data
+        });
+        return response;
+      },
+      (error) => {
+        console.error('API Response Error:', {
+          status: error.response?.status,
+          url: error.config?.url || 'unknown',
+          message: error.message,
+          data: error.response?.data
+        });
         return Promise.reject(error);
       }
     );
@@ -73,6 +93,14 @@ class ApiService {
     const response: AxiosResponse<T> = await this.api.delete(url);
     return response.data;
   }
+
+  // User verification (login) method
+  async verifyUser(email: string, password: string): Promise<AuthenticationResponse> {
+    const credentials = { Email: email, password };
+    // The API returns the AuthenticationResponse directly
+    return await this.post<AuthenticationResponse>("/Auth/Login", credentials);
+  }
 }
 
 export const apiService = new ApiService();
+export { AuthenticationResponse };

@@ -1,1123 +1,130 @@
 <template>
-    <div>
-      <v-container fluid class="pa-6">
-        <v-row>
-          <v-col cols="12">
-            <div class="d-flex align-center justify-space-between mb-6">
+  <v-container>
+    <v-form v-model="isFormValid" @submit.prevent="handleSubmit">
+      <v-row>
+        <!-- Basic Info -->
+        <v-col cols="12" md="6">
+          <v-text-field v-model="formData.productName" label="Product Name" :rules="[rules.required]" required />
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-text-field v-model="formData.productSlug" label="Product Slug" :rules="[rules.required]" required />
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-text-field v-model="formData.sku" label="SKU" :rules="[rules.required]" required />
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-text-field v-model="formData.itemCode" label="Item Code" />
+        </v-col>
+        <!-- Category -->
+        <v-col cols="12" md="6">
+          <v-autocomplete
+            v-model="formData.categoryId"
+            :items="categoryOptions"
+            item-title="categoryName"
+            item-value="categoryId"
+            label="Category"
+            :loading="categoryLoading"
+            :rules="[rules.required]"
+            clearable
+            required
+          />
+        </v-col>
+        <!-- Craft Type -->
+        <v-col cols="12" md="6">
+          <v-autocomplete
+            v-model="formData.craftTypeId"
+            :items="craftTypeOptions"
+            item-title="craftTypeName"
+            item-value="craftTypeId"
+            label="Craft Type"
+            :loading="craftTypeLoading"
+            clearable
+          />
+        </v-col>
+        <!-- Wood Type -->
+        <v-col cols="12" md="6">
+          <v-autocomplete
+            v-model="formData.woodTypeId"
+            :items="woodTypeOptions"
+            item-title="woodName"
+            item-value="woodTypeId"
+            label="Wood Type"
+            :loading="woodTypeLoading"
+            clearable
+          />
+        </v-col>
+        <!-- Artisan -->
+        <v-col cols="12" md="6">
+          <v-autocomplete
+            v-model="formData.artisanId"
+            :items="artisanOptions"
+            item-title="artisanName"
+            item-value="artisanId"
+            label="Artisan"
+            :loading="artisanLoading"
+            clearable
+            @update:modelValue="onArtisanSelected"
+          >
+            <template #item="{ item }">
               <div>
-                <h1 class="text-h4 font-weight-bold text-orange-darken-4 mb-2">
-                  Create New Wood Craft Product
-                </h1>
-                <p class="text-subtitle-1 text-grey-darken-2">
-                  Add a new handcrafted wood product to your collection
-                </p>
+                <strong>{{ item.artisanName }}</strong>
+                <span class="text-grey ms-2">{{ item.village }}</span>
               </div>
-              <v-chip
-                color="orange-darken-2"
-                variant="elevated"
-                size="large"
-                class="font-weight-bold"
-              >
-                <v-icon start icon="mdi-plus-circle"></v-icon>
-                New Product
-              </v-chip>
-            </div>
-          </v-col>
-        </v-row>
-  
-        <!-- Progress Stepper -->
-        <v-row class="mb-6">
-          <v-col cols="12">
-            <v-stepper
-              v-model="currentStep"
-              :items="stepperItems"
-              hide-actions
-              color="orange-darken-2"
-              class="elevation-4"
-            >
-              <template v-slot:item.1>
-                <v-card flat>
-                  <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
-                    <v-icon icon="mdi-information" class="me-2"></v-icon>
-                    Basic Information
-                  </v-card-title>
-                  <v-card-text class="pa-6">
-                    <v-row>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="productForm.productName"
-                          label="Product Name"
-                          :rules="[rules.required]"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-tag"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="productForm.productSlug"
-                          label="Product Slug"
-                          :rules="[rules.required]"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-link"
-                          hint="URL-friendly version of the product name"
-                          persistent-hint
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model="productForm.sku"
-                          label="SKU"
-                          :rules="[rules.required]"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-barcode"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model="productForm.itemCode"
-                          label="Item Code"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-identifier"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-select
-                          v-model="productForm.categoryId"
-                          :items="categories"
-                          item-title="categoryName"
-                          item-value="categoryId"
-                          label="Category"
-                          :rules="[rules.required]"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-folder"
-                          required
-                        ></v-select>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-textarea
-                          v-model="productForm.productDescription"
-                          label="Product Description"
-                          :rules="[rules.required]"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          rows="4"
-                          prepend-inner-icon="mdi-text"
-                          required
-                        ></v-textarea>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-text-field
-                          v-model="productForm.shortDescription"
-                          label="Short Description"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-text-short"
-                          hint="Brief description for product listings"
-                          persistent-hint
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </template>
-  
-              <template v-slot:item.2>
-                <v-card flat>
-                  <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
-                    <v-icon icon="mdi-tree" class="me-2"></v-icon>
-                    Wood & Craft Details
-                  </v-card-title>
-                  <v-card-text class="pa-6">
-                    <v-row>
-                      <v-col cols="12" md="6">
-                        <v-select
-                          v-model="productForm.woodTypeId"
-                          :items="woodTypes"
-                          item-title="woodName"
-                          item-value="woodTypeId"
-                          label="Wood Type"
-                          :rules="[rules.required]"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-tree"
-                          required
-                        ></v-select>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="productForm.woodOrigin"
-                          label="Wood Origin"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-map-marker"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-select
-                          v-model="productForm.craftTypeId"
-                          :items="craftTypes"
-                          item-title="craftTypeName"
-                          item-value="craftTypeId"
-                          label="Craft Type"
-                          :rules="[rules.required]"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-hammer"
-                          required
-                        ></v-select>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="productForm.craftingTechnique"
-                          label="Crafting Technique"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-tools"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model="productForm.craftingTime"
-                          label="Crafting Time"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-clock"
-                          hint="e.g., 2-3 days"
-                          persistent-hint
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-select
-                          v-model="productForm.difficultyLevel"
-                          :items="difficultyLevels"
-                          label="Difficulty Level"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-chart-line"
-                        ></v-select>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-select
-                          v-model="productForm.handmadeLevel"
-                          :items="handmadeLevels"
-                          label="Handmade Level"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-hand"
-                        ></v-select>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model="productForm.woodGrain"
-                          label="Wood Grain"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-grain"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model="productForm.woodColor"
-                          label="Wood Color"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-palette"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-select
-                          v-model="productForm.woodHardness"
-                          :items="hardnessLevels"
-                          label="Wood Hardness"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-diamond"
-                        ></v-select>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="productForm.woodFinish"
-                          label="Wood Finish"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-spray"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-select
-                          v-model="productForm.condition"
-                          :items="conditionOptions"
-                          label="Condition"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-star"
-                        ></v-select>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </template>
-  
-              <template v-slot:item.3>
-                <v-card flat>
-                  <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
-                    <v-icon icon="mdi-account-tie" class="me-2"></v-icon>
-                    Artisan Information
-                  </v-card-title>
-                  <v-card-text class="pa-6">
-                    <v-row>
-                      <v-col cols="12" md="4">
-                        <v-select
-                          v-model="productForm.artisanId"
-                          :items="artisans"
-                          item-title="artisanName"
-                          item-value="artisanId"
-                          label="Artisan"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-account"
-                        ></v-select>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model="productForm.artisanName"
-                          label="Artisan Name"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-account-box"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model="productForm.artisanVillage"
-                          label="Artisan Village"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-home-group"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-textarea
-                          v-model="productForm.artisanStory"
-                          label="Artisan Story"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          rows="3"
-                          prepend-inner-icon="mdi-book-open"
-                          hint="Tell the story of the artisan who created this piece"
-                          persistent-hint
-                        ></v-textarea>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="productForm.tribalOrigin"
-                          label="Tribal Origin"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-account-group"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="productForm.traditionalUse"
-                          label="Traditional Use"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-history"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-textarea
-                          v-model="productForm.culturalSignificance"
-                          label="Cultural Significance"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          rows="3"
-                          prepend-inner-icon="mdi-account-star"
-                          hint="Explain the cultural importance of this craft"
-                          persistent-hint
-                        ></v-textarea>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-textarea
-                          v-model="productForm.culturalStory"
-                          label="Cultural Story"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          rows="3"
-                          prepend-inner-icon="mdi-book-account"
-                          hint="Share the cultural story behind this piece"
-                          persistent-hint
-                        ></v-textarea>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </template>
-  
-              <template v-slot:item.4>
-                <v-card flat>
-                  <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
-                    <v-icon icon="mdi-currency-usd" class="me-2"></v-icon>
-                    Pricing & Inventory
-                  </v-card-title>
-                  <v-card-text class="pa-6">
-                    <v-row>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model.number="productForm.basePrice"
-                          label="Base Price"
-                          type="number"
-                          :rules="[rules.required, rules.positive]"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-currency-usd"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model.number="productForm.touristPrice"
-                          label="Tourist Price"
-                          type="number"
-                          :rules="[rules.positive]"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-airplane"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model.number="productForm.localPrice"
-                          label="Local Price"
-                          type="number"
-                          :rules="[rules.positive]"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-home"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model.number="productForm.costPrice"
-                          label="Cost Price"
-                          type="number"
-                          :rules="[rules.positive]"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-calculator"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model.number="productForm.usdPrice"
-                          label="USD Price"
-                          type="number"
-                          :rules="[rules.positive]"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-currency-usd"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-select
-                          v-model="productForm.currency"
-                          :items="currencies"
-                          label="Currency"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-currency-sign"
-                        ></v-select>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model.number="productForm.stockQuantity"
-                          label="Stock Quantity"
-                          type="number"
-                          :rules="[rules.required, rules.nonNegative]"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-package"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model.number="productForm.lowStockThreshold"
-                          label="Low Stock Threshold"
-                          type="number"
-                          :rules="[rules.nonNegative]"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-alert"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-select
-                          v-model="productForm.stockStatus"
-                          :items="stockStatuses"
-                          label="Stock Status"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-clipboard-list"
-                        ></v-select>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-select
-                          v-model="productForm.qualityGrade"
-                          :items="qualityGrades"
-                          label="Quality Grade"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-medal"
-                        ></v-select>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model.number="productForm.yearMade"
-                          label="Year Made"
-                          type="number"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-calendar"
-                          :min="1900"
-                          :max="new Date().getFullYear()"
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </template>
-  
-              <template v-slot:item.5>
-                <v-card flat>
-                  <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
-                    <v-icon icon="mdi-ruler" class="me-2"></v-icon>
-                    Dimensions & Specifications
-                  </v-card-title>
-                  <v-card-text class="pa-6">
-                    <v-row>
-                      <v-col cols="12" md="3">
-                        <v-text-field
-                          v-model.number="productForm.length"
-                          label="Length (cm)"
-                          type="number"
-                          :rules="[rules.positive]"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-ruler"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="3">
-                        <v-text-field
-                          v-model.number="productForm.width"
-                          label="Width (cm)"
-                          type="number"
-                          :rules="[rules.positive]"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-ruler"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="3">
-                        <v-text-field
-                          v-model.number="productForm.height"
-                          label="Height (cm)"
-                          type="number"
-                          :rules="[rules.positive]"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-ruler"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="3">
-                        <v-text-field
-                          v-model.number="productForm.weight"
-                          label="Weight (kg)"
-                          type="number"
-                          :rules="[rules.positive]"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-weight"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model.number="productForm.shippingWeight"
-                          label="Shipping Weight (kg)"
-                          type="number"
-                          :rules="[rules.positive]"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-package-variant"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model="productForm.packagingRequired"
-                          label="Packaging Required"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-package"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model="productForm.customsCode"
-                          label="Customs Code"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-card-text"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-textarea
-                          v-model="productForm.shippingRestrictions"
-                          label="Shipping Restrictions"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          rows="2"
-                          prepend-inner-icon="mdi-alert-circle"
-                          hint="Any shipping limitations or restrictions"
-                          persistent-hint
-                        ></v-textarea>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </template>
-  
-              <template v-slot:item.6>
-                <v-card flat>
-                  <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
-                    <v-icon icon="mdi-image" class="me-2"></v-icon>
-                    Images & Media
-                  </v-card-title>
-                  <v-card-text class="pa-6">
-                    <v-row>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="productForm.mainImageUrl"
-                          label="Main Image URL"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-image"
-                          hint="Primary product image URL"
-                          persistent-hint
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="productForm.videoUrl"
-                          label="Video URL"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-video"
-                          hint="Product demonstration video URL"
-                          persistent-hint
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-textarea
-                          v-model="productForm.galleryImages"
-                          label="Gallery Images"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          rows="3"
-                          prepend-inner-icon="mdi-image-multiple"
-                          hint="Comma-separated URLs of additional product images"
-                          persistent-hint
-                        ></v-textarea>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-textarea
-                          v-model="productForm.processImages"
-                          label="Process Images"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          rows="3"
-                          prepend-inner-icon="mdi-camera"
-                          hint="Comma-separated URLs showing the crafting process"
-                          persistent-hint
-                        ></v-textarea>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-text-field
-                          v-model="productForm.artisanImage"
-                          label="Artisan Image URL"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-account-circle"
-                          hint="Photo of the artisan who created this piece"
-                          persistent-hint
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </template>
-  
-              <template v-slot:item.7>
-                <v-card flat>
-                  <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
-                    <v-icon icon="mdi-cog" class="me-2"></v-icon>
-                    Settings & Options
-                  </v-card-title>
-                  <v-card-text class="pa-6">
-                    <v-row>
-                      <v-col cols="12" md="6">
-                        <v-card class="pa-4" color="orange-lighten-5" variant="outlined">
-                          <v-card-title class="text-subtitle-1 font-weight-bold text-orange-darken-4">
-                            Product Status
-                          </v-card-title>
-                          <v-card-text class="pa-0 mt-4">
-                            <v-switch
-                              v-model="productForm.isVisible"
-                              color="orange-darken-2"
-                              label="Visible to customers"
-                              density="compact"
-                            ></v-switch>
-                            <v-switch
-                              v-model="productForm.isFeatured"
-                              color="orange-darken-2"
-                              label="Featured product"
-                              density="compact"
-                            ></v-switch>
-                            <v-switch
-                              v-model="productForm.isUnique"
-                              color="orange-darken-2"
-                              label="Unique piece"
-                              density="compact"
-                            ></v-switch>
-                            <v-switch
-                              v-model="productForm.isAntique"
-                              color="orange-darken-2"
-                              label="Antique item"
-                              density="compact"
-                            ></v-switch>
-                          </v-card-text>
-                        </v-card>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-card class="pa-4" color="orange-lighten-5" variant="outlined">
-                          <v-card-title class="text-subtitle-1 font-weight-bold text-orange-darken-4">
-                            Authenticity & Quality
-                          </v-card-title>
-                          <v-card-text class="pa-0 mt-4">
-                            <v-switch
-                              v-model="productForm.isAuthentic"
-                              color="orange-darken-2"
-                              label="Authentic craft"
-                              density="compact"
-                            ></v-switch>
-                            <v-switch
-                              v-model="productForm.isCertified"
-                              color="orange-darken-2"
-                              label="Certified product"
-                              density="compact"
-                            ></v-switch>
-                            <v-switch
-                              v-model="productForm.requiresPhytosanitaryCertificate"
-                              color="orange-darken-2"
-                              label="Requires phytosanitary certificate"
-                              density="compact"
-                            ></v-switch>
-                          </v-card-text>
-                        </v-card>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-card class="pa-4" color="orange-lighten-5" variant="outlined">
-                          <v-card-title class="text-subtitle-1 font-weight-bold text-orange-darken-4">
-                            Tourist & Souvenir
-                          </v-card-title>
-                          <v-card-text class="pa-0 mt-4">
-                          <v-switch
-                              v-model="productForm.isPopularWithTourists"
-                              color="orange-darken-2"
-                              label="Popular with tourists"
-                              density="compact"
-                            ></v-switch>
-                            <v-switch
-                              v-model="productForm.touristFriendlySize"
-                              color="orange-darken-2"
-                              label="Tourist-friendly size"
-                              density="compact"
-                            ></v-switch>
-                            <v-switch
-                              v-model="productForm.packingFriendly"
-                              color="orange-darken-2"
-                              label="Packing friendly"
-                              density="compact"
-                            ></v-switch>
-                            <v-switch
-                              v-model="productForm.isSouvenir"
-                              color="orange-darken-2"
-                              label="Souvenir item"
-                              density="compact"
-                            ></v-switch>
-                          </v-card-text>
-                        </v-card>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-card class="pa-4" color="orange-lighten-5" variant="outlined">
-                          <v-card-title class="text-subtitle-1 font-weight-bold text-orange-darken-4">
-                            Shipping & Handling
-                          </v-card-title>
-                          <v-card-text class="pa-0 mt-4">
-                            <v-switch
-                              v-model="productForm.shippingFragile"
-                              color="orange-darken-2"
-                              label="Fragile item"
-                              density="compact"
-                            ></v-switch>
-                            <v-switch
-                              v-model="productForm.giftWrappingAvailable"
-                              color="orange-darken-2"
-                              label="Gift wrapping available"
-                              density="compact"
-                            ></v-switch>
-                            <v-switch
-                              v-model="productForm.personalizationAvailable"
-                              color="orange-darken-2"
-                              label="Personalization available"
-                              density="compact"
-                            ></v-switch>
-                          </v-card-text>
-                        </v-card>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="productForm.souvenirType"
-                          label="Souvenir Type"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-gift"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="productForm.ageCategory"
-                          label="Age Category"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-calendar-range"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-textarea
-                          v-model="productForm.customAttributes"
-                          label="Custom Attributes"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          rows="3"
-                          prepend-inner-icon="mdi-code-json"
-                          hint="JSON format for additional custom attributes"
-                          persistent-hint
-                        ></v-textarea>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </template>
+            </template>
+          </v-autocomplete>
+        </v-col>
+        <!-- Pricing -->
+        <v-col cols="12" md="4">
+          <v-text-field v-model.number="formData.basePrice" label="Base Price" type="number" :rules="[rules.required]" required />
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-text-field v-model.number="formData.touristPrice" label="Tourist Price" type="number" />
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-text-field v-model.number="formData.localPrice" label="Local Price" type="number" />
+        </v-col>
+        <!-- Stock -->
+        <v-col cols="12" md="4">
+          <v-text-field v-model.number="formData.stockQuantity" label="Stock Quantity" type="number" />
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-switch v-model="formData.isUnique" label="Is Unique?" />
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-switch v-model="formData.isVisible" label="Is Visible?" />
+        </v-col>
+        <!-- Description -->
+        <v-col cols="12">
+          <v-textarea v-model="formData.productDescription" label="Product Description" rows="3" />
+        </v-col>
+        <v-col cols="12">
+          <v-textarea v-model="formData.shortDescription" label="Short Description" rows="2" />
+        </v-col>
+        <!-- Main Image -->
+        <v-col cols="12" md="6">
+          <v-text-field v-model="formData.mainImageUrl" label="Main Image URL" />
+        </v-col>
+        <!-- Gallery Images -->
+        <v-col cols="12" md="6">
+          <v-text-field v-model="formData.galleryImages" label="Gallery Images (comma-separated URLs)" />
+        </v-col>
+        <!-- Submit -->
+        <v-col cols="12">
+          <v-btn color="primary" type="submit" :loading="isSubmitting" :disabled="!isFormValid">Create Product</v-btn>
+        </v-col>
+      </v-row>
+    </v-form>
+  </v-container>
+</template>
 
-              <template v-slot:item.8>
-                <v-card flat>
-                  <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
-                    <v-icon icon="mdi-information-outline" class="me-2"></v-icon>
-                    Care & Instructions
-                  </v-card-title>
-                  <v-card-text class="pa-6">
-                    <v-row>
-                      <v-col cols="12">
-                        <v-textarea
-                          v-model="productForm.careInstructions"
-                          label="Care Instructions"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          rows="3"
-                          prepend-inner-icon="mdi-heart"
-                          hint="Instructions for caring for this wood craft"
-                          persistent-hint
-                        ></v-textarea>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-textarea
-                          v-model="productForm.cleaningInstructions"
-                          label="Cleaning Instructions"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          rows="3"
-                          prepend-inner-icon="mdi-spray-bottle"
-                          hint="How to properly clean this product"
-                          persistent-hint
-                        ></v-textarea>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-textarea
-                          v-model="productForm.storageInstructions"
-                          label="Storage Instructions"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          rows="3"
-                          prepend-inner-icon="mdi-package-variant-closed"
-                          hint="Best practices for storing this item"
-                          persistent-hint
-                        ></v-textarea>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </template>
-
-              <template v-slot:item.9>
-                <v-card flat>
-                  <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
-                    <v-icon icon="mdi-web" class="me-2"></v-icon>
-                    SEO & Marketing
-                  </v-card-title>
-                  <v-card-text class="pa-6">
-                    <v-row>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="productForm.metaTitle"
-                          label="Meta Title"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-format-title"
-                          hint="SEO title for search engines"
-                          persistent-hint
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="productForm.metaKeywords"
-                          label="Meta Keywords"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-tag-multiple"
-                          hint="Comma-separated keywords for SEO"
-                          persistent-hint
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-textarea
-                          v-model="productForm.metaDescription"
-                          label="Meta Description"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          rows="3"
-                          prepend-inner-icon="mdi-text-box"
-                          hint="SEO description for search engines (150-160 characters)"
-                          persistent-hint
-                        ></v-textarea>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model.number="productForm.averageRating"
-                          label="Average Rating"
-                          type="number"
-                          min="0"
-                          max="5"
-                          step="0.1"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-star"
-                          hint="Average customer rating (0-5)"
-                          persistent-hint
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model.number="productForm.reviewCount"
-                          label="Review Count"
-                          type="number"
-                          min="0"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-comment-text"
-                          hint="Total number of reviews"
-                          persistent-hint
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </template>
-            </v-stepper>
-          </v-col>
-        </v-row>
-
-        <!-- Navigation Buttons -->
-        <v-row class="mt-6">
-          <v-col cols="12" class="d-flex justify-space-between">
-            <v-btn
-              v-if="currentStep > 1"
-              @click="currentStep--"
-              color="orange-darken-2"
-              variant="outlined"
-              size="large"
-              prepend-icon="mdi-arrow-left"
-            >
-              Previous
-            </v-btn>
-            <v-spacer v-if="currentStep === 1"></v-spacer>
-            
-            <v-btn
-              v-if="currentStep < stepperItems.length"
-              @click="currentStep++"
-              color="orange-darken-2"
-              variant="elevated"
-              size="large"
-              append-icon="mdi-arrow-right"
-            >
-              Next
-            </v-btn>
-            
-            <v-btn
-              v-if="currentStep === stepperItems.length"
-              @click="submitForm"
-              color="green-darken-2"
-              variant="elevated"
-              size="large"
-              prepend-icon="mdi-check"
-              :loading="isSubmitting"
-            >
-              Create Product
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-container>
-    </div>
-  </template>
 <script setup lang="ts">
-import { ref, reactive, computed, watch, onMounted } from 'vue'
-import { useProductCategoryStore } from '@/stores/productCategory'
-import { useWoodTypeStore } from '@/stores/woodStore';
-import { useCraftTypeStore } from '@/stores/craftStore';
-import { useSnackbarStore } from '@/stores/snackbar';
+import { ref, onMounted } from 'vue';
 import { useArtisanStore } from '@/stores/artisan';
-const productCategory = useProductCategoryStore();
-const craftType = useCraftTypeStore();
-const woodType = useWoodTypeStore();
-const snackbar = useSnackbarStore();
-const artisanStore = useArtisanStore();
-// Interfaces
-interface ProductForm {
-  weight: number
-  length: number
-  width: number
-  height: number
-  basePrice: number
-  productName: string
-  productSlug: string
-  sku: string
-  itemCode: string
-  categoryId: number | null
-  craftTypeId: number | null
-  woodTypeId: number | null
-  productDescription: string
-  shortDescription: string
-  touristPrice: number
-  localPrice: number
-  costPrice: number
-  currency: string
-  usdPrice: number
-  woodType: string
-  woodOrigin: string
-  craftingTechnique: string
-  craftingTime: string
-  difficultyLevel: string
-  artisanId: number | null
-  artisanName: string
-  artisanVillage: string
-  artisanStory: string
-  culturalSignificance: string
-  tribalOrigin: string
-  culturalStory: string
-  traditionalUse: string
-  woodGrain: string
-  woodColor: string
-  woodHardness: string
-  woodFinish: string
-  condition: string
-  qualityGrade: string
-  handmadeLevel: string
-  stockQuantity: number
-  isUnique: boolean
-  lowStockThreshold: number
-  stockStatus: string
-  productStatus: string
-  isVisible: boolean
-  isFeatured: boolean
-  isAuthentic: boolean
-  isCertified: boolean
-  mainImageUrl: string
-  galleryImages: string
-  processImages: string
-  artisanImage: string
-  videoUrl: string
-  isPopularWithTourists: boolean
-  touristFriendlySize: boolean
-  packingFriendly: boolean
-  shippingFragile: boolean
-  isSouvenir: boolean
-  souvenirType: string
-  giftWrappingAvailable: boolean
-  personalizationAvailable: boolean
-  careInstructions: string
-  cleaningInstructions: string
-  storageInstructions: string
-  shippingWeight: number
-  packagingRequired: string
-  shippingRestrictions: string
-  customsCode: string
-  requiresPhytosanitaryCertificate: boolean
-  averageRating: number
-  reviewCount: number
-  metaTitle: string
-  metaDescription: string
-  metaKeywords: string
-  yearMade: number
-  isAntique: boolean
-  ageCategory: string
-  customAttributes: string
-  createdBy: number
-  modifiedBy: number
-  isDeleted: boolean
-  createdAt?: string
-  modifiedAt?: string
-}
+import { useWoodTypeStore } from '@/stores/woodStore';
+import { useProductCategoryStore } from '@/stores/productCategory';
+import { useCraftTypeStore } from '@/stores/craftStore';
 
-// Reactive State
-const currentStep = ref(1)
-const isSubmitting = ref(false)
-
-const stepperItems = [
-  { title: 'Basic Information', value: 1 },
-  { title: 'Wood & Craft Details', value: 2 },
-  { title: 'Artisan Information', value: 3 },
-  { title: 'Pricing & Inventory', value: 4 },
-  { title: 'Dimensions & Specifications', value: 5 },
-  { title: 'Images & Media', value: 6 },
-  { title: 'Settings & Options', value: 7 },
-  { title: 'Care & Instructions', value: 8 },
-  { title: 'SEO & Marketing', value: 9 }
-]
-
-// Form Data
-const productForm = reactive<ProductForm>({
-  weight: 0,
-  length: 0,
-  width: 0,
-  height: 0,
-  basePrice: 0,
+const formData = ref({
   productName: '',
   productSlug: '',
   sku: '',
@@ -1125,223 +132,88 @@ const productForm = reactive<ProductForm>({
   categoryId: null,
   craftTypeId: null,
   woodTypeId: null,
-  productDescription: '',
-  shortDescription: '',
-  touristPrice: 0,
-  localPrice: 0,
-  costPrice: 0,
-  currency: 'USD',
-  usdPrice: 0,
-  woodType: '',
-  woodOrigin: '',
-  craftingTechnique: '',
-  craftingTime: '',
-  difficultyLevel: '',
   artisanId: null,
   artisanName: '',
   artisanVillage: '',
-  artisanStory: '',
-  culturalSignificance: '',
-  tribalOrigin: '',
-  culturalStory: '',
-  traditionalUse: '',
-  woodGrain: '',
-  woodColor: '',
-  woodHardness: '',
-  woodFinish: '',
-  condition: '',
-  qualityGrade: '',
-  handmadeLevel: '',
+  basePrice: 0,
+  touristPrice: 0,
+  localPrice: 0,
   stockQuantity: 0,
   isUnique: false,
-  lowStockThreshold: 0,
-  stockStatus: '',
-  productStatus: 'draft',
   isVisible: true,
-  isFeatured: false,
-  isAuthentic: true,
-  isCertified: false,
+  productDescription: '',
+  shortDescription: '',
   mainImageUrl: '',
   galleryImages: '',
-  processImages: '',
-  artisanImage: '',
-  videoUrl: '',
-  isPopularWithTourists: false,
-  touristFriendlySize: false,
-  packingFriendly: false,
-  shippingFragile: false,
-  isSouvenir: false,
-  souvenirType: '',
-  giftWrappingAvailable: false,
-  personalizationAvailable: false,
-  careInstructions: '',
-  cleaningInstructions: '',
-  storageInstructions: '',
-  shippingWeight: 0,
-  packagingRequired: '',
-  shippingRestrictions: '',
-  customsCode: '',
-  requiresPhytosanitaryCertificate: false,
-  averageRating: 0,
-  reviewCount: 0,
-  metaTitle: '',
-  metaDescription: '',
-  metaKeywords: '',
-  yearMade: new Date().getFullYear(),
-  isAntique: false,
-  ageCategory: '',
-  customAttributes: '',
-  createdBy: 1,
-  modifiedBy: 1,
-  isDeleted: false
-})
+});
 
-// Validation rules
+const isFormValid = ref(false);
+const isSubmitting = ref(false);
+
+// Dropdown data
+const artisanStore = useArtisanStore();
+const woodTypeStore = useWoodTypeStore();
+const categoryStore = useProductCategoryStore();
+const craftTypeStore = useCraftTypeStore();
+
+const artisanOptions = ref([]);
+const artisanLoading = ref(false);
+const woodTypeOptions = ref([]);
+const woodTypeLoading = ref(false);
+const categoryOptions = ref([]);
+const categoryLoading = ref(false);
+const craftTypeOptions = ref([]);
+const craftTypeLoading = ref(false);
+
+onMounted(async () => {
+  artisanLoading.value = true;
+  await artisanStore.fetchArtisans();
+  artisanOptions.value = artisanStore.artisans;
+  artisanLoading.value = false;
+
+  woodTypeLoading.value = true;
+  await woodTypeStore.fetchWoodTypes();
+  woodTypeOptions.value = woodTypeStore.woodTypes;
+  woodTypeLoading.value = false;
+
+  categoryLoading.value = true;
+  await categoryStore.fetchProductCategories();
+  categoryOptions.value = categoryStore.productCategories;
+  categoryLoading.value = false;
+
+  craftTypeLoading.value = true;
+  await craftTypeStore.fetchCraftTypes();
+  craftTypeOptions.value = craftTypeStore.craftTypes;
+  craftTypeLoading.value = false;
+});
+
+function onArtisanSelected(artisanId: number) {
+  const artisan = artisanOptions.value.find(a => a.artisanId === artisanId);
+  if (artisan) {
+    formData.value.artisanName = artisan.artisanName;
+    formData.value.artisanVillage = artisan.village;
+  }
+}
+
 const rules = {
-  required: (value: any) => !!value || 'This field is required',
-  positive: (value: number) => value > 0 || 'Must be greater than 0',
-  nonNegative: (value: number) => value >= 0 || 'Must be 0 or greater'
-}
+  required: (v: any) => !!v || 'This field is required',
+};
 
-
-const categories  =  computed(()=>productCategory.categories);
-
-const woodTypes = computed(()=>woodType.woodTypes);
-
-const craftTypes = computed(()=>craftType.craftTypes);
-
-const artisans = computed(()=>artisanStore.artisans);
-  const  difficultyLevels = ref([
-          'Beginner',
-          'Intermediate',
-          'Advanced',
-          'Expert',
-          'Master'
-        ]);
-        const  handmadeLevels =ref( [
-          'Fully Handmade',
-          'Mostly Handmade',
-          'Partially Handmade',
-          'Machine Assisted'
-        ]);
-        const hardnessLevels=[
-          'Soft',
-          'Medium',
-          'Hard',
-          'Very Hard'
-        ];
-        const conditionOptions= [
-          'New',
-          'Excellent',
-          'Good',
-          'Fair',
-          'Antique'
-        ];
-       const  currencies=[
-          'USD',
-          'EUR',
-          'GBP',
-          'MWK'
-        ];
-        const stockStatuses=[
-          'In Stock',
-          'Low Stock',
-          'Out of Stock',
-          'Pre-Order'
-        ];
-       const  qualityGrades=[
-          'Premium',
-          'Standard',
-          'Economy',
-          'Collector'
-        ];
-
-// Watchers
-watch(() => productForm.productName, (newVal) => {
-  if (newVal) {
-    productForm.productSlug = newVal.toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '')
-  }
-})
-
-// Methods
-const submitForm = async () => {
-  isSubmitting.value = true
+async function handleSubmit() {
+  if (!isFormValid.value) return;
+  isSubmitting.value = true;
   try {
-    const now = new Date().toISOString()
-    productForm.createdAt = now
-    productForm.modifiedAt = now
-
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
-
-    resetForm()
-  } catch (error) {
-    console.error('Error creating product:', error)
+    // TODO: Call your product store or API to create the product
+    // await productStore.createProduct(formData.value);
+    alert('Product created! (implement API call)');
   } finally {
-    isSubmitting.value = false
+    isSubmitting.value = false;
   }
-}
-
-const resetForm = () => {
-  Object.keys(productForm).forEach(key => {
-    if (typeof (productForm as any)[key] === 'string') {
-      (productForm as any)[key] = ''
-    } else if (typeof (productForm as any)[key] === 'number') {
-      (productForm as any)[key] = 0
-    } else if (typeof (productForm as any)[key] === 'boolean') {
-      (productForm as any)[key] = false
-    } else {
-      (productForm as any)[key] = null
-    }
-  })
-  productForm.currency = 'USD'
-  productForm.productStatus = 'draft'
-  productForm.isVisible = true
-  productForm.isAuthentic = true
-  productForm.yearMade = new Date().getFullYear()
-  productForm.createdBy = 1
-  productForm.modifiedBy = 1
-  productForm.isDeleted = false
-  currentStep.value = 1
-
-  onMounted(async () => {
-    try {
-    Promise.all( [
-      await productCategory.fetchCategories(),
-      await craftType.fetchCraftTypes(),
-      await woodType.fetchWoodTypes()
-    ]
-    )
-    } catch (error) {
-      console.error('Error fetching payments:', error)
-      snackbar.error('Error loading product categories')
-    }
-  })
 }
 </script>
 
-
-  <style scoped>
-  .v-stepper {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-  
-  .v-card {
-    transition: all 0.3s ease;
-  }
-  
-  .v-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-  }
-  
-  .v-text-field, .v-textarea, .v-select {
-    margin-bottom: 8px;
-  }
-  
-  .v-switch {
-    margin-bottom: 4px;
-  }
-  </style>
+<style scoped>
+.v-container {
+  max-width: 1000px;
+}
+</style>
