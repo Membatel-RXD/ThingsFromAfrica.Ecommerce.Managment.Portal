@@ -74,46 +74,7 @@
             Sign In
           </v-btn>
 
-          <!-- Divider -->
-          <div class="divider">
-            <span>OR</span>
-          </div>
 
-          <!-- Social Login -->
-          <div class="social-login">
-            <v-btn variant="outlined" prepend-icon="mdi-google" class="social-btn">
-              Google
-            </v-btn>
-            <v-btn variant="outlined" prepend-icon="mdi-facebook" class="social-btn">
-              Facebook
-            </v-btn>
-          </div>
-
-          <!-- Sign Up Link -->
-          <div class="signup-link">
-            <span>Don't have an account?</span>
-            <v-btn
-              variant="text"
-              color="primary"
-              @click="goToSignup"
-              class="ms-2"
-            >
-              Sign Up
-            </v-btn>
-          </div>
-
-          <!-- Continue Shopping -->
-          <div class="continue-shopping">
-            <v-btn
-              variant="text"
-              color="grey-darken-1"
-              @click="continueShopping"
-              prepend-icon="mdi-arrow-left"
-              class="mt-2"
-            >
-              Continue Shopping
-            </v-btn>
-          </div>
         </v-form>
       </div>
 

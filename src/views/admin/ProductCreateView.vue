@@ -150,15 +150,7 @@
                           required
                         ></v-select>
                       </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="productForm.woodOrigin"
-                          label="Wood Origin"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-map-marker"
-                        ></v-text-field>
-                      </v-col>
+                     
                       <v-col cols="12" md="6">
                         <v-select
                           v-model="productForm.craftTypeId"
@@ -285,24 +277,8 @@
                           prepend-inner-icon="mdi-account"
                         ></v-select>
                       </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model="productForm.artisanName"
-                          label="Artisan Name"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-account-box"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="4">
-                        <v-text-field
-                          v-model="productForm.artisanVillage"
-                          label="Artisan Village"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-home-group"
-                        ></v-text-field>
-                      </v-col>
+                     
+                    
                       <v-col cols="12">
                         <v-textarea
                           v-model="productForm.artisanStory"
@@ -1003,98 +979,15 @@ import { useWoodTypeStore } from '@/stores/woodStore';
 import { useCraftTypeStore } from '@/stores/craftStore';
 import { useSnackbarStore } from '@/stores/snackbar';
 import { useArtisanStore } from '@/stores/artisan';
+import { CreateProductRequest, Product } from '@/stores/types/member';
+import { useUserStore } from '@/stores/user';
+
 const productCategory = useProductCategoryStore();
 const craftType = useCraftTypeStore();
 const woodType = useWoodTypeStore();
 const snackbar = useSnackbarStore();
 const artisanStore = useArtisanStore();
-// Interfaces
-interface ProductForm {
-  weight: number
-  length: number
-  width: number
-  height: number
-  basePrice: number
-  productName: string
-  productSlug: string
-  sku: string
-  itemCode: string
-  categoryId: number | null
-  craftTypeId: number | null
-  woodTypeId: number | null
-  productDescription: string
-  shortDescription: string
-  touristPrice: number
-  localPrice: number
-  costPrice: number
-  currency: string
-  usdPrice: number
-  woodType: string
-  woodOrigin: string
-  craftingTechnique: string
-  craftingTime: string
-  difficultyLevel: string
-  artisanId: number | null
-  artisanName: string
-  artisanVillage: string
-  artisanStory: string
-  culturalSignificance: string
-  tribalOrigin: string
-  culturalStory: string
-  traditionalUse: string
-  woodGrain: string
-  woodColor: string
-  woodHardness: string
-  woodFinish: string
-  condition: string
-  qualityGrade: string
-  handmadeLevel: string
-  stockQuantity: number
-  isUnique: boolean
-  lowStockThreshold: number
-  stockStatus: string
-  productStatus: string
-  isVisible: boolean
-  isFeatured: boolean
-  isAuthentic: boolean
-  isCertified: boolean
-  mainImageUrl: string
-  galleryImages: string
-  processImages: string
-  artisanImage: string
-  videoUrl: string
-  isPopularWithTourists: boolean
-  touristFriendlySize: boolean
-  packingFriendly: boolean
-  shippingFragile: boolean
-  isSouvenir: boolean
-  souvenirType: string
-  giftWrappingAvailable: boolean
-  personalizationAvailable: boolean
-  careInstructions: string
-  cleaningInstructions: string
-  storageInstructions: string
-  shippingWeight: number
-  packagingRequired: string
-  shippingRestrictions: string
-  customsCode: string
-  requiresPhytosanitaryCertificate: boolean
-  averageRating: number
-  reviewCount: number
-  metaTitle: string
-  metaDescription: string
-  metaKeywords: string
-  yearMade: number
-  isAntique: boolean
-  ageCategory: string
-  customAttributes: string
-  createdBy: number
-  modifiedBy: number
-  isDeleted: boolean
-  createdAt?: string
-  modifiedAt?: string
-}
-
+const userStore = useUserStore();
 // Reactive State
 const currentStep = ref(1)
 const isSubmitting = ref(false)
@@ -1112,7 +1005,7 @@ const stepperItems = [
 ]
 
 // Form Data
-const productForm = reactive<ProductForm>({
+const productForm = reactive<Partial<CreateProductRequest>>({
   weight: 0,
   length: 0,
   width: 0,
@@ -1191,8 +1084,7 @@ const productForm = reactive<ProductForm>({
   isAntique: false,
   ageCategory: '',
   customAttributes: '',
-  createdBy: 1,
-  modifiedBy: 1,
+  createdBy: userStore.user?.userId!,
   isDeleted: false
 })
 
@@ -1270,8 +1162,6 @@ const submitForm = async () => {
   isSubmitting.value = true
   try {
     const now = new Date().toISOString()
-    productForm.createdAt = now
-    productForm.modifiedAt = now
 
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 2000))
@@ -1303,7 +1193,6 @@ const resetForm = () => {
   productForm.yearMade = new Date().getFullYear()
   productForm.createdBy = 1
   productForm.modifiedBy = 1
-  productForm.isDeleted = false
   currentStep.value = 1
 
   onMounted(async () => {

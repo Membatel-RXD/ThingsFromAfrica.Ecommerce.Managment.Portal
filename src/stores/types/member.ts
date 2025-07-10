@@ -86,7 +86,7 @@ export interface Product {
   productSlug: string;
   sku: string;
   itemCode: string;
-  categoryId: number;
+  categoryId: number|null;
   craftTypeId: number;
   woodTypeId: number;
   productDescription: string;
@@ -101,7 +101,7 @@ export interface Product {
   craftingTechnique: string;
   craftingTime: string;
   difficultyLevel: string;
-  artisanId: number;
+  artisanId: number|null;
   artisanName: string;
   artisanVillage: string;
   artisanStory: string;
@@ -155,14 +155,23 @@ export interface Product {
   isAntique: boolean;
   ageCategory: string;
   customAttributes: string;
-  createdAt: string; // ISO date string
-  modifiedAt: string; // ISO date string
+  createdAt: string; 
+  modifiedAt: string; 
   createdBy: number;
-  modifiedBy: number;
+  modifiedBy: number|null;
   isDeleted: boolean;
-  deletedAt: string; // ISO date string
-  deletedBy: number;
+  deletedAt: string|null;
+  deletedBy: number|number;
 }
+
+export interface CreateProductRequest extends Omit<Product,'productId' 
+    | 'deletedBy' |
+     'isDeleted' |
+     'modifiedAt'|
+     'createdAt'|
+     'artisanImage'|
+      'deletedAt'>{};
+
 export interface Order {
   statusId: number;
   orderStatus: string;

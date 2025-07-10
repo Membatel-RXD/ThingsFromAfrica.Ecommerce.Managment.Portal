@@ -1,8 +1,12 @@
+
+
 export interface IAPIResponse<T> {
   isSuccessful: boolean;
   message?: string | null;
   payload?: T | null;
 }
+
+
 import axios, {
   type AxiosInstance,
   type AxiosResponse,
