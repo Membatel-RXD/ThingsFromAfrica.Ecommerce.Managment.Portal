@@ -333,8 +333,13 @@ const showNotification = (text:string, color:string) => {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #fff !important;
   font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .login-overlay {

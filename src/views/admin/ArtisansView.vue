@@ -432,7 +432,7 @@
   import { useArtisanStore } from '@/stores/artisan'
   import { ref, computed, onMounted } from 'vue'
   import { useSnackbarStore } from '@/stores/snackbar'
-import { ArtisanDTO } from '@/stores/types/member'
+import type{ ArtisanDTO } from '@/stores/types/member'
   
   const artisanStore = useArtisanStore()
   const snackbar = useSnackbarStore()

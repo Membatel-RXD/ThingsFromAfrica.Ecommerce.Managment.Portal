@@ -446,3 +446,38 @@ export interface PaymentMethodDTO {
   description: string
 }
 export interface CreatePaymentMethodRequest extends Omit<PaymentMethodDTO, 'paymentMethodId'> {}
+
+export interface Review {
+  rating: number;
+  reviewId: number;
+  productId: number;
+  customerId: number;
+  orderId: number;
+  reviewTitle: string;
+  reviewText: string;
+  isTouristReview: boolean;
+  reviewerCountry: string;
+  isApproved: boolean;
+  isVisible: boolean;
+  moderatedBy: number;
+  moderatedAt: string;
+  createdAt: string;
+  modifiedAt: string;
+}
+
+export interface ReviewCreateOrUpdate {
+  rating: number;
+  productId: number;
+  customerId: number;
+  orderId: number;
+  reviewTitle: string;
+  reviewText: string;
+  isTouristReview: boolean;
+  reviewerCountry: string;
+  isApproved: boolean;
+  isVisible: boolean;
+  moderatedBy: number;
+  moderatedAt: string;
+  createdAt: string;
+  modifiedAt: string;
+}

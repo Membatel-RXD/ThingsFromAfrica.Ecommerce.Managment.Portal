@@ -21,14 +21,14 @@
           <p class="text-caption text-orange-lighten-3">Things From Africa</p>
         </div>
         <v-spacer />
-        <p class="my-auto me-3 text-yellow-lighten-2" v-if="userStore.user">Hello {{ username }}!</p>
         <v-menu>
           <template v-slot:activator="{ props }">
-            <v-btn v-bind="props" color="yellow-lighten-2">
+            <v-btn v-bind="props" color="yellow-lighten-2" class="d-flex align-center user-dropdown-btn" style="min-width: 0;">
               <v-icon color="orange-darken-2" size="27" icon="mdi-account-circle" />
+              <span class="mx-2 user-navbar-username" v-if="userStore.user">{{ username }}</span>
+              <v-icon color="orange-darken-2" size="20" icon="mdi-chevron-down" />
             </v-btn>
           </template>
-          
           <v-list>
             <v-list-item :to="{ name: 'profile' }">
               <template v-slot:prepend>
@@ -36,18 +36,28 @@
               </template>
               <v-list-item-title>Profile</v-list-item-title>
             </v-list-item>
-            
-            <v-list-item @click="logout">
+            <v-divider></v-divider>
+            <v-list-item @click="logoutDialog = true">
               <template v-slot:prepend>
-                <v-icon icon="mdi-logout" />
+                <v-icon color="error" icon="mdi-logout" />
               </template>
-              <v-list-item-title>Logout ({{username}})</v-list-item-title>
+              <v-list-item-title class="text-error">Logout</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
+        <v-dialog v-model="logoutDialog" max-width="400">
+          <v-card>
+            <v-card-title class="headline">Confirm Logout</v-card-title>
+            <v-card-text>Do you want to logout?</v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="grey" variant="text" @click="logoutDialog = false">Cancel</v-btn>
+              <v-btn color="error" variant="elevated" @click="confirmLogout">Logout</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </div>
     </v-app-bar>
-
     <!-- navigation drawer -->
     <v-navigation-drawer 
       v-model="drawer" 
@@ -382,7 +392,7 @@
   import { useAppStore } from "@/stores/app";
   import { useUserStore } from "@/stores/user";
   import { computed, ref } from "vue";
-import { UserRole } from "@/stores/types/member";
+  import { UserRole } from "@/stores/types/member";
 
   const router = useRouter();
   const appStore = useAppStore();
@@ -400,6 +410,11 @@ import { UserRole } from "@/stores/types/member";
 
   const { drawer } = storeToRefs(appStore);
 
+  const logoutDialog = ref(false);
+  function confirmLogout() {
+    logoutDialog.value = false;
+    logout();
+  }
   // Helper function to check if the current user has any of the specified roles
   const hasRole = (allowedRoles: string[]) => {
     // If user is not authenticated, deny access
@@ -413,7 +428,7 @@ import { UserRole } from "@/stores/types/member";
 </script>
 
 <style scoped>
-  #nav-content {
+ #nav-content {
     width: 100%;
   }
 
@@ -440,5 +455,26 @@ import { UserRole } from "@/stores/types/member";
     width: auto;
     max-width: 40px;
     object-fit: contain;
+  }
+
+  .logout-btn {
+    background-color: #fff !important;
+    color: #B00020 !important;
+    border: 1px solid #B00020 !important;
+  }
+
+  .user-navbar-username {
+    color: #222 !important;
+    font-size: 1.15rem;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.10);
+  }
+
+  .user-dropdown-btn {
+    background: #FFF59D !important; /* Vuetify yellow-lighten-2 */
+    border-radius: 24px !important;
+    padding: 0 10px 0 16px !important;
+    min-height: 40px;
   }
 </style>
