@@ -36,46 +36,6 @@ export interface AuthenticationResponse {
   userName: string;
 }
 
-export interface User {
-  roleId: number
-  passwordHash: string
-  username: string
-  userId:number;
-  email: string
-  emailVerified: boolean
-  emailVerificationToken: string
-  emailVerificationExpiry: string // ISO date string
-  passwordSalt: string
-  passwordResetToken: string
-  passwordResetExpiry: string // ISO date string
-  lastPasswordChange: string // ISO date string
-  isLocked: boolean
-  lockoutEndDate: string // ISO date string
-  failedLoginAttempts: number
-  lastLoginAt: string // ISO date string
-  lastLoginIP: string
-  twoFactorEnabled: boolean
-  twoFactorSecret: string
-  twoFactorBackupCodes: string
-  userStatus: string // or UserStatus enum
-  firstName: string
-  lastName: string
-  displayName: string
-  dateOfBirth: string // YYYY-MM-DD
-  gender: string // or Gender enum
-  profileImageUrl: string
-  phoneNumber: string
-  phoneVerified: boolean
-  phoneVerificationCode: string
-  phoneVerificationExpiry: string // ISO date string
-  preferredLanguage: string
-  preferredCurrency: string
-  timeZone: string
-  notificationPreferences: string
-  createdAt: string // ISO date string
-  modifiedAt: string // ISO date string
-  lastActiveAt: string // ISO date string
-}
 export interface CreateUsersRequest {
   roleId: number // required
   passwordHash?: string | null
@@ -288,6 +248,47 @@ export interface Customer{
   loyaltyTier: string
   createdAt: string // ISO 8601 date string
   modifiedAt: string // ISO 8601 date string
+}
+
+export interface User {
+  roleId: number
+  passwordHash: string
+  username: string
+  userId:number;
+  email: string
+  emailVerified: boolean
+  emailVerificationToken: string
+  emailVerificationExpiry: string // ISO date string
+  passwordSalt: string
+  passwordResetToken: string
+  passwordResetExpiry: string // ISO date string
+  lastPasswordChange: string // ISO date string
+  isLocked: boolean
+  lockoutEndDate: string // ISO date string
+  failedLoginAttempts: number
+  lastLoginAt: string // ISO date string
+  lastLoginIP: string
+  twoFactorEnabled: boolean
+  twoFactorSecret: string
+  twoFactorBackupCodes: string
+  userStatus: string // or UserStatus enum
+  firstName: string
+  lastName: string
+  displayName: string
+  dateOfBirth: string // YYYY-MM-DD
+  gender: string // or Gender enum
+  profileImageUrl: string
+  phoneNumber: string
+  phoneVerified: boolean
+  phoneVerificationCode: string
+  phoneVerificationExpiry: string // ISO date string
+  preferredLanguage: string
+  preferredCurrency: string
+  timeZone: string
+  notificationPreferences: string
+  createdAt: string // ISO date string
+  modifiedAt: string // ISO date string
+  lastActiveAt: string // ISO date string
 }
 
 export interface CustomerProfileContainerDTO {

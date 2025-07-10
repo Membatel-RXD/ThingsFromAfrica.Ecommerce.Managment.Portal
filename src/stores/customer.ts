@@ -21,7 +21,7 @@ export const useCustomerStore = defineStore("customer", {
     async fetchCustomers() {
       try {
         this.loading = true;
-        const response = await apiService.get<IAPIResponse<CustomerProfileContainerDTO[]>>(`/CustomerProfiles/GetAll`);
+        const response = await apiService.get<IAPIResponse<CustomerProfileContainerDTO[]>>(`/CustomerProfiles/GetCustomerProfiles`);
         this.customers = response.payload || [];
       } catch (error) {
         this.error = "Failed to fetch customers";

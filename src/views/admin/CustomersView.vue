@@ -157,14 +157,14 @@
             :search="search"
             class="elevation-1"
             :sort-by="[{ key: 'dateJoined', order: 'desc' }]"
-            item-key="customerId"
+            item-key="userDetails.userId"
           >
             <template v-slot:item.profilePicture="{ item }">
               <v-avatar
                 size="40"
                 class="ma-2"
               >
-              
+                
                 <v-icon  color="grey">mdi-account</v-icon>
               </v-avatar>
             </template>
@@ -179,9 +179,10 @@
             <template v-slot:item.contactInfo="{ item }">
               <div class="d-flex flex-column">
                 <span class="text-caption">{{ item.userDetails.phoneNumber }}</span>
-                <span class="text-caption text-grey-darken-1">{{ item.userAddresses[0].country }}</span>
+                <span class="text-caption text-grey-darken-1">{{ item.userAddresses[0]?.country || 'N/A' }}</span>
               </div>
             </template>
+            
             <template v-slot:item.customerTier="{ item }">
             <v-chip
               :color="getTierColor(item.customerProfile.loyaltyTier)"
@@ -192,13 +193,14 @@
               {{ item.customerProfile.loyaltyTier }}
             </v-chip>
           </template>
+          
             <template v-slot:item.userStatus="{ item }">
               <v-chip
-                :color="item.userDetails.userStatus ==='active' ? 'green' : 'grey'"
+                :color="item.userDetails.userStatus === 'active' ? 'green' : 'grey'"
                 size="small"
                 variant="flat"
               >
-                {{ item.userDetails.userStatus ==='active' ? 'Active' : 'Inactive' }}
+                {{ item.userDetails.userStatus === 'active' ? 'Active' : 'Inactive' }}
               </v-chip>
             </template>
   
@@ -242,10 +244,10 @@
                 @click="editCustomer(item)"
               />
               <v-btn
-                :icon="item.userDetails.userStatus ==='active' ? 'mdi-account-off' : 'mdi-account-check'"
+                :icon="item.userDetails.userStatus === 'active' ? 'mdi-account-off' : 'mdi-account-check'"
                 variant="text"
                 size="small"
-                :color="item.userDetails.userStatus ? 'orange' : 'green'"
+                :color="item.userDetails.userStatus === 'active' ? 'orange' : 'green'"
                 @click="toggleStatus(item)"
               />
               <v-btn
@@ -393,6 +395,7 @@
             <v-card-text class="pa-6">
               <div class="d-flex flex-column align-center mb-4">
                 <v-avatar size="120" class="mb-3">
+                  
                   <v-icon size="80" color="grey">mdi-account</v-icon>
                 </v-avatar>
                 <h3 class="text-h5 font-weight-bold">{{ selectedCustomer.userDetails.firstName }} {{ selectedCustomer.userDetails.lastName }}</h3>
@@ -411,7 +414,7 @@
                 <v-col cols="6">
                   <div class="d-flex align-center mb-2">
                     <v-icon color="teal-darken-3" class="me-2">mdi-flag</v-icon>
-                    <span>{{ selectedCustomer.userAddresses[0].country }}</span>
+                    <span>{{ selectedCustomer.userAddresses[0]?.country || 'N/A' }}</span>
                   </div>
                 </v-col>
                
@@ -460,6 +463,7 @@
   // Mock store - replace with actual customer store
   const snackbar = useSnackbarStore();
   const customerStore = useCustomerStore();
+  
   // Data
   const loading = ref(false);
   const error = ref('');
@@ -476,7 +480,8 @@
   const selectedCustomer = ref<CustomerProfileContainerDTO | null>(null);
   
   // Mock customers data - replace with actual store data
-  const customers = computed(()=>customerStore.customers)
+  const customers = computed(() => customerStore.customers);
+  
   // Form data
   const formData = ref({
     firstName: '',
@@ -520,7 +525,10 @@
   
   const countryOptions = computed(() => [
     { title: 'All Countries', value: 'all' },
-    ...Array.from(new Set(customers.value.map(c => c.userAddresses[0].country)))
+    ...Array.from(new Set(customers.value
+      .filter(c => c.userAddresses && c.userAddresses.length > 0)
+      .map(c => c.userAddresses[0].country)
+    ))
       .map(country => ({ title: country, value: country }))
   ]);
   
@@ -530,8 +538,8 @@
     { title: 'Customer', key: 'customerName' },
     { title: 'Contact', key: 'contactInfo', sortable: false },
     { title: 'Tier', key: 'customerTier' },
-    { title: 'Status', key: 'isActive' },
-    { title: 'Email Status', key: 'isEmailVerified' },
+    { title: 'Status', key: 'userStatus' },
+    { title: 'Email Status', key: 'emailVerified' },
     { title: 'Orders/Spent', key: 'totalOrders' },
     { title: 'Joined', key: 'dateJoined' },
     { title: 'Actions', key: 'actions', sortable: false }
@@ -548,15 +556,21 @@
     let filtered = customers.value;
   
     if (statusFilter.value === 'active') {
-      filtered = filtered.filter(item => item.userDetails.userStatus);
+      filtered = filtered.filter(item => item.userDetails.userStatus === 'active');
     } else if (statusFilter.value === 'inactive') {
-      filtered = filtered.filter(item => !item.userDetails.userStatus);
+      filtered = filtered.filter(item => item.userDetails.userStatus !== 'active');
     }
+    
     if (tierFilter.value !== 'all') {
-    filtered = filtered.filter(item => item.customerProfile.loyaltyTier === tierFilter.value);
-  }
+      filtered = filtered.filter(item => item.customerProfile.loyaltyTier === tierFilter.value);
+    }
+    
     if (countryFilter.value !== 'all') {
-      filtered = filtered.filter(item => item.userAddresses[0].country === countryFilter.value);
+      filtered = filtered.filter(item => 
+        item.userAddresses && 
+        item.userAddresses.length > 0 && 
+        item.userAddresses[0].country === countryFilter.value
+      );
     }
   
     if (verificationFilter.value === 'verified') {
@@ -569,7 +583,7 @@
   });
   
   const totalCustomers = computed(() => customers.value.length);
-  const activeCustomers = computed(() => customers.value.filter(c => c.userDetails.userStatus==='active').length);
+  const activeCustomers = computed(() => customers.value.filter(c => c.userDetails.userStatus === 'active').length);
   const premiumCustomers = computed(() => customers.value.filter(c => c.customerProfile.loyaltyTier === 'Premium').length);
   const newCustomersThisMonth = computed(() => {
     const thisMonth = new Date().getMonth();
@@ -580,27 +594,26 @@
     }).length;
   });
   
-// Methods
-const getTierColor = (tier: string) => {
-  switch (tier) {
-    case 'Premium': return 'purple';
-    case 'Gold': return 'amber';
-    case 'Silver': return 'blue-grey';
-    case 'Bronze': return 'brown';
-    default: return 'grey';
-  }
-};
-
-const getTierIcon = (tier: string) => {
-  switch (tier) {
-    case 'Premium': return 'mdi-crown';
-    case 'Gold': return 'mdi-medal';
-    case 'Silver': return 'mdi-star';
-    case 'Bronze': return 'mdi-circle';
-    default: return 'mdi-account';
-  }
-};
-
+  // Methods
+  const getTierColor = (tier: string) => {
+    switch (tier) {
+      case 'Premium': return 'purple';
+      case 'Gold': return 'amber';
+      case 'Silver': return 'blue-grey';
+      case 'Bronze': return 'brown';
+      default: return 'grey';
+    }
+  };
+  
+  const getTierIcon = (tier: string) => {
+    switch (tier) {
+      case 'Premium': return 'mdi-crown';
+      case 'Gold': return 'mdi-medal';
+      case 'Silver': return 'mdi-star';
+      case 'Bronze': return 'mdi-circle';
+      default: return 'mdi-account';
+    }
+  };
   
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -626,14 +639,24 @@ const getTierIcon = (tier: string) => {
     dialog.value = true;
   };
   
-  const editCustomer = (item: any) => {
+  const editCustomer = (item: CustomerProfileContainerDTO) => {
     editMode.value = true;
     selectedCustomer.value = item;
-    formData.value = { ...item };
+    formData.value = {
+      firstName: item.userDetails.firstName,
+      lastName: item.userDetails.lastName,
+      email: item.userDetails.email,
+      phoneNumber: item.userDetails.phoneNumber,
+      country: item.userAddresses[0]?.country || '',
+      profilePicture: item.userDetails.profileImageUrl || '',
+      customerTier: item.customerProfile.loyaltyTier,
+      isActive: item.userDetails.userStatus === 'active',
+      isEmailVerified: item.userDetails.emailVerified
+    };
     dialog.value = true;
   };
   
-  const viewCustomer = (item: any) => {
+  const viewCustomer = (item: CustomerProfileContainerDTO) => {
     selectedCustomer.value = item;
     viewDialog.value = true;
   };
@@ -661,19 +684,23 @@ const getTierIcon = (tier: string) => {
         // Update existing customer
         const index = customers.value.findIndex(c => c.userDetails.userId === selectedCustomer.value?.userDetails.userId);
         if (index !== -1) {
-          customers.value[index] = { ...customers.value[index], ...formData.value };
+          // Update the customer data properly
+          customers.value[index].userDetails.firstName = formData.value.firstName;
+          customers.value[index].userDetails.lastName = formData.value.lastName;
+          customers.value[index].userDetails.email = formData.value.email;
+          customers.value[index].userDetails.phoneNumber = formData.value.phoneNumber;
+          customers.value[index].userDetails.profileImageUrl = formData.value.profilePicture;
+          customers.value[index].userDetails.userStatus = formData.value.isActive ? 'active' : 'inactive';
+          customers.value[index].userDetails.emailVerified = formData.value.isEmailVerified;
+          customers.value[index].customerProfile.loyaltyTier = formData.value.customerTier;
+          
+          if (customers.value[index].userAddresses && customers.value[index].userAddresses.length > 0) {
+            customers.value[index].userAddresses[0].country = formData.value.country;
+          }
         }
         snackbar.success('Customer updated successfully');
       } else {
-        // Create new customer
-        const newCustomer = {
-          ...formData.value,
-          customerId: customers.value.length + 1,
-          totalOrders: 0,
-          totalSpent: 0,
-          dateJoined: new Date().toISOString().split('T')[0]
-        };
-        customers.value.push(newCustomer);
+        // Create new customer logic would go here
         snackbar.success('Customer created successfully');
       }
       closeDialog();
@@ -685,10 +712,10 @@ const getTierIcon = (tier: string) => {
     }
   };
   
-  const deleteCustomer = async (item: any) => {
-    if (confirm(`Are you sure you want to delete ${item.firstName} ${item.lastName}?`)) {
+  const deleteCustomer = async (item: CustomerProfileContainerDTO) => {
+    if (confirm(`Are you sure you want to delete ${item.userDetails.firstName} ${item.userDetails.lastName}?`)) {
       try {
-        const index = customers.value.findIndex(c => c.userDetails.userId === item.customerId);
+        const index = customers.value.findIndex(c => c.userDetails.userId === item.userDetails.userId);
         if (index !== -1) {
           customers.value.splice(index, 1);
         }
@@ -700,29 +727,25 @@ const getTierIcon = (tier: string) => {
     }
   };
   
-  const toggleStatus = async (item: any) => {
-  try {
-    const index = customers.value.findIndex(c => c.userDetails.userId === item.customerId);
-    if (index !== -1) {
-      const currentStatus = customers.value[index].userDetails.userStatus;
-
-      customers.value[index].userDetails.userStatus =
-        currentStatus === 'Active' ? 'Inactive' : 'Active';
-
-      snackbar.success(
-        `Customer ${currentStatus === 'Active' ? 'deactivated' : 'activated'} successfully`
-      );
+  const toggleStatus = async (item: CustomerProfileContainerDTO) => {
+    try {
+      const index = customers.value.findIndex(c => c.userDetails.userId === item.userDetails.userId);
+      if (index !== -1) {
+        const currentStatus = customers.value[index].userDetails.userStatus;
+        customers.value[index].userDetails.userStatus = currentStatus === 'active' ? 'inactive' : 'active';
+        snackbar.success(
+          `Customer ${currentStatus === 'active' ? 'deactivated' : 'activated'} successfully`
+        );
+      }
+    } catch (error) {
+      console.error('Error toggling status:', error);
+      snackbar.error('Error updating customer status');
     }
-  } catch (error) {
-    console.error('Error toggling status:', error);
-    snackbar.error('Error updating customer status');
-  }
-};
-
+  };
   
-  const sendEmail = (item: any) => {
+  const sendEmail = (item: CustomerProfileContainerDTO) => {
     // Implement email functionality
-    alert(`Send email to ${item.email}`);
+    alert(`Send email to ${item.userDetails.email}`);
   };
   
   const clearFilters = () => {
@@ -733,12 +756,16 @@ const getTierIcon = (tier: string) => {
     verificationFilter.value = 'all';
   };
   
-  onMounted(async() => {
-    loading.value = false;
-    Promise.all([
-
-        customerStore.fetchCustomers()
-    ])
+  onMounted(async () => {
+    loading.value = true;
+    try {
+      await customerStore.fetchCustomers();
+    } catch (error:any) {
+      console.error('Error fetching customers:', error);
+      error.value = 'Failed to load customers';
+    } finally {
+      loading.value = false;
+    }
   });
   </script>
   
