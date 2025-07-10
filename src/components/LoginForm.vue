@@ -215,12 +215,15 @@ const handleLogin = async () => {
   if (!isFormValid.value) return;
   isLoading.value = true;
   try {
-    const success = userStore.login(email.value, password.value);
-    if (success) {
+    const response = await userStore.login(email.value, password.value); // Add await here
+    if (response.isSuccessful) {
       showNotification('Login successful!', 'success');
       await nextTick();
       router.push('/admin/dashboard');
     } else {
+
+      console.log(JSON.stringify(response));
+
       showNotification('Invalid username or password', 'error');
     }
   } catch (e) {

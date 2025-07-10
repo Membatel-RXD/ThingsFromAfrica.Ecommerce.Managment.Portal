@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { apiService } from "@/services/api";
+import { apiService, type IAPIResponse } from "@/services/api";
 import type { LoginCredentials, AuthenticationResponse } from "./types/member";
 
 interface User {
@@ -57,8 +57,10 @@ export const useUserStore = defineStore('user', {
     async login(email: string, password: string) {
       try {
         const credentials: LoginCredentials = { Email: email, password };
-        const response = await apiService.post<AuthenticationResponse>("/Users/Authenticate", credentials);
-        if (response && response.token) {
+        const apiResponse = await apiService.post<IAPIResponse<AuthenticationResponse>>("/Users/Authenticate", credentials);
+        if (apiResponse && apiResponse.isSuccessful && apiResponse.payload) {
+
+          const response = apiResponse.payload;
           this.user = {
             userId: response.userId,
             username: response.userName,
@@ -69,11 +71,10 @@ export const useUserStore = defineStore('user', {
           this.isAuthenticated = true;
           this.token = response.token;
           this.role = response.userRole?.roleName;
-          localStorage.setItem('user', JSON.stringify(this.user));
-          return true;
+         
+          return apiResponse;
         } else {
-          this.isAuthenticated = false;
-          return false;
+          return { isSuccessful: false, remark: apiResponse.message || "failed to authenticate due to an error" };
         }
       } catch (error) {
         this.isAuthenticated = false;
