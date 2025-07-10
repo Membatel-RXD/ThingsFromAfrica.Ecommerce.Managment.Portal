@@ -48,7 +48,17 @@
               </div>
             </v-card>
           </v-col>
-          
+          <v-col cols="12" md="3">
+          <v-card color="indigo-lighten-4" class="pa-4">
+            <div class="d-flex align-center">
+              <v-icon color="indigo-darken-3" size="40" class="me-3">mdi-crown</v-icon>
+              <div>
+                <h3 class="text-h5 font-weight-bold text-indigo-darken-3">{{ premiumCustomers }}</h3>
+                <p class="text-body-2 text-indigo-darken-1">Premium Customers</p>
+              </div>
+            </div>
+          </v-card>
+        </v-col>
           <v-col cols="12" md="3">
             <v-card color="purple-lighten-4" class="pa-4">
               <div class="d-flex align-center">
@@ -86,7 +96,17 @@
                   hide-details
                 />
               </v-col>
-             
+              <v-col cols="12" md="2">
+              <v-select
+                v-model="tierFilter"
+                label="Customer Tier"
+                :items="tierOptions"
+                variant="outlined"
+                density="compact"
+                hide-details
+              />
+            </v-col>
+            
               <v-col cols="12" md="2">
                 <v-select
                   v-model="countryFilter"
@@ -162,7 +182,16 @@
                 <span class="text-caption text-grey-darken-1">{{ item.userAddresses[0].country }}</span>
               </div>
             </template>
-  
+            <template v-slot:item.customerTier="{ item }">
+            <v-chip
+              :color="getTierColor(item.customerProfile.loyaltyTier)"
+              size="small"
+              variant="flat"
+            >
+              <v-icon start :icon="getTierIcon(item.customerProfile.loyaltyTier)"></v-icon>
+              {{ item.customerProfile.loyaltyTier }}
+            </v-chip>
+          </template>
             <template v-slot:item.userStatus="{ item }">
               <v-chip
                 :color="item.userDetails.userStatus ==='active' ? 'green' : 'grey'"
@@ -293,6 +322,16 @@
                       prepend-inner-icon="mdi-flag"
                     />
                   </v-col>
+                  <v-col cols="12" md="6">
+                  <v-select
+                    v-model="formData.customerTier"
+                    label="Customer Tier"
+                    :items="tierSelectOptions"
+                    :rules="[rules.required]"
+                    variant="outlined"
+                    prepend-inner-icon="mdi-crown"
+                  />
+                </v-col>
                   
                   <v-col cols="12">
                     <v-text-field
@@ -446,6 +485,7 @@
     phoneNumber: '',
     country: '',
     profilePicture: '',
+    customerTier: '',
     isActive: true,
     isEmailVerified: false
   });
@@ -512,7 +552,9 @@
     } else if (statusFilter.value === 'inactive') {
       filtered = filtered.filter(item => !item.userDetails.userStatus);
     }
-  
+    if (tierFilter.value !== 'all') {
+    filtered = filtered.filter(item => item.customerProfile.loyaltyTier === tierFilter.value);
+  }
     if (countryFilter.value !== 'all') {
       filtered = filtered.filter(item => item.userAddresses[0].country === countryFilter.value);
     }
@@ -528,6 +570,7 @@
   
   const totalCustomers = computed(() => customers.value.length);
   const activeCustomers = computed(() => customers.value.filter(c => c.userDetails.userStatus==='active').length);
+  const premiumCustomers = computed(() => customers.value.filter(c => c.customerProfile.loyaltyTier === 'Premium').length);
   const newCustomersThisMonth = computed(() => {
     const thisMonth = new Date().getMonth();
     const thisYear = new Date().getFullYear();
@@ -537,6 +580,26 @@
     }).length;
   });
   
+// Methods
+const getTierColor = (tier: string) => {
+  switch (tier) {
+    case 'Premium': return 'purple';
+    case 'Gold': return 'amber';
+    case 'Silver': return 'blue-grey';
+    case 'Bronze': return 'brown';
+    default: return 'grey';
+  }
+};
+
+const getTierIcon = (tier: string) => {
+  switch (tier) {
+    case 'Premium': return 'mdi-crown';
+    case 'Gold': return 'mdi-medal';
+    case 'Silver': return 'mdi-star';
+    case 'Bronze': return 'mdi-circle';
+    default: return 'mdi-account';
+  }
+};
 
   
   const formatDate = (dateString: string) => {
@@ -556,6 +619,7 @@
       phoneNumber: '',
       country: '',
       profilePicture: '',
+      customerTier: 'Bronze',
       isActive: true,
       isEmailVerified: false
     };
@@ -582,6 +646,7 @@
       email: '',
       phoneNumber: '',
       country: '',
+      customerTier: 'Bronze',
       profilePicture: '',
       isActive: true,
       isEmailVerified: false
@@ -668,9 +733,12 @@
     verificationFilter.value = 'all';
   };
   
-  onMounted(() => {
-    // Load customers data
+  onMounted(async() => {
     loading.value = false;
+    Promise.all([
+
+        customerStore.fetchCustomers()
+    ])
   });
   </script>
   
