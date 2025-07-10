@@ -57,7 +57,7 @@ export const useUserStore = defineStore('user', {
     async login(email: string, password: string) {
       try {
         const credentials: LoginCredentials = { Email: email, password };
-        const response = await apiService.post<AuthenticationResponse>("/Auth/Login", credentials);
+        const response = await apiService.post<AuthenticationResponse>("/Users/Authenticate", credentials);
         if (response && response.token) {
           this.user = {
             userId: response.userId,
