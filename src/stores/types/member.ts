@@ -447,6 +447,119 @@ export interface ArtisanDTO {
  modifiedAt?: string
 }
 
+ export interface  ProductCreationRequestWithImages {
+  productName: string; // Required, length 1-255
+  productSlug: string; // Required, max length 255
+  sku: string;         // Required, max length 100
+  itemCode?: string;   // Optional, max length 100
+  isDeleted?:boolean;
+  categoryId?: number | null;
+  craftTypeId?: number | null;
+  woodTypeId?: number | null;
+
+  productDescription?: string;  // max length 2000
+  shortDescription?: string;    // max length 500
+
+  basePrice: number;      // >= 0
+  touristPrice: number;   // >= 0
+  localPrice: number;     // >= 0
+  costPrice: number;      // >= 0
+
+  currency?: string;      // max length 3, default "USD"
+
+  usdPrice: number;       // >= 0
+  weight: number;         // >= 0
+  length: number;         // >= 0
+  width: number;          // >= 0
+  height: number;         // >= 0
+
+  woodType?: string;          // max length 100
+  woodOrigin?: string;        // max length 100
+  craftingTechnique?: string; // max length 200
+  craftingTime?: string;      // max length 100
+  difficultyLevel?: string;   // max length 50
+
+  artisanId?: number | null;
+  artisanName?: string;       // max length 200
+  artisanVillage?: string;    // max length 200
+  artisanStory?: string;      // max length 1000
+  culturalSignificance?: string; // max length 1000
+  tribalOrigin?: string;      // max length 200
+  culturalStory?: string;     // max length 1000
+  traditionalUse?: string;    // max length 500
+
+  woodGrain?: string;         // max length 100
+  woodColor?: string;         // max length 100
+  woodHardness?: string;      // max length 100
+  woodFinish?: string;        // max length 100
+  condition?: string;         // max length 100
+
+  qualityGrade?: string;      // max length 50
+  handmadeLevel?: string;     // max length 50
+
+  stockQuantity: number;      // >= 0
+
+  isUnique: boolean;
+
+  lowStockThreshold: number;  // >= 0
+
+  stockStatus?: string;       // max length 50
+  productStatus?: string;     // max length 50, default "draft"
+
+  isVisible?: boolean;        // default true
+  isFeatured: boolean;
+  isAuthentic?: boolean;      // default true
+  isCertified: boolean;
+
+  videoUrl?: string;          // URL string
+
+  isPopularWithTourists: boolean;
+  touristFriendlySize: boolean;
+  packingFriendly: boolean;
+  shippingFragile: boolean;
+  isSouvenir: boolean;
+
+  souvenirType?: string;      // max length 100
+
+  giftWrappingAvailable: boolean;
+  personalizationAvailable: boolean;
+
+  careInstructions?: string;      // max length 500
+  cleaningInstructions?: string;  // max length 500
+  storageInstructions?: string;   // max length 500
+
+  shippingWeight: number;      // >= 0
+
+  packagingRequired?: string;      // max length 200
+  shippingRestrictions?: string;   // max length 500
+  customsCode?: string;            // max length 50
+
+  requiresPhytosanitaryCertificate: boolean;
+
+  averageRating: number;      // 0 to 5
+  reviewCount: number;        // >= 0
+
+  metaTitle?: string;         // max length 200
+  metaDescription?: string;   // max length 500
+  metaKeywords?: string;      // max length 500
+
+  yearMade: number;           // 1800 to 2100
+  isAntique: boolean;
+
+  ageCategory?: string;       // max length 100
+  customAttributes?: string;  // max length 1000
+
+  createdBy: number;          // Required
+
+  // File uploads: in TypeScript this would be handled differently,
+  // possibly using File or Blob types in frontend
+  mainImageFile?: File | null;
+  galleryImageFiles?: File[] | null;
+  processImageFiles?: File[] | null;
+  artisanImageFile?: File | null;
+}
+
+
 export type CreateArtisanRequest = Omit<ArtisanDTO, 'artisanId' | 'createdAt' | 'modifiedAt'>
 export interface PromotionDTO {
   discountTypeId: number

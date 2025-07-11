@@ -17,7 +17,7 @@
                 color="orange-darken-2"
                 variant="elevated"
                 size="large"
-                @click="openAddProductDialog"
+                :to="{ name: 'products-create' }"
               >
                 <v-icon start icon="mdi-plus"></v-icon>
                 Add New Product
@@ -150,6 +150,11 @@
               <div>
                 <div class="font-weight-medium">{{ item.productName }}</div>
                 <div class="text-caption text-grey">{{ item.sku }}</div>
+              </div>
+            </template>
+            <template v-slot:item.woodTypeId="{ item }">
+              <div>
+                <div class="font-weight-medium">{{ getWoodTypeName(item.woodTypeId) }}</div>
               </div>
             </template>
   
@@ -509,45 +514,14 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, computed } from 'vue'
+  import { useProductStore } from '@/stores/product'
+  import { Product } from '@/stores/types/member'
+import { useWoodTypeStore } from '@/stores/woodStore';
+  import { ref, computed, onMounted } from 'vue'
   
-  // Product interface based on your model
-  interface Product {
-    productId: number
-    productName: string
-    productSlug: string
-    sku: string
-    itemCode: string
-    categoryId: number
-    craftTypeId: number
-    woodTypeId: number
-    productDescription: string
-    shortDescription: string
-    touristPrice: number
-    localPrice: number
-    costPrice: number
-    currency: string
-    usdPrice: number
-    woodType: string
-    woodOrigin: string
-    craftingTechnique: string
-    stockQuantity: number
-    lowStockThreshold: number
-    stockStatus: string
-    productStatus: string
-    isVisible: boolean
-    isFeatured: boolean
-    isAuthentic: boolean
-    isCertified: boolean
-    isUnique: boolean
-    mainImageUrl: string
-    averageRating: number
-    reviewCount: number
-    createdAt: string
-    modifiedAt: string
-    isDeleted: boolean
-  }
-  
+  const productStore = useProductStore();
+  const woodStypeStore = useWoodTypeStore();
+
   // Reactive data
   const loading = ref(false)
   const saving = ref(false)
@@ -568,6 +542,11 @@
   const selectedProduct = ref<Product | null>(null)
   const productToDelete = ref<Product | null>(null)
   
+ const getWoodTypeName = (id:number)=>{
+    const woodName = woodStypeStore.woodTypes.find(a=>a.woodTypeId===id);
+    return woodName?.woodName
+  }
+
   // Form data
   const editedProduct = ref<Partial<Product>>({
     productName: '',
@@ -584,116 +563,9 @@
     isVisible: true,
     isFeatured: false,
     isAuthentic: false
-  })
+  });
   
-  // Mock data - replace with actual API calls
-  const products = ref<Product[]>([
-    {
-      productId: 1,
-      productName: 'Handcrafted Oak Table',
-      productSlug: 'handcrafted-oak-table',
-      sku: 'OAK-TBL-001',
-      itemCode: 'IT001',
-      categoryId: 1,
-      craftTypeId: 1,
-      woodTypeId: 1,
-      productDescription: 'Beautiful handcrafted oak dining table with traditional joinery',
-      shortDescription: 'Handcrafted oak dining table',
-      touristPrice: 599.99,
-      localPrice: 450.00,
-      costPrice: 200.00,
-      currency: 'USD',
-      usdPrice: 599.99,
-      woodType: 'Oak',
-      woodOrigin: 'Local',
-      craftingTechnique: 'Traditional Joinery',
-      stockQuantity: 15,
-      lowStockThreshold: 5,
-      stockStatus: 'In Stock',
-      productStatus: 'Active',
-      isVisible: true,
-      isFeatured: true,
-      isAuthentic: true,
-      isCertified: true,
-      isUnique: false,
-      mainImageUrl: '/api/placeholder/300/300',
-      averageRating: 4.8,
-      reviewCount: 24,
-      createdAt: '2024-01-15T10:00:00Z',
-      modifiedAt: '2024-01-20T14:30:00Z',
-      isDeleted: false
-    },
-    {
-      productId: 2,
-      productName: 'Mahogany Jewelry Box',
-      productSlug: 'mahogany-jewelry-box',
-      sku: 'MAH-JWL-002',
-      itemCode: 'IT002',
-      categoryId: 2,
-      craftTypeId: 2,
-      woodTypeId: 2,
-      productDescription: 'Elegant mahogany jewelry box with velvet lining',
-      shortDescription: 'Mahogany jewelry box',
-      touristPrice: 89.99,
-      localPrice: 65.00,
-      costPrice: 30.00,
-      currency: 'USD',
-      usdPrice: 89.99,
-      woodType: 'Mahogany',
-      woodOrigin: 'Imported',
-      craftingTechnique: 'Hand Carved',
-      stockQuantity: 3,
-      lowStockThreshold: 5,
-      stockStatus: 'Low Stock',
-      productStatus: 'Active',
-      isVisible: true,
-      isFeatured: false,
-      isAuthentic: true,
-      isCertified: false,
-      isUnique: true,
-      mainImageUrl: '/api/placeholder/300/300',
-      averageRating: 4.6,
-      reviewCount: 18,
-      createdAt: '2024-01-10T09:00:00Z',
-      modifiedAt: '2024-01-18T11:15:00Z',
-      isDeleted: false
-    },
-    {
-      productId: 3,
-      productName: 'Cedar Bookshelf',
-      productSlug: 'cedar-bookshelf',
-      sku: 'CDR-BSH-003',
-      itemCode: 'IT003',
-      categoryId: 1,
-      craftTypeId: 1,
-      woodTypeId: 3,
-      productDescription: 'Rustic cedar bookshelf with 5 adjustable shelves',
-      shortDescription: 'Cedar bookshelf',
-      touristPrice: 299.99,
-      localPrice: 225.00,
-      costPrice: 120.00,
-      currency: 'USD',
-      usdPrice: 299.99,
-      woodType: 'Cedar',
-      woodOrigin: 'Local',
-      craftingTechnique: 'Modern Joinery',
-      stockQuantity: 0,
-      lowStockThreshold: 3,
-      stockStatus: 'Out of Stock',
-      productStatus: 'Out of Stock',
-      isVisible: false,
-      isFeatured: false,
-      isAuthentic: true,
-      isCertified: true,
-      isUnique: false,
-      mainImageUrl: '/api/placeholder/300/300',
-      averageRating: 4.9,
-      reviewCount: 12,
-      createdAt: '2024-01-05T08:30:00Z',
-      modifiedAt: '2024-01-25T16:45:00Z',
-      isDeleted: false
-    }
-  ])
+  const products = computed(()=>productStore.products);
   
   // Filter options
   const statusOptions = ['All', 'Active', 'Inactive', 'Draft', 'Out of Stock']
@@ -704,7 +576,7 @@
   const headers = [
     { title: 'Image', key: 'mainImageUrl', sortable: false },
     { title: 'Product', key: 'productName' },
-    { title: 'Wood Type', key: 'woodType' },
+    { title: 'Wood Type', key: 'woodTypeId' },
     { title: 'Pricing', key: 'pricing', sortable: false },
     { title: 'Stock', key: 'stock', sortable: false },
     { title: 'Status', key: 'status' },
@@ -787,5 +659,10 @@
     productDialog.value = false
     editedProduct.value = {}
   }
-  
+  onMounted( async()=>{
+      Promise.all([
+        productStore.fetchProducts(),
+        woodStypeStore.fetchWoodTypes()
+      ]);
+  });
 </script>

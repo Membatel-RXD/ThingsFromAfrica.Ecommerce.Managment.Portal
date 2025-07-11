@@ -585,6 +585,8 @@
                             :rules="[rules.imageSize, rules.imageType]"
                             @change="handleMainImageChange"
                             show-size
+                            class="text-black"
+                            style="color: black !important;"
                           ></v-file-input>
                           
                           <!-- Main Image Preview -->
@@ -621,6 +623,8 @@
                             :rules="[rules.imageSize, rules.imageType]"
                             @change="handleGalleryImagesChange"
                             show-size
+                            class="text-black"
+                            style="color: black !important;"
                           ></v-file-input>
                           
                           <!-- Gallery Images Preview -->
@@ -672,6 +676,8 @@
                             :rules="[rules.imageSize, rules.imageType]"
                             @change="handleProcessImagesChange"
                             show-size
+                            class="text-black"
+                            style="color: black !important;"
                           ></v-file-input>
                           
                           <!-- Process Images Preview -->
@@ -722,6 +728,8 @@
                             :rules="[rules.imageSize, rules.imageType]"
                             @change="handleArtisanImageChange"
                             show-size
+                            class="text-black"
+                            style="color: black !important;"
                           ></v-file-input>
                           
                           <!-- Artisan Image Preview -->
@@ -751,6 +759,8 @@
                           prepend-inner-icon="mdi-video"
                           hint="Product demonstration video URL"
                           persistent-hint
+                          class="text-black"
+                          style="color: black !important;"
                         ></v-text-field>
                       </v-col>
                     </v-row>
@@ -1051,6 +1061,7 @@ import { useSnackbarStore } from '@/stores/snackbar';
 import { useArtisanStore } from '@/stores/artisan';
 import { useUserStore } from '@/stores/user';
 import { useProductStore } from '@/stores/product';
+import { ProductCreationRequestWithImages } from '@/stores/types/member';
 
 const productCategory = useProductCategoryStore();
 const craftType = useCraftTypeStore();
@@ -1073,8 +1084,6 @@ const stepperItems = [
   { title: 'Settings & Options', value: 7 },
   { title: 'Care & Instructions', value: 8 }
 ]
-
-
 
 // Validation rules
 const rules = {
@@ -1147,7 +1156,7 @@ const artisans = computed(()=>artisanStore.artisans);
         ];
 
         // Modified productForm reactive object to include image files
-const productForm = reactive({
+const productForm = reactive<ProductCreationRequestWithImages>({
   weight: 0,
   length: 0,
   width: 0,
@@ -1196,10 +1205,6 @@ const productForm = reactive({
   isFeatured: false,
   isAuthentic: true,
   isCertified: false,
-  mainImageUrl: '',
-  galleryImages: '',
-  processImages: '',
-  artisanImage: '',
   videoUrl: '',
   isPopularWithTourists: false,
   touristFriendlySize: false,
@@ -1356,21 +1361,18 @@ const submitForm = async () => {
         formData.append(`galleryImageFiles[${index}]`, file);
       });
     }
-    
     if (productForm.processImageFiles.length > 0) {
       (productForm.processImageFiles as File[]).forEach((file, index) => {
         formData.append(`processImageFiles[${index}]`, file);
       });
     }
-    
     if (productForm.artisanImageFile) {
       formData.append('artisanImageFile', productForm.artisanImageFile);
     }
-    
-    // Simulate API call with FormData
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
     const response = await productStore.createProductWithImages(formData);
+    if(response && response.isSuccessful){
+      snackbar.success("Successfully created a product");
+    }
     resetForm();
   } catch (error) {
     console.error('Error creating product:', error);
@@ -1408,7 +1410,9 @@ const resetForm = () => {
     Promise.all( [
       await productCategory.fetchCategories(),
       await craftType.fetchCraftTypes(),
-      await woodType.fetchWoodTypes()
+      await woodType.fetchWoodTypes(),
+      await artisanStore.fetchArtisans(),
+
     ]
     )
     } catch (error) {
