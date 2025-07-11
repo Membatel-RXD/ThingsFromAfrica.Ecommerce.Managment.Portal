@@ -265,7 +265,7 @@
                   </v-card-title>
                   <v-card-text class="pa-6">
                     <v-row>
-                      <v-col cols="12" md="4">
+                      <v-col cols="12" md="6">
                         <v-select
                           v-model="productForm.artisanId"
                           :items="artisans"
@@ -277,8 +277,15 @@
                           prepend-inner-icon="mdi-account"
                         ></v-select>
                       </v-col>
-                     
-                    
+                      <v-col cols="12" md="6">
+                        <v-text-field
+                          v-model="productForm.traditionalUse"
+                          label="Traditional Use"
+                          variant="outlined"
+                          color="orange-darken-2"
+                          prepend-inner-icon="mdi-history"
+                        ></v-text-field>
+                      </v-col>
                       <v-col cols="12">
                         <v-textarea
                           v-model="productForm.artisanStory"
@@ -291,24 +298,8 @@
                           persistent-hint
                         ></v-textarea>
                       </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="productForm.tribalOrigin"
-                          label="Tribal Origin"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-account-group"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="productForm.traditionalUse"
-                          label="Traditional Use"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-history"
-                        ></v-text-field>
-                      </v-col>
+                      
+                  
                       <v-col cols="12">
                         <v-textarea
                           v-model="productForm.culturalSignificance"
@@ -578,18 +569,180 @@
                   </v-card-title>
                   <v-card-text class="pa-6">
                     <v-row>
+                      <!-- Main Image Upload -->
                       <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="productForm.mainImageUrl"
-                          label="Main Image URL"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-image"
-                          hint="Primary product image URL"
-                          persistent-hint
-                        ></v-text-field>
+                        <v-card class="pa-4" color="orange-lighten-5" variant="outlined">
+                          <v-card-title class="text-subtitle-1 font-weight-bold text-orange-darken-4 pb-4">
+                            Main Product Image
+                          </v-card-title>
+                          <v-file-input
+                            v-model="productForm.mainImageFile"
+                            label="Upload Main Image"
+                            variant="outlined"
+                            color="orange-darken-2"
+                            prepend-inner-icon="mdi-camera"
+                            accept="image/*"
+                            :rules="[rules.imageSize, rules.imageType]"
+                            @change="handleMainImageChange"
+                            show-size
+                          ></v-file-input>
+                          
+                          <!-- Main Image Preview -->
+                          <v-img
+                            v-if="mainImagePreview"
+                            :src="mainImagePreview"
+                            max-height="200"
+                            class="mt-4 rounded"
+                            contain
+                          >
+                            <template v-slot:placeholder>
+                              <div class="d-flex align-center justify-center fill-height">
+                                <v-progress-circular indeterminate></v-progress-circular>
+                              </div>
+                            </template>
+                          </v-img>
+                        </v-card>
                       </v-col>
+
+                      <!-- Gallery Images Upload -->
                       <v-col cols="12" md="6">
+                        <v-card class="pa-4" color="orange-lighten-5" variant="outlined">
+                          <v-card-title class="text-subtitle-1 font-weight-bold text-orange-darken-4 pb-4">
+                            Gallery Images
+                          </v-card-title>
+                          <v-file-input
+                            v-model="productForm.galleryImageFiles"
+                            label="Upload Gallery Images"
+                            variant="outlined"
+                            color="orange-darken-2"
+                            prepend-inner-icon="mdi-image-multiple"
+                            accept="image/*"
+                            multiple
+                            :rules="[rules.imageSize, rules.imageType]"
+                            @change="handleGalleryImagesChange"
+                            show-size
+                          ></v-file-input>
+                          
+                          <!-- Gallery Images Preview -->
+                          <div v-if="galleryImagePreviews.length > 0" class="mt-4">
+                            <v-row>
+                              <v-col 
+                                v-for="(preview, index) in galleryImagePreviews" 
+                                :key="index"
+                                cols="6"
+                                sm="4"
+                              >
+                                <v-card class="position-relative">
+                                  <v-img
+                                    :src="preview"
+                                    height="100"
+                                    cover
+                                    class="rounded"
+                                  ></v-img>
+                                  <v-btn
+                                    @click="removeGalleryImage(index)"
+                                    icon="mdi-close"
+                                    size="small"
+                                    color="red"
+                                    class="position-absolute"
+                                    style="top: 4px; right: 4px;"
+                                    variant="elevated"
+                                  ></v-btn>
+                                </v-card>
+                              </v-col>
+                            </v-row>
+                          </div>
+                        </v-card>
+                      </v-col>
+
+                      <!-- Process Images Upload -->
+                      <v-col cols="12" md="6">
+                        <v-card class="pa-4" color="orange-lighten-5" variant="outlined">
+                          <v-card-title class="text-subtitle-1 font-weight-bold text-orange-darken-4 pb-4">
+                            Process Images
+                          </v-card-title>
+                          <v-file-input
+                            v-model="productForm.processImageFiles"
+                            label="Upload Process Images"
+                            variant="outlined"
+                            color="orange-darken-2"
+                            prepend-inner-icon="mdi-camera"
+                            accept="image/*"
+                            multiple
+                            :rules="[rules.imageSize, rules.imageType]"
+                            @change="handleProcessImagesChange"
+                            show-size
+                          ></v-file-input>
+                          
+                          <!-- Process Images Preview -->
+                          <div v-if="processImagePreviews.length > 0" class="mt-4">
+                            <v-row>
+                              <v-col 
+                                v-for="(preview, index) in processImagePreviews" 
+                                :key="index"
+                                cols="6"
+                                sm="4"
+                              >
+                                <v-card class="position-relative">
+                                  <v-img
+                                    :src="preview"
+                                    height="100"
+                                    cover
+                                    class="rounded"
+                                  ></v-img>
+                                  <v-btn
+                                    @click="removeProcessImage(index)"
+                                    icon="mdi-close"
+                                    size="small"
+                                    color="red"
+                                    class="position-absolute"
+                                    style="top: 4px; right: 4px;"
+                                    variant="elevated"
+                                  ></v-btn>
+                                </v-card>
+                              </v-col>
+                            </v-row>
+                          </div>
+                        </v-card>
+                      </v-col>
+
+                      <!-- Artisan Image Upload -->
+                      <v-col cols="12" md="6">
+                        <v-card class="pa-4" color="orange-lighten-5" variant="outlined">
+                          <v-card-title class="text-subtitle-1 font-weight-bold text-orange-darken-4 pb-4">
+                            Artisan Image
+                          </v-card-title>
+                          <v-file-input
+                            v-model="productForm.artisanImageFile"
+                            label="Upload Artisan Image"
+                            variant="outlined"
+                            color="orange-darken-2"
+                            prepend-inner-icon="mdi-account-circle"
+                            accept="image/*"
+                            :rules="[rules.imageSize, rules.imageType]"
+                            @change="handleArtisanImageChange"
+                            show-size
+                          ></v-file-input>
+                          
+                          <!-- Artisan Image Preview -->
+                          <v-img
+                            v-if="artisanImagePreview"
+                            :src="artisanImagePreview"
+                            max-height="200"
+                            class="mt-4 rounded"
+                            contain
+                          >
+                            <template v-slot:placeholder>
+                              <div class="d-flex align-center justify-center fill-height">
+                                <v-progress-circular indeterminate></v-progress-circular>
+                              </div>
+                            </template>
+                          </v-img>
+                        </v-card>
+                      </v-col>
+
+                      <!-- Video URL -->
+                      <v-col cols="12">
                         <v-text-field
                           v-model="productForm.videoUrl"
                           label="Video URL"
@@ -597,41 +750,6 @@
                           color="orange-darken-2"
                           prepend-inner-icon="mdi-video"
                           hint="Product demonstration video URL"
-                          persistent-hint
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-textarea
-                          v-model="productForm.galleryImages"
-                          label="Gallery Images"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          rows="3"
-                          prepend-inner-icon="mdi-image-multiple"
-                          hint="Comma-separated URLs of additional product images"
-                          persistent-hint
-                        ></v-textarea>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-textarea
-                          v-model="productForm.processImages"
-                          label="Process Images"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          rows="3"
-                          prepend-inner-icon="mdi-camera"
-                          hint="Comma-separated URLs showing the crafting process"
-                          persistent-hint
-                        ></v-textarea>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-text-field
-                          v-model="productForm.artisanImage"
-                          label="Artisan Image URL"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-account-circle"
-                          hint="Photo of the artisan who created this piece"
                           persistent-hint
                         ></v-text-field>
                       </v-col>
@@ -649,7 +767,7 @@
                   <v-card-text class="pa-6">
                     <v-row>
                       <v-col cols="12" md="6">
-                        <v-card class="pa-4" color="orange-lighten-5" variant="outlined">
+                        <v-card class="pa-4" color="orange-lighten-4" variant="outlined">
                           <v-card-title class="text-subtitle-1 font-weight-bold text-orange-darken-4">
                             Product Status
                           </v-card-title>
@@ -659,24 +777,31 @@
                               color="orange-darken-2"
                               label="Visible to customers"
                               density="compact"
+                              class="text-orange-darken-3"
                             ></v-switch>
                             <v-switch
                               v-model="productForm.isFeatured"
                               color="orange-darken-2"
                               label="Featured product"
                               density="compact"
+                              class="text-orange-darken-3"
+
                             ></v-switch>
                             <v-switch
                               v-model="productForm.isUnique"
                               color="orange-darken-2"
                               label="Unique piece"
                               density="compact"
+                              class="text-orange-darken-3"
+
                             ></v-switch>
                             <v-switch
                               v-model="productForm.isAntique"
                               color="orange-darken-2"
                               label="Antique item"
                               density="compact"
+                              class="text-orange-darken-3"
+
                             ></v-switch>
                           </v-card-text>
                         </v-card>
@@ -692,18 +817,24 @@
                               color="orange-darken-2"
                               label="Authentic craft"
                               density="compact"
+                              class="text-orange-darken-3"
+
                             ></v-switch>
                             <v-switch
                               v-model="productForm.isCertified"
                               color="orange-darken-2"
                               label="Certified product"
                               density="compact"
+                              class="text-orange-darken-3"
+
                             ></v-switch>
                             <v-switch
                               v-model="productForm.requiresPhytosanitaryCertificate"
                               color="orange-darken-2"
                               label="Requires phytosanitary certificate"
                               density="compact"
+                              class="text-orange-darken-3"
+
                             ></v-switch>
                           </v-card-text>
                         </v-card>
@@ -719,24 +850,32 @@
                               color="orange-darken-2"
                               label="Popular with tourists"
                               density="compact"
+                              class="text-orange-darken-3"
+
                             ></v-switch>
                             <v-switch
                               v-model="productForm.touristFriendlySize"
                               color="orange-darken-2"
                               label="Tourist-friendly size"
                               density="compact"
+                              class="text-orange-darken-3"
+
                             ></v-switch>
                             <v-switch
                               v-model="productForm.packingFriendly"
                               color="orange-darken-2"
                               label="Packing friendly"
                               density="compact"
+                              class="text-orange-darken-3"
+
                             ></v-switch>
                             <v-switch
                               v-model="productForm.isSouvenir"
                               color="orange-darken-2"
                               label="Souvenir item"
                               density="compact"
+                              class="text-orange-darken-3"
+
                             ></v-switch>
                           </v-card-text>
                         </v-card>
@@ -752,18 +891,24 @@
                               color="orange-darken-2"
                               label="Fragile item"
                               density="compact"
+                              class="text-orange-darken-3"
+
                             ></v-switch>
                             <v-switch
                               v-model="productForm.giftWrappingAvailable"
                               color="orange-darken-2"
                               label="Gift wrapping available"
                               density="compact"
+                              class="text-orange-darken-3"
+
                             ></v-switch>
                             <v-switch
                               v-model="productForm.personalizationAvailable"
                               color="orange-darken-2"
                               label="Personalization available"
                               density="compact"
+                              class="text-orange-darken-3"
+
                             ></v-switch>
                           </v-card-text>
                         </v-card>
@@ -851,81 +996,6 @@
                   </v-card-text>
                 </v-card>
               </template>
-
-              <template v-slot:item.9>
-                <v-card flat>
-                  <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
-                    <v-icon icon="mdi-web" class="me-2"></v-icon>
-                    SEO & Marketing
-                  </v-card-title>
-                  <v-card-text class="pa-6">
-                    <v-row>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="productForm.metaTitle"
-                          label="Meta Title"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-format-title"
-                          hint="SEO title for search engines"
-                          persistent-hint
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="productForm.metaKeywords"
-                          label="Meta Keywords"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-tag-multiple"
-                          hint="Comma-separated keywords for SEO"
-                          persistent-hint
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-textarea
-                          v-model="productForm.metaDescription"
-                          label="Meta Description"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          rows="3"
-                          prepend-inner-icon="mdi-text-box"
-                          hint="SEO description for search engines (150-160 characters)"
-                          persistent-hint
-                        ></v-textarea>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model.number="productForm.averageRating"
-                          label="Average Rating"
-                          type="number"
-                          min="0"
-                          max="5"
-                          step="0.1"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-star"
-                          hint="Average customer rating (0-5)"
-                          persistent-hint
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model.number="productForm.reviewCount"
-                          label="Review Count"
-                          type="number"
-                          min="0"
-                          variant="outlined"
-                          color="orange-darken-2"
-                          prepend-inner-icon="mdi-comment-text"
-                          hint="Total number of reviews"
-                          persistent-hint
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </template>
             </v-stepper>
           </v-col>
         </v-row>
@@ -979,8 +1049,8 @@ import { useWoodTypeStore } from '@/stores/woodStore';
 import { useCraftTypeStore } from '@/stores/craftStore';
 import { useSnackbarStore } from '@/stores/snackbar';
 import { useArtisanStore } from '@/stores/artisan';
-import { CreateProductRequest, Product } from '@/stores/types/member';
 import { useUserStore } from '@/stores/user';
+import { useProductStore } from '@/stores/product';
 
 const productCategory = useProductCategoryStore();
 const craftType = useCraftTypeStore();
@@ -988,6 +1058,7 @@ const woodType = useWoodTypeStore();
 const snackbar = useSnackbarStore();
 const artisanStore = useArtisanStore();
 const userStore = useUserStore();
+const productStore = useProductStore();
 // Reactive State
 const currentStep = ref(1)
 const isSubmitting = ref(false)
@@ -1000,12 +1071,83 @@ const stepperItems = [
   { title: 'Dimensions & Specifications', value: 5 },
   { title: 'Images & Media', value: 6 },
   { title: 'Settings & Options', value: 7 },
-  { title: 'Care & Instructions', value: 8 },
-  { title: 'SEO & Marketing', value: 9 }
+  { title: 'Care & Instructions', value: 8 }
 ]
 
-// Form Data
-const productForm = reactive<Partial<CreateProductRequest>>({
+
+
+// Validation rules
+const rules = {
+  required: (value: any) => !!value || 'This field is required',
+  positive: (value: number) => value > 0 || 'Must be greater than 0',
+  nonNegative: (value: number) => value >= 0 || 'Must be 0 or greater',
+  imageSize: (value: File[]) => {
+    if (!value || value.length === 0) return true
+    const maxSize = 5 * 1024 * 1024 // 5MB
+    return value.every(file => file.size <= maxSize) || 'File size must be less than 5MB'
+  },
+  imageType: (value: File[]) => {
+    if (!value || value.length === 0) return true
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+    return value.every(file => allowedTypes.includes(file.type)) || 'Only image files are allowed'
+  }
+}
+
+
+const categories  =  computed(()=>productCategory.categories);
+
+const woodTypes = computed(()=>woodType.woodTypes);
+
+const craftTypes = computed(()=>craftType.craftTypes);
+
+const artisans = computed(()=>artisanStore.artisans);
+  const  difficultyLevels = ref([
+          'Beginner',
+          'Intermediate',
+          'Advanced',
+          'Expert',
+          'Master'
+        ]);
+        const  handmadeLevels =ref( [
+          'Fully Handmade',
+          'Mostly Handmade',
+          'Partially Handmade',
+          'Machine Assisted'
+        ]);
+        const hardnessLevels=[
+          'Soft',
+          'Medium',
+          'Hard',
+          'Very Hard'
+        ];
+        const conditionOptions= [
+          'New',
+          'Excellent',
+          'Good',
+          'Fair',
+          'Antique'
+        ];
+       const  currencies=[
+          'USD',
+          'EUR',
+          'GBP',
+          'MWK'
+        ];
+        const stockStatuses=[
+          'In Stock',
+          'Low Stock',
+          'Out of Stock',
+          'Pre-Order'
+        ];
+       const  qualityGrades=[
+          'Premium',
+          'Standard',
+          'Economy',
+          'Collector'
+        ];
+
+        // Modified productForm reactive object to include image files
+const productForm = reactive({
   weight: 0,
   length: 0,
   width: 0,
@@ -1085,68 +1227,14 @@ const productForm = reactive<Partial<CreateProductRequest>>({
   ageCategory: '',
   customAttributes: '',
   createdBy: userStore.user?.userId!,
-  isDeleted: false
-})
-
-// Validation rules
-const rules = {
-  required: (value: any) => !!value || 'This field is required',
-  positive: (value: number) => value > 0 || 'Must be greater than 0',
-  nonNegative: (value: number) => value >= 0 || 'Must be 0 or greater'
-}
-
-
-const categories  =  computed(()=>productCategory.categories);
-
-const woodTypes = computed(()=>woodType.woodTypes);
-
-const craftTypes = computed(()=>craftType.craftTypes);
-
-const artisans = computed(()=>artisanStore.artisans);
-  const  difficultyLevels = ref([
-          'Beginner',
-          'Intermediate',
-          'Advanced',
-          'Expert',
-          'Master'
-        ]);
-        const  handmadeLevels =ref( [
-          'Fully Handmade',
-          'Mostly Handmade',
-          'Partially Handmade',
-          'Machine Assisted'
-        ]);
-        const hardnessLevels=[
-          'Soft',
-          'Medium',
-          'Hard',
-          'Very Hard'
-        ];
-        const conditionOptions= [
-          'New',
-          'Excellent',
-          'Good',
-          'Fair',
-          'Antique'
-        ];
-       const  currencies=[
-          'USD',
-          'EUR',
-          'GBP',
-          'MWK'
-        ];
-        const stockStatuses=[
-          'In Stock',
-          'Low Stock',
-          'Out of Stock',
-          'Pre-Order'
-        ];
-       const  qualityGrades=[
-          'Premium',
-          'Standard',
-          'Economy',
-          'Collector'
-        ];
+  isDeleted: false,
+  
+  // Image files
+  mainImageFile: null,
+  galleryImageFiles: [],
+  processImageFiles: [],
+  artisanImageFile: null
+});
 
 // Watchers
 watch(() => productForm.productName, (newVal) => {
@@ -1157,43 +1245,163 @@ watch(() => productForm.productName, (newVal) => {
   }
 })
 
-// Methods
-const submitForm = async () => {
-  isSubmitting.value = true
-  try {
-    const now = new Date().toISOString()
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
+// Add reactive refs for image previews
+const mainImagePreview = ref('');
+const galleryImagePreviews = ref([]);
+const processImagePreviews = ref([]);
+const artisanImagePreview = ref('');
 
-    resetForm()
-  } catch (error) {
-    console.error('Error creating product:', error)
-  } finally {
-    isSubmitting.value = false
+// Image preview handlers (without upload logic)
+const handleMainImageChange = (event) => {
+  const file = event.target.files?.[0];
+  if (file) {
+    productForm.mainImageFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      mainImagePreview.value = e.target?.result;
+    };
+    reader.readAsDataURL(file);
   }
-}
+};
 
+const handleGalleryImagesChange = (event) => {
+  const files = Array.from(event.target.files || []);
+  if (files.length > 0) {
+    productForm.galleryImageFiles = files;
+    galleryImagePreviews.value = [];
+    
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        galleryImagePreviews.value.push(e.target?.result);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+};
+
+const handleProcessImagesChange = (event) => {
+  const files = Array.from(event.target.files || []);
+  if (files.length > 0) {
+    productForm.processImageFiles = files;
+    processImagePreviews.value = [];
+    
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        processImagePreviews.value.push(e.target?.result);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+};
+
+const handleArtisanImageChange = (event) => {
+  const file = event.target.files?.[0];
+  if (file) {
+    productForm.artisanImageFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      artisanImagePreview.value = e.target?.result;
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+// Remove image functions
+const removeGalleryImage = (index) => {
+  galleryImagePreviews.value.splice(index, 1);
+  const dt = new DataTransfer();
+  const files = Array.from(productForm.galleryImageFiles);
+  files.splice(index, 1);
+  files.forEach(file => dt.items.add(file));
+  productForm.galleryImageFiles = dt.files;
+};
+
+const removeProcessImage = (index) => {
+  processImagePreviews.value.splice(index, 1);
+  const dt = new DataTransfer();
+  const files = Array.from(productForm.processImageFiles);
+  files.splice(index, 1);
+  files.forEach(file => dt.items.add(file));
+  productForm.processImageFiles = dt.files;
+};
+
+// Modified submitForm function
+const submitForm = async () => {
+  isSubmitting.value = true;
+  try {
+    const now = new Date().toISOString();
+    
+    // Create FormData for file uploads
+    const formData = new FormData();
+    
+    // Add all form fields
+    Object.keys(productForm).forEach(key => {
+      if (key !== 'mainImageFile' && key !== 'galleryImageFiles' && 
+          key !== 'processImageFiles' && key !== 'artisanImageFile') {
+        const value = productForm[key as keyof typeof productForm];
+        formData.append(key, value as string | Blob);
+      }
+    });
+    
+    // Add image files
+    if (productForm.mainImageFile) {
+      formData.append('mainImageFile', productForm.mainImageFile);
+    }
+    
+    if (productForm.galleryImageFiles.length > 0) {
+      (productForm.galleryImageFiles as File[]).forEach((file, index) => {
+        formData.append(`galleryImageFiles[${index}]`, file);
+      });
+    }
+    
+    if (productForm.processImageFiles.length > 0) {
+      (productForm.processImageFiles as File[]).forEach((file, index) => {
+        formData.append(`processImageFiles[${index}]`, file);
+      });
+    }
+    
+    if (productForm.artisanImageFile) {
+      formData.append('artisanImageFile', productForm.artisanImageFile);
+    }
+    
+    // Simulate API call with FormData
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    const response = await productStore.createProductWithImages(formData);
+    resetForm();
+  } catch (error) {
+    console.error('Error creating product:', error);
+  } finally {
+    isSubmitting.value = false;
+  }
+};
+
+// Reset form function
 const resetForm = () => {
   Object.keys(productForm).forEach(key => {
-    if (typeof (productForm as any)[key] === 'string') {
-      (productForm as any)[key] = ''
-    } else if (typeof (productForm as any)[key] === 'number') {
-      (productForm as any)[key] = 0
-    } else if (typeof (productForm as any)[key] === 'boolean') {
-      (productForm as any)[key] = false
-    } else {
-      (productForm as any)[key] = null
+    const typedKey = key as keyof typeof productForm;
+    if (key === 'mainImageFile' || key === 'artisanImageFile') {
+      (productForm as any)[key] = null;
+    } else if (key === 'galleryImageFiles' || key === 'processImageFiles') {
+      (productForm as any)[key] = [];
+    } else if (typeof productForm[typedKey] === 'string') {
+      (productForm as any)[key] = '';
+    } else if (typeof productForm[typedKey] === 'number') {
+      (productForm as any)[key] = 0;
+    } else if (typeof productForm[typedKey] === 'boolean') {
+      (productForm as any)[key] = false;
     }
-  })
-  productForm.currency = 'USD'
-  productForm.productStatus = 'draft'
-  productForm.isVisible = true
-  productForm.isAuthentic = true
-  productForm.yearMade = new Date().getFullYear()
-  productForm.createdBy = 1
-  productForm.modifiedBy = 1
-  currentStep.value = 1
+  });
+  
+  // Reset previews
+  mainImagePreview.value = '';
+  galleryImagePreviews.value = [];
+  processImagePreviews.value = [];
+  artisanImagePreview.value = '';
+};
 
   onMounted(async () => {
     try {
@@ -1208,11 +1416,12 @@ const resetForm = () => {
       snackbar.error('Error loading product categories')
     }
   })
-}
+
 </script>
 
 
   <style scoped>
+
   .v-stepper {
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }

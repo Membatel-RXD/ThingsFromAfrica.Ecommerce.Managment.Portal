@@ -193,13 +193,6 @@ const handleLogin = async () => {
       await nextTick();
 
       try {
-        // Handle password change requirement first
-        // if (authResponse.shouldChangePassword) {
-        //   await router.push("/user/profile");
-        //   return;
-        // }
-
-        // Get user role and handle navigation for e-commerce
         const userRole = userStore.role;
         
         if (!userRole) {

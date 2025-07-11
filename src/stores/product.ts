@@ -23,7 +23,7 @@ export const useProductStore = defineStore("product", {
     async fetchProducts() {
       try {
         this.loading = true;
-        const response = await apiService.get<IAPIResponse<Product[]>>("/products");
+        const response = await apiService.get<IAPIResponse<Product[]>>("/Products/GetAll");
         this.products = response.payload || [];
       } catch (error) {
         this.error = "Failed to fetch products";
@@ -33,10 +33,26 @@ export const useProductStore = defineStore("product", {
       }
     },
 
+    async createProductWithImages(formData:FormData):Promise<IAPIResponse<Product>> {
+      try {
+        this.loading = true;
+        const response = await apiService.post<IAPIResponse<Product>>("/Product/CreateProduct", formData);
+        if (response && response.isSuccessful && response.payload) {
+          this.products.push(response.payload);
+        }
+        return response;
+      } catch (error) {
+        this.error = "Failed to create product";
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+
     async fetchTopProducts() {
       try {
         this.loading = true;
-        const response = await apiService.get<IAPIResponse<Product[]>>("/products/top");
+        const response = await apiService.get<IAPIResponse<Product[]>>("/Products/Top");
         this.topProducts = response.payload || [];
       } catch (error) {
         this.error = "Failed to fetch top products";
@@ -49,8 +65,10 @@ export const useProductStore = defineStore("product", {
     async createProduct(data: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<IAPIResponse<Product>> {
       try {
         this.loading = true;
-        const response = await apiService.post<IAPIResponse<Product>>("/products", data);
-        this.products.push(response.payload);
+        const response = await apiService.post<IAPIResponse<Product>>("/Products/Add", data);
+        if (response && response.isSuccessful && response.payload) {
+          this.products.push(response.payload);
+        }
         return response;
       } catch (error) {
         this.error = "Failed to create product";
@@ -63,11 +81,13 @@ export const useProductStore = defineStore("product", {
     async updateProduct(id: number, data: Partial<Product>): Promise<IAPIResponse<Product>> {
       try {
         this.loading = true;
-        const response = await apiService.put<IAPIResponse<Product>>(`/products/${id}`, data);
+        const response = await apiService.put<IAPIResponse<Product>>(`/Products/Update?productid=${id}`, data);
         const index = this.products.findIndex(p => p.productId === id);
-        if (index !== -1) {
-          this.products[index] = response.payload;
-        }
+        if (response && response.isSuccessful && response.payload) {
+          if (index !== -1) {
+            this.products[index] = response.payload;
+          }
+       }
         return response;
       } catch (error) {
         this.error = "Failed to update product";
