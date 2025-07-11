@@ -1200,7 +1200,7 @@ const productForm = reactive<ProductCreationRequestWithImages>({
   isUnique: false,
   lowStockThreshold: 0,
   stockStatus: '',
-  productStatus: 'draft',
+  productStatus: 'Active',
   isVisible: true,
   isFeatured: false,
   isAuthentic: true,
