@@ -597,7 +597,7 @@ export interface PaymentDTO {
   paymentDate: string // ISO 8601 date string
   processedDate: string // ISO 8601 date string
   createdAt: string // ISO 8601 date string
-  createdBy: number
+  createdBy: number|null
 }
 export interface CreatePaymentRequest extends Omit<PaymentDTO, 'paymentId' | 'createdAt' | 'processedDate'> {}
 export interface PaymentMethodDTO {

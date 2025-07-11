@@ -408,16 +408,6 @@
                       hide-details
                     />
                   </v-col>
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      v-model.number="formData.createdBy"
-                      label="Created By (User ID)"
-                      type="number"
-                      :rules="[rules.required, rules.number]"
-                      variant="outlined"
-                      prepend-inner-icon="mdi-account"
-                    />
-                  </v-col>
                 </v-row>
               </v-form>
             </v-card-text>
@@ -520,11 +510,12 @@
   import { usePromotionStore } from '@/stores/promotion'
   import { ref, computed, onMounted } from 'vue'
   import { useSnackbarStore } from '@/stores/snackbar'
-import { PromotionDTO } from '@/stores/types/member'
+  import { PromotionDTO } from '@/stores/types/member'
+import { useUserStore } from '@/stores/user'
   
   const promotionStore = usePromotionStore()
   const snackbar = useSnackbarStore()
-  
+  const userStore = useUserStore();
   // Data
   const saving = ref(false)
   const dialog = ref(false)
@@ -555,7 +546,7 @@ import { PromotionDTO } from '@/stores/types/member'
     applicableCountries: '',
     isActive: true,
     isTouristOnly: false,
-    createdBy: 1
+    createdBy: userStore.user?.userId
   })
   
   // Options
@@ -698,7 +689,7 @@ import { PromotionDTO } from '@/stores/types/member'
       applicableCountries: '',
       isActive: true,
       isTouristOnly: false,
-      createdBy: 1
+      createdBy: userStore.user?.userId
     }
     dialog.value = true
   }
@@ -736,7 +727,7 @@ import { PromotionDTO } from '@/stores/types/member'
       applicableCountries: '',
       isActive: true,
       isTouristOnly: false,
-      createdBy: 1
+      createdBy: userStore.user?.userId
     }
   }
   
