@@ -1,10 +1,11 @@
 import { defineStore } from "pinia";
 import { apiService, type IAPIResponse } from "@/services/api";
-import type { OrderCreationRequest, OrderDto } from "./types/member";
+import type { OrderCreationRequest, OrderDto, Ordertatus } from "./types/member";
 
 export const useOrderStore = defineStore("order", {
   state: () => ({
     orders: [] as OrderDto[],
+    orderStatuses: [] as Ordertatus[],
     loading: false,
     error: null as string | null,
     success: null as string | null,
@@ -93,6 +94,18 @@ export const useOrderStore = defineStore("order", {
         this.loading = false;
       }
     },
+    async fetchOrderStatus() {
+      try {
+        this.loading = true;
+        const response = await apiService.get<IAPIResponse<Ordertatus[]>>("/OrderStatus/GetAll");
+        this.orderStatuses = response.payload || [];
+      } catch (error) {
+        this.error = "Failed to fetch orders";
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
 
     async fetchOrderById(id: number) {
       try {
@@ -142,7 +155,8 @@ export const useOrderStore = defineStore("order", {
     async createOrder(data: OrderCreationRequest): Promise<IAPIResponse<OrderDto>> {
       try {
         this.loading = true;
-        const response = await apiService.post<IAPIResponse<OrderDto>>("/Orders/Add", data);
+        data.billingCountryName = data.billingCountryCode;
+        const response = await apiService.post<IAPIResponse<OrderDto>>("/Orders/CreateOrder", data);
         if (response && response.isSuccessful && response.payload) {
           this.orders.push(response.payload);
           this.success = "Order created successfully";

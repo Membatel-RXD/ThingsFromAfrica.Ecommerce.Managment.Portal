@@ -392,6 +392,13 @@ export interface OrderDto {
   customerId: number;
   customerPhone: string;
 }
+export interface Ordertatus {
+  statusId: number
+  statusName: string
+  statusDescription: string
+  isActive: boolean
+  sortOrder: number
+}
 
 export interface OrderCreationRequest {
   customerEmail: string;
@@ -400,6 +407,7 @@ export interface OrderCreationRequest {
   billingAddressLine1: string;
   billingCity: string;
   billingCountryCode: string;
+  billingCountryName?: string;
   shippingFirstName: string;
   shippingLastName: string;
   shippingAddressLine1: string;

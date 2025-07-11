@@ -386,7 +386,11 @@
                           <v-text-field
                             v-model="formData.billingCountryCode"
                             label="Country Code"
-                            :rules="[rules.required]"
+                            :rules="[
+                            rules.required,
+                            rules.exactLength(3),
+                            rules.uppercaseOnly
+                            ]"                            
                             variant="outlined"
                             :disabled="!manualCustomerEntry && selectedCustomerId"
                           />
@@ -580,7 +584,7 @@
                     <v-card variant="outlined" class="pa-4">
                       <h3 class="text-h6 mb-3">Additional Information</h3>
                       <v-row>
-                        <v-col cols="12" md="6">
+                        <v-col cols="12" md="4">
                           <v-switch
                             v-model="formData.isTouristOrder"
                             label="Tourist Order"
@@ -588,13 +592,25 @@
                             hide-details
                           />
                         </v-col>
-                        <v-col cols="12" md="6">
+                        <v-col cols="12" md="4">
                           <v-switch
                             v-model="formData.requiresPhytosanitaryCertificate"
                             label="Requires Phytosanitary Certificate"
                             color="green"
                             hide-details
                           />
+                        </v-col>
+                        <v-col cols="12" md="4">
+                            <v-select
+                                v-model="formData.statusId"
+                                label="Order Status"
+                                :items="orderStatus"
+                                item-title="statusName"
+                                item-value="statusId"
+                                variant="outlined"
+                                density="compact"
+                                hide-details
+                                />
                         </v-col>
                         <v-col cols="12" md="6" v-if="formData.isTouristOrder">
                           <v-text-field
@@ -702,10 +718,10 @@
   import { useSnackbarStore } from '@/stores/snackbar'
   import { useOrderStore } from '@/stores/orderStore'
   import { OrderDto } from '@/stores/types/member'
-
+  import { useCustomerStore } from '@/stores/customer'
   const orderStore = useOrderStore()
   const snackbar = useSnackbarStore()
-  
+  const customerStore = useCustomerStore();
   // Data
   const saving = ref(false)
   const dialog = ref(false)
@@ -722,11 +738,8 @@
   const manualCustomerEntry = ref(false)
   
   // Mock customers data - replace with actual customer store
-  const customers = ref([
-    { id: 1, email: 'john@example.com', firstName: 'John', lastName: 'Doe', phone: '+1234567890' },
-    { id: 2, email: 'jane@example.com', firstName: 'Jane', lastName: 'Smith', phone: '+1234567891' },
-    { id: 3, email: 'mike@example.com', firstName: 'Mike', lastName: 'Johnson', phone: '+1234567892' },
-  ])
+  const customers = computed(()=>customerStore.customers);
+  const orderStatus = computed(()=>orderStore.orderStatuses);
   
   // Form data matching OrderCreationRequest interface
   const formData = ref({
@@ -752,6 +765,7 @@
     shippingCountryCode: '',
     subTotal: 0,
     taxAmount: 0,
+    statusId:'',
     shippingAmount: 0,
     discountAmount: 0,
     totalAmount: 0,
@@ -784,8 +798,8 @@
 const customerOptions = computed(() => [
   { text: 'Select a customer...', value: null },
   ...customers.value.map(customer => ({
-    text: `${customer.firstName} ${customer.lastName} - ${customer.email}`,
-    value: customer.id
+    text: `${customer.userDetails.firstName} ${customer.userDetails.lastName} - ${customer.userDetails.email}`,
+    value: customer.userDetails.userId
   }))
 ])
   
@@ -805,7 +819,11 @@ const customerOptions = computed(() => [
   const rules = {
     required: (value: string) => !!value || 'This field is required',
     email: (value: string) => /.+@.+\..+/.test(value) || 'Must be a valid email',
-    number: (value: any) => !isNaN(value) || 'Must be a number'
+    number: (value: any) => !isNaN(value) || 'Must be a number',
+    exactLength: (length: number) => (v: string) =>
+    v?.length === length || `Must be exactly ${length} characters`,
+  uppercaseOnly: (v: string) =>
+    /^[A-Z]+$/.test(v) || 'Only uppercase letters (A-Z) allowed'
   }
   
   // Computed properties
@@ -873,18 +891,18 @@ const customerOptions = computed(() => [
 // Customer selection functions
 const onCustomerSelect = (customerId: number | null) => {
   if (customerId && !manualCustomerEntry.value) {
-    const customer = customers.value.find(c => c.id === customerId)
+    const customer = customers.value.find(c => c.userDetails.userId === customerId)
     if (customer) {
       // Auto-fill customer information
-      formData.value.customerEmail = customer.email
-      formData.value.customerPhone = customer.phone
-      formData.value.billingFirstName = customer.firstName
-      formData.value.billingLastName = customer.lastName
-      formData.value.customerId = customer.id
+      formData.value.customerEmail = customer.userDetails.email
+      formData.value.customerPhone = customer.userDetails.phoneNumber
+      formData.value.billingFirstName = customer.userDetails.firstName
+      formData.value.billingLastName = customer.userDetails.lastName
+      formData.value.customerId = customer.userDetails.userId
       
       // Also copy to shipping by default
-      formData.value.shippingFirstName = customer.firstName
-      formData.value.shippingLastName = customer.lastName
+      formData.value.shippingFirstName = customer.userDetails.firstName
+      formData.value.shippingLastName = customer.userDetails.lastName
     }
   }
 }
@@ -946,6 +964,7 @@ const initializeFormData = () => {
     billingPostalCode: '',
     billingCountryCode: '',
     shippingFirstName: '',
+    statusId:'',
     shippingLastName: '',
     shippingCompany: '',
     shippingAddressLine1: '',
@@ -1003,6 +1022,7 @@ const closeDialog = () => {
         }
       } else {
         // Create new order
+
         const response = await orderStore.createOrder(formData.value)
         if (response.isSuccessful) {
           snackbar.success('Order created successfully')
@@ -1089,7 +1109,9 @@ const closeDialog = () => {
   
   onMounted(async () => {
     try {
-      await orderStore.fetchOrders()
+      await orderStore.fetchOrders();
+      await orderStore.fetchOrderStatus();
+      await customerStore.fetchCustomers();
     } catch (error) {
       console.error('Error fetching orders:', error)
       snackbar.error('Error loading orders')
