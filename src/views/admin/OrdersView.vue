@@ -1,6 +1,7 @@
 <template>
     <div class="orders-view">
       <v-container fluid class="pa-6">
+        <!-- Page Header -->
         <div class="d-flex justify-space-between align-center mb-6">
           <div>
             <h1 class="text-h4 font-weight-bold text-orange-darken-3">Orders Management</h1>
@@ -237,7 +238,7 @@
         </v-card>
   
         <!-- Create/Edit Dialog -->
-        <v-dialog v-model="dialog" max-width="800px">
+        <v-dialog v-model="dialog" max-width="1000px">
           <v-card>
             <v-card-title class="pa-6 bg-orange-lighten-5">
               <v-icon class="me-2" color="orange-darken-3">mdi-cart</v-icon>
@@ -245,86 +246,385 @@
             </v-card-title>
   
             <v-card-text class="pa-6">
-                <v-form ref="form" v-model="valid">
-                    <v-row>
-                    <v-col cols="12" md="6">
-                        <v-text-field
-                        v-model="formData.customerEmail"
-                        label="Customer Email"
-                        :rules="[rules.required, rules.email]"
-                        variant="outlined"
-                        prepend-inner-icon="mdi-email"
-                        />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-text-field
-                        v-model="formData.customerPhone"
-                        label="Customer Phone"
-                        variant="outlined"
-                        prepend-inner-icon="mdi-phone"
-                        />
-                    </v-col>
-                    </v-row>
+              <v-form ref="form" v-model="valid">
+                <!-- Customer Selection -->
+                <v-row class="mb-4">
+                  <v-col cols="12">
+                    <v-card variant="outlined" class="pa-4">
+                      <h3 class="text-h6 mb-3">Customer Selection</h3>
+                      <v-row>
+                        <v-col cols="12" md="6">
+                          <v-select
+                            v-model="selectedCustomerId"
+                            label="Select Existing Customer"
+                            :items="customerOptions"
+                            item-title="text"
+                            item-value="value"
+                            variant="outlined"
+                            clearable
+                            @update:model-value="onCustomerSelect"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                          <v-switch
+                            v-model="manualCustomerEntry"
+                            label="Enter Customer Details Manually"
+                            color="orange-darken-2"
+                            @change="onManualEntryToggle"
+                          />
+                        </v-col>
+                      </v-row>
+                    </v-card>
+                  </v-col>
+                </v-row>
 
-                    <v-divider class="my-4" />
-                    <h3 class="text-h6 mb-3">Order Details</h3>
-                    <v-row>
-                    <v-col cols="12" md="4">
-                        <v-text-field
-                        v-model.number="formData.subTotal"
-                        label="Subtotal"
-                        type="number"
-                        step="0.01"
-                        :rules="[rules.required, rules.number]"
-                        variant="outlined"
-                        />
-                    </v-col>
-                    <v-col cols="12" md="4">
-                        <v-text-field
-                        v-model.number="formData.totalAmount"
-                        label="Total Amount"
-                        type="number"
-                        step="0.01"
-                        :rules="[rules.required, rules.number]"
-                        variant="outlined"
-                        />
-                    </v-col>
-                    <v-col cols="12" md="4">
-                        <v-text-field
-                        v-model="formData.currency"
-                        label="Currency"
-                        :rules="[rules.required]"
-                        variant="outlined"
-                        />
-                    </v-col>
-                    <v-col cols="12">
-                        <v-textarea
-                        v-model="formData.customerNotes"
-                        label="Customer Notes"
-                        rows="3"
-                        variant="outlined"
-                        />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-switch
-                        v-model="formData.isTouristOrder"
-                        label="Tourist Order"
-                        color="blue"
-                        hide-details
-                        />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-switch
-                        v-model="formData.requiresPhytosanitaryCertificate"
-                        label="Requires Phytosanitary Certificate"
-                        color="green"
-                        hide-details
-                        />
-                    </v-col>
-                    </v-row>
-                </v-form>
+                <!-- Customer Contact Information -->
+                <v-row class="mb-4">
+                  <v-col cols="12">
+                    <v-card variant="outlined" class="pa-4">
+                      <h3 class="text-h6 mb-3">Customer Contact</h3>
+                      <v-row>
+                        <v-col cols="12" md="6">
+                          <v-text-field
+                            v-model="formData.customerEmail"
+                            label="Customer Email"
+                            :rules="[rules.required, rules.email]"
+                            variant="outlined"
+                            prepend-inner-icon="mdi-email"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                          <v-text-field
+                            v-model="formData.customerPhone"
+                            label="Customer Phone"
+                            variant="outlined"
+                            prepend-inner-icon="mdi-phone"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                      </v-row>
+                    </v-card>
+                  </v-col>
+                </v-row>
+  
+                <!-- Billing Address -->
+                <v-row class="mb-4">
+                  <v-col cols="12">
+                    <v-card variant="outlined" class="pa-4">
+                      <h3 class="text-h6 mb-3">Billing Address</h3>
+                      <v-row>
+                        <v-col cols="12" md="6">
+                          <v-text-field
+                            v-model="formData.billingFirstName"
+                            label="First Name"
+                            :rules="[rules.required]"
+                            variant="outlined"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                          <v-text-field
+                            v-model="formData.billingLastName"
+                            label="Last Name"
+                            :rules="[rules.required]"
+                            variant="outlined"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                          <v-text-field
+                            v-model="formData.billingCompany"
+                            label="Company (Optional)"
+                            variant="outlined"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                          <v-text-field
+                            v-model="formData.billingAddressLine1"
+                            label="Address Line 1"
+                            :rules="[rules.required]"
+                            variant="outlined"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                          <v-text-field
+                            v-model="formData.billingAddressLine2"
+                            label="Address Line 2 (Optional)"
+                            variant="outlined"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                          <v-text-field
+                            v-model="formData.billingCity"
+                            label="City"
+                            :rules="[rules.required]"
+                            variant="outlined"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="4">
+                          <v-text-field
+                            v-model="formData.billingStateProvince"
+                            label="State/Province"
+                            variant="outlined"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="4">
+                          <v-text-field
+                            v-model="formData.billingPostalCode"
+                            label="Postal Code"
+                            variant="outlined"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="4">
+                          <v-text-field
+                            v-model="formData.billingCountryCode"
+                            label="Country Code"
+                            :rules="[rules.required]"
+                            variant="outlined"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                      </v-row>
+                    </v-card>
+                  </v-col>
+                </v-row>
+  
+                <!-- Shipping Address -->
+                <v-row class="mb-4">
+                  <v-col cols="12">
+                    <v-card variant="outlined" class="pa-4">
+                      <div class="d-flex justify-space-between align-center mb-3">
+                        <h3 class="text-h6">Shipping Address</h3>
+                        <v-btn
+                          size="small"
+                          variant="outlined"
+                          color="orange-darken-2"
+                          @click="copyBillingToShipping"
+                          :disabled="!manualCustomerEntry && selectedCustomerId"
+                        >
+                          Copy from Billing
+                        </v-btn>
+                      </div>
+                      <v-row>
+                        <v-col cols="12" md="6">
+                          <v-text-field
+                            v-model="formData.shippingFirstName"
+                            label="First Name"
+                            :rules="[rules.required]"
+                            variant="outlined"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                          <v-text-field
+                            v-model="formData.shippingLastName"
+                            label="Last Name"
+                            :rules="[rules.required]"
+                            variant="outlined"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                          <v-text-field
+                            v-model="formData.shippingCompany"
+                            label="Company (Optional)"
+                            variant="outlined"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                          <v-text-field
+                            v-model="formData.shippingAddressLine1"
+                            label="Address Line 1"
+                            :rules="[rules.required]"
+                            variant="outlined"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                          <v-text-field
+                            v-model="formData.shippingAddressLine2"
+                            label="Address Line 2 (Optional)"
+                            variant="outlined"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                          <v-text-field
+                            v-model="formData.shippingCity"
+                            label="City"
+                            :rules="[rules.required]"
+                            variant="outlined"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="4">
+                          <v-text-field
+                            v-model="formData.shippingStateProvince"
+                            label="State/Province"
+                            variant="outlined"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="4">
+                          <v-text-field
+                            v-model="formData.shippingPostalCode"
+                            label="Postal Code"
+                            variant="outlined"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="4">
+                          <v-text-field
+                            v-model="formData.shippingCountryCode"
+                            label="Country Code"
+                            :rules="[rules.required]"
+                            variant="outlined"
+                            :disabled="!manualCustomerEntry && selectedCustomerId"
+                          />
+                        </v-col>
+                      </v-row>
+                    </v-card>
+                  </v-col>
+                </v-row>
+  
+                <!-- Order Details -->
+                <v-row class="mb-4">
+                  <v-col cols="12">
+                    <v-card variant="outlined" class="pa-4">
+                      <h3 class="text-h6 mb-3">Order Details</h3>
+                      <v-row>
+                        <v-col cols="12" md="3">
+                          <v-text-field
+                            v-model.number="formData.subTotal"
+                            label="Subtotal"
+                            type="number"
+                            step="0.01"
+                            :rules="[rules.required, rules.number]"
+                            variant="outlined"
+                            prefix="$"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="3">
+                          <v-text-field
+                            v-model.number="formData.taxAmount"
+                            label="Tax Amount"
+                            type="number"
+                            step="0.01"
+                            variant="outlined"
+                            prefix="$"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="3">
+                          <v-text-field
+                            v-model.number="formData.shippingAmount"
+                            label="Shipping Amount"
+                            type="number"
+                            step="0.01"
+                            variant="outlined"
+                            prefix="$"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="3">
+                          <v-text-field
+                            v-model.number="formData.discountAmount"
+                            label="Discount Amount"
+                            type="number"
+                            step="0.01"
+                            variant="outlined"
+                            prefix="$"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="4">
+                          <v-text-field
+                            v-model.number="formData.totalAmount"
+                            label="Total Amount"
+                            type="number"
+                            step="0.01"
+                            :rules="[rules.required, rules.number]"
+                            variant="outlined"
+                            prefix="$"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="4">
+                          <v-text-field
+                            v-model="formData.currency"
+                            label="Currency"
+                            :rules="[rules.required]"
+                            variant="outlined"
+                          />
+                        </v-col>
+                        <v-col cols="12" md="4">
+                          <v-text-field
+                            v-model="formData.requiredDate"
+                            label="Required Date"
+                            type="date"
+                            variant="outlined"
+                          />
+                        </v-col>
+                      </v-row>
+                    </v-card>
+                  </v-col>
+                </v-row>
+
+                <!-- Additional Information -->
+                <v-row class="mb-4">
+                  <v-col cols="12">
+                    <v-card variant="outlined" class="pa-4">
+                      <h3 class="text-h6 mb-3">Additional Information</h3>
+                      <v-row>
+                        <v-col cols="12" md="6">
+                          <v-switch
+                            v-model="formData.isTouristOrder"
+                            label="Tourist Order"
+                            color="blue"
+                            hide-details
+                          />
+                        </v-col>
+                        <v-col cols="12" md="6">
+                          <v-switch
+                            v-model="formData.requiresPhytosanitaryCertificate"
+                            label="Requires Phytosanitary Certificate"
+                            color="green"
+                            hide-details
+                          />
+                        </v-col>
+                        <v-col cols="12" md="6" v-if="formData.isTouristOrder">
+                          <v-text-field
+                            v-model="formData.touristCountry"
+                            label="Tourist Country"
+                            variant="outlined"
+                          />
+                        </v-col>
+                        <v-col cols="12">
+                          <v-textarea
+                            v-model="formData.customerNotes"
+                            label="Customer Notes"
+                            rows="3"
+                            variant="outlined"
+                          />
+                        </v-col>
+                        <v-col cols="12">
+                          <v-textarea
+                            v-model="formData.adminNotes"
+                            label="Admin Notes"
+                            rows="3"
+                            variant="outlined"
+                          />
+                        </v-col>
+                      </v-row>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </v-form>
             </v-card-text>
-
   
             <v-card-actions class="pa-6">
               <v-spacer />
@@ -418,29 +718,51 @@
   const startDate = ref('')
   const endDate = ref('')
   const selectedOrder = ref<OrderDto|null>(null)
+  const selectedCustomerId = ref<number|null>(null)
+  const manualCustomerEntry = ref(false)
   
-  // Form data
+  // Mock customers data - replace with actual customer store
+  const customers = ref([
+    { id: 1, email: 'john@example.com', firstName: 'John', lastName: 'Doe', phone: '+1234567890' },
+    { id: 2, email: 'jane@example.com', firstName: 'Jane', lastName: 'Smith', phone: '+1234567891' },
+    { id: 3, email: 'mike@example.com', firstName: 'Mike', lastName: 'Johnson', phone: '+1234567892' },
+  ])
+  
+  // Form data matching OrderCreationRequest interface
   const formData = ref({
-    orderId: null as number | null,
     customerEmail: '',
     customerPhone: '',
     billingFirstName: '',
     billingLastName: '',
+    billingCompany: '',
     billingAddressLine1: '',
+    billingAddressLine2: '',
     billingCity: '',
+    billingStateProvince: '',
+    billingPostalCode: '',
     billingCountryCode: '',
     shippingFirstName: '',
     shippingLastName: '',
+    shippingCompany: '',
     shippingAddressLine1: '',
+    shippingAddressLine2: '',
     shippingCity: '',
+    shippingStateProvince: '',
+    shippingPostalCode: '',
     shippingCountryCode: '',
     subTotal: 0,
+    taxAmount: 0,
+    shippingAmount: 0,
+    discountAmount: 0,
     totalAmount: 0,
     currency: 'USD',
     isTouristOrder: false,
+    touristCountry: '',
     requiresPhytosanitaryCertificate: false,
     customerNotes: '',
-    customerId: 1 // Default customer ID
+    adminNotes: '',
+    requiredDate: '',
+    customerId: 1
   })
   
   // Options
@@ -457,6 +779,15 @@
     { title: 'Tourist Orders', value: 'tourist' },
     { title: 'Local Orders', value: 'local' }
   ]
+
+  // Customer options for select
+const customerOptions = computed(() => [
+  { text: 'Select a customer...', value: null },
+  ...customers.value.map(customer => ({
+    text: `${customer.firstName} ${customer.lastName} - ${customer.email}`,
+    value: customer.id
+  }))
+])
   
   // Table headers
   const headers = [
@@ -524,32 +855,7 @@
     }
   }
   
-  const openCreateDialog = () => {
-    editMode.value = false
-    formData.value = {
-      orderId: null,
-      customerEmail: '',
-      customerPhone: '',
-      billingFirstName: '',
-      billingLastName: '',
-      billingAddressLine1: '',
-      billingCity: '',
-      billingCountryCode: '',
-      shippingFirstName: '',
-      shippingLastName: '',
-      shippingAddressLine1: '',
-      shippingCity: '',
-      shippingCountryCode: '',
-      subTotal: 0,
-      totalAmount: 0,
-      currency: 'USD',
-      isTouristOrder: false,
-      requiresPhytosanitaryCertificate: false,
-      customerNotes: '',
-      customerId: 1
-    }
-    dialog.value = true
-  }
+
   
   const editOrder = (item: any) => {
     editMode.value = true
@@ -561,36 +867,130 @@
     selectedOrder.value = item
     viewDialog.value = true
   }
-  
-  const closeDialog = () => {
-    dialog.value = false
-    formData.value = {
-      orderId: null,
-      customerEmail: '',
-      customerPhone: '',
-      billingFirstName: '',
-      billingLastName: '',
-      billingAddressLine1: '',
-      billingCity: '',
-      billingCountryCode: '',
-      shippingFirstName: '',
-      shippingLastName: '',
-      shippingAddressLine1: '',
-      shippingCity: '',
-      shippingCountryCode: '',
-      subTotal: 0,
-      totalAmount: 0,
-      currency: 'USD',
-      isTouristOrder: false,
-      requiresPhytosanitaryCertificate: false,
-      customerNotes: '',
-      customerId: 1
+
+  // Add these functions to your script setup section:
+
+// Customer selection functions
+const onCustomerSelect = (customerId: number | null) => {
+  if (customerId && !manualCustomerEntry.value) {
+    const customer = customers.value.find(c => c.id === customerId)
+    if (customer) {
+      // Auto-fill customer information
+      formData.value.customerEmail = customer.email
+      formData.value.customerPhone = customer.phone
+      formData.value.billingFirstName = customer.firstName
+      formData.value.billingLastName = customer.lastName
+      formData.value.customerId = customer.id
+      
+      // Also copy to shipping by default
+      formData.value.shippingFirstName = customer.firstName
+      formData.value.shippingLastName = customer.lastName
     }
   }
+}
+
+const onManualEntryToggle = () => {
+  if (manualCustomerEntry.value) {
+    // Clear selected customer when switching to manual entry
+    selectedCustomerId.value = null
+    // Clear form data
+    formData.value.customerEmail = ''
+    formData.value.customerPhone = ''
+    formData.value.billingFirstName = ''
+    formData.value.billingLastName = ''
+    formData.value.billingCompany = ''
+    formData.value.billingAddressLine1 = ''
+    formData.value.billingAddressLine2 = ''
+    formData.value.billingCity = ''
+    formData.value.billingStateProvince = ''
+    formData.value.billingPostalCode = ''
+    formData.value.billingCountryCode = ''
+    formData.value.shippingFirstName = ''
+    formData.value.shippingLastName = ''
+    formData.value.shippingCompany = ''
+    formData.value.shippingAddressLine1 = ''
+    formData.value.shippingAddressLine2 = ''
+    formData.value.shippingCity = ''
+    formData.value.shippingStateProvince = ''
+    formData.value.shippingPostalCode = ''
+    formData.value.shippingCountryCode = ''
+  }
+}
+
+// Copy billing address to shipping address
+const copyBillingToShipping = () => {
+  formData.value.shippingFirstName = formData.value.billingFirstName
+  formData.value.shippingLastName = formData.value.billingLastName
+  formData.value.shippingCompany = formData.value.billingCompany
+  formData.value.shippingAddressLine1 = formData.value.billingAddressLine1
+  formData.value.shippingAddressLine2 = formData.value.billingAddressLine2
+  formData.value.shippingCity = formData.value.billingCity
+  formData.value.shippingStateProvince = formData.value.billingStateProvince
+  formData.value.shippingPostalCode = formData.value.billingPostalCode
+  formData.value.shippingCountryCode = formData.value.billingCountryCode
+}
+
+// You'll also need to update your formData initialization to include all missing fields:
+const initializeFormData = () => {
+  return {
+    orderId: null,
+    customerEmail: '',
+    customerPhone: '',
+    billingFirstName: '',
+    billingLastName: '',
+    billingCompany: '',
+    billingAddressLine1: '',
+    billingAddressLine2: '',
+    billingCity: '',
+    billingStateProvince: '',
+    billingPostalCode: '',
+    billingCountryCode: '',
+    shippingFirstName: '',
+    shippingLastName: '',
+    shippingCompany: '',
+    shippingAddressLine1: '',
+    shippingAddressLine2: '',
+    shippingCity: '',
+    shippingStateProvince: '',
+    shippingPostalCode: '',
+    shippingCountryCode: '',
+    subTotal: 0,
+    taxAmount: 0,
+    shippingAmount: 0,
+    discountAmount: 0,
+    totalAmount: 0,
+    currency: 'USD',
+    isTouristOrder: false,
+    touristCountry: '',
+    requiresPhytosanitaryCertificate: false,
+    customerNotes: '',
+    adminNotes: '',
+    requiredDate: '',
+    customerId: 1
+  }
+}
+
+// Update your openCreateDialog function to use the initialization:
+const openCreateDialog = () => {
+  editMode.value = false
+  selectedCustomerId.value = null
+  manualCustomerEntry.value = false
+  formData.value = initializeFormData()
+  dialog.value = true
+}
+
+// Update your closeDialog function to use the initialization:
+const closeDialog = () => {
+  dialog.value = false
+  selectedCustomerId.value = null
+  manualCustomerEntry.value = false
+  formData.value = initializeFormData()
+}
+  
+
   
   const saveOrder = async () => {
     saving.value = true
-    
     try {
       if (editMode.value && formData.value.orderId) {
         // Update existing order
