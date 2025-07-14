@@ -73,47 +73,6 @@
           >
             Sign In
           </v-btn>
-
-          <!-- Divider -->
-          <div class="divider">
-            <span>OR</span>
-          </div>
-
-          <!-- Social Login -->
-          <div class="social-login">
-            <v-btn variant="outlined" prepend-icon="mdi-google" class="social-btn">
-              Google
-            </v-btn>
-            <v-btn variant="outlined" prepend-icon="mdi-facebook" class="social-btn">
-              Facebook
-            </v-btn>
-          </div>
-
-          <!-- Sign Up Link -->
-          <div class="signup-link">
-            <span>Don't have an account?</span>
-            <v-btn
-              variant="text"
-              color="primary"
-              @click="goToSignup"
-              class="ms-2"
-            >
-              Sign Up
-            </v-btn>
-          </div>
-
-          <!-- Continue Shopping -->
-          <div class="continue-shopping">
-            <v-btn
-              variant="text"
-              color="grey-darken-1"
-              @click="continueShopping"
-              prepend-icon="mdi-arrow-left"
-              class="mt-2"
-            >
-              Continue Shopping
-            </v-btn>
-          </div>
         </v-form>
       </div>
 
@@ -241,14 +200,7 @@ const sendResetLink = () => {
   resetEmail.value = '';
 };
 
-// Navigation handlers
-const goToSignup = () => {
-  router.push('/signup');
-};
 
-const continueShopping = () => {
-  router.push('/shop');
-};
 
 // Notification helper
 const showNotification = (text:string, color:string) => {
@@ -351,53 +303,6 @@ const showNotification = (text:string, color:string) => {
   padding: 0.75rem 0;
 }
 
-.divider {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  margin: 1.5rem 0;
-  color: #777;
-}
-
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid #ddd;
-}
-
-.divider span {
-  padding: 0 1rem;
-  font-size: 0.875rem;
-}
-
-.social-login {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.social-btn {
-  flex: 1;
-  text-transform: none;
-}
-
-.signup-link {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 1.5rem;
-  font-size: 0.875rem;
-  color: #666;
-}
-
-.continue-shopping {
-  display: flex;
-  justify-content: center;
-  margin-top: 1rem;
-}
-
 .footer {
   margin-top: 2rem;
   text-align: center;
@@ -409,11 +314,6 @@ const showNotification = (text:string, color:string) => {
   .login-card {
     max-width: 90%;
     padding: 1.5rem;
-  }
-
-  .social-login {
-    flex-direction: column;
-    gap: 0.5rem;
   }
 }
 </style>

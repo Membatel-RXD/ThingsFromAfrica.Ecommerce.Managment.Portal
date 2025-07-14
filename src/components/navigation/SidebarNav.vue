@@ -192,28 +192,8 @@
               <v-list-item-title>Settings</v-list-item-title>
             </v-list-item>
           </template>
-          <!-- Core System Settings -->
-          <v-list-item :to="{ name: 'general-settings' }"><v-list-item-title>General Settings</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'security' }"><v-list-item-title>Security</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'system-logs' }"><v-list-item-title>System Logs</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'backup-restore' }"><v-list-item-title>Backup & Restore</v-list-item-title></v-list-item>
-          <!-- User Management Essentials -->
-          <v-list-item :to="{ name: 'system-user-management' }"><v-list-item-title>System Users</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'roles' }"><v-list-item-title>Roles</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'permissions' }"><v-list-item-title>Permissions</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'role-permissions' }"><v-list-item-title>Role Permissions</v-list-item-title></v-list-item>
-          <!-- Advanced User Management (optional, collapsed) -->
-          <v-list-group value="advanced-user-management">
-            <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" prepend-icon="mdi-shield-account">
-                <v-list-item-title>Advanced User Management</v-list-item-title>
-              </v-list-item>
-            </template>
-            <v-list-item :to="{ name: 'user-login-history' }"><v-list-item-title>User Login History</v-list-item-title></v-list-item>
-            <v-list-item :to="{ name: 'user-sessions' }"><v-list-item-title>User Sessions</v-list-item-title></v-list-item>
-            <v-list-item :to="{ name: 'oauth-providers' }"><v-list-item-title>OAuth Providers</v-list-item-title></v-list-item>
-            <v-list-item :to="{ name: 'user-oauth-connections' }"><v-list-item-title>User OAuth Connections</v-list-item-title></v-list-item>
-          </v-list-group>
+          <v-list-item :to="{ name: 'user-management' }"><v-list-item-title>User Management</v-list-item-title></v-list-item>
+          <v-list-item :to="{ name: 'user-login-history' }"><v-list-item-title>User Login History</v-list-item-title></v-list-item>
         </v-list-group>
 
       </v-list>

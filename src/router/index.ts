@@ -649,18 +649,6 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: '/settings/system-user-management',
-    name: 'system-user-management',
-    component: () => import('@/components/EmptyComponent.vue'),
-    meta: { layout: 'admin', requiresAuth: true },
-  },
-  {
-    path: '/settings/security',
-    name: 'security',
-    component: () => import('@/components/EmptyComponent.vue'),
-    meta: { layout: 'admin', requiresAuth: true },
-  },
-  {
     path: '/settings/support',
     name: 'support',
     component: () => import('@/components/EmptyComponent.vue'),
@@ -690,11 +678,9 @@ const routes: RouteRecordRaw[] = [
   { path: '/user-management/roles', name: 'roles', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
   { path: '/user-management/permissions', name: 'permissions', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
   { path: '/user-management/role-permissions', name: 'role-permissions', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
-  { path: '/user-management/login-history', name: 'user-login-history', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
   { path: '/user-management/sessions', name: 'user-sessions', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
   { path: '/user-management/oauth-providers', name: 'oauth-providers', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
   { path: '/user-management/oauth-connections', name: 'user-oauth-connections', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
-  { path: '/settings/general', name: 'general-settings', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
   { path: '/settings/logged-crud-operations', name: 'logged-crud-operations', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
   {
     path: '/admin/care-instructions',
@@ -720,6 +706,48 @@ const routes: RouteRecordRaw[] = [
     path: '/admin/customers/:id',
     name: 'CustomerDetail',
     component: () => import('@/views/admin/CustomerDetailView.vue')
+  },
+  {
+    path: "/admin/general-settings",
+    name: "general-settings",
+    component: () => import("@/views/admin/GeneralSettingsView.vue"),
+    meta: { layout: "admin", requiresAuth: true, roles: ["admin", "superadmin"] },
+  },
+  {
+    path: "/admin/security",
+    name: "security",
+    component: () => import("@/views/admin/SecurityView.vue"),
+    meta: { layout: "admin", requiresAuth: true, roles: ["admin", "superadmin"] },
+  },
+  {
+    path: "/admin/system-logs",
+    name: "system-logs",
+    component: () => import("@/views/admin/SystemLogsView.vue"),
+    meta: { layout: "admin", requiresAuth: true, roles: ["admin", "superadmin"] },
+  },
+  {
+    path: "/admin/backup-restore",
+    name: "backup-restore",
+    component: () => import("@/views/admin/BackupRestoreView.vue"),
+    meta: { layout: "admin", requiresAuth: true, roles: ["admin", "superadmin"] },
+  },
+  {
+    path: "/admin/system-user-management",
+    name: "system-user-management",
+    component: () => import("@/views/admin/UserManagementView.vue"),
+    meta: { layout: "admin", requiresAuth: true, roles: ["admin", "superadmin"] },
+  },
+  {
+    path: "/admin/roles-permissions",
+    name: "roles-permissions",
+    component: () => import("@/views/admin/RolesPermissionsView.vue"),
+    meta: { layout: "admin", requiresAuth: true, roles: ["admin", "superadmin"] },
+  },
+  {
+    path: "/admin/user-login-history",
+    name: "user-login-history",
+    component: () => import("@/views/admin/UserLoginHistoryView.vue"),
+    meta: { layout: "admin", requiresAuth: true, roles: ["admin", "superadmin"] },
   },
   // Catch all route
   {
@@ -761,23 +789,35 @@ const hasRequiredRole = (userRole: string, requiredRoles: string[]): boolean => 
 
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore();
+  
+  console.log('Router guard:', { 
+    path: to.path, 
+    isAuthenticated: userStore.isAuthenticated, 
+    userRole: userStore.role,
+    requiresAuth: to.meta.requiresAuth,
+    requiredRoles: to.meta.roles 
+  });
 
   // Check if route requires authentication
   if (to.meta.requiresAuth && !userStore.isAuthenticated) {
+    console.log('Redirecting to login - not authenticated');
     next("/login");
     return;
   }
 
   // Check if user is logged in and trying to access login page
   if (to.path === "/login" && userStore.isAuthenticated) {
-    next("/admin/dashboard");
+    const dashboardPath = await loginDashboard();
+    console.log('Redirecting from login to:', dashboardPath);
+    next(dashboardPath);
     return;
   }
 
   // Check role-based access
   if (to.meta.requiresAuth && to.meta.roles && userStore.isAuthenticated) {
     const userRole = userStore.role;
-    if (!userRole || !to.meta.roles.includes(userRole)) {
+    if (!userRole || !hasRequiredRole(userRole, to.meta.roles as string[])) {
+      console.log('Role check failed:', { userRole, requiredRoles: to.meta.roles, path: to.path });
       next("/403"); // Forbidden
       return;
     }
