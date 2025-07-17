@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Header Section -->
-    <v-container fluid class="pa-6">
+    <v-container fluid class="pa-6 products-main-container">
       <v-row>
         <v-col cols="12">
           <div class="d-flex align-center justify-space-between mb-6">
@@ -18,6 +18,20 @@
               Add Product
             </v-btn>
           </div>
+        </v-col>
+      </v-row>
+
+      <!-- Loading and Error States -->
+      <v-row v-if="productStore.loading">
+        <v-col cols="12">
+          <v-progress-linear indeterminate color="orange-darken-2" height="6" class="mb-4" />
+        </v-col>
+      </v-row>
+      <v-row v-if="productStore.error">
+        <v-col cols="12">
+          <v-alert type="error" color="red-darken-2" class="mb-4">
+            {{ productStore.error }}
+          </v-alert>
         </v-col>
       </v-row>
 
@@ -121,6 +135,7 @@
           Products Management
         </v-card-title>
         <v-data-table
+          v-if="!productStore.loading && !productStore.error"
           :headers="headers"
           :items="filteredProducts"
           :search="filters.search"
@@ -137,7 +152,9 @@
             </v-avatar>
           </template>
           <template v-slot:item.price="{ item }">
-            <span>${{ item.price.toFixed(2) }}</span>
+            <span>
+              {{ typeof item.price === 'number' && !isNaN(item.price) ? `$${item.price.toFixed(2)}` : 'N/A' }}
+            </span>
           </template>
           <template v-slot:item.status="{ item }">
             <v-chip :color="item.status === 'Active' ? 'green' : 'grey'" size="small">
@@ -145,52 +162,26 @@
             </v-chip>
           </template>
           <template v-slot:item.actions="{ item }">
-            <v-btn icon="mdi-eye" size="small" variant="text" color="blue"></v-btn>
-            <v-btn icon="mdi-pencil" size="small" variant="text" color="orange"></v-btn>
-            <v-btn icon="mdi-delete" size="small" variant="text" color="red"></v-btn>
+            <v-btn icon="mdi-eye" size="small" variant="text" color="blue" @click="handleViewProduct(item)"></v-btn>
+            <v-btn icon="mdi-pencil" size="small" variant="text" color="orange" @click="handleEditProduct(item)"></v-btn>
+            <v-btn icon="mdi-delete" size="small" variant="text" color="red" @click="handleDeleteProduct(item)"></v-btn>
           </template>
         </v-data-table>
       </v-card>
     </v-container>
     <!-- Product Add Dialog -->
-    <ProductFormDialog v-model="showAddDialog" />
+    <ProductFormDialog v-model="showAddDialog" @submit="handleAddProduct" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { useProductStore } from '@/stores/product';
 import ProductFormDialog from './ProductFormDialog.vue';
+import { useSnackbarStore } from '@/stores/snackbar';
 
-// Mock data
-const products = ref([
-  {
-    productId: 1,
-    productName: 'Handcrafted Oak Table',
-    mainImageUrl: '/api/placeholder/300/300',
-    price: 599.99,
-    category: 'Furniture',
-    stock: 15,
-    status: 'Active',
-  },
-  {
-    productId: 2,
-    productName: 'Mahogany Jewelry Box',
-    mainImageUrl: '/api/placeholder/300/300',
-    price: 89.99,
-    category: 'Accessories',
-    stock: 3,
-    status: 'Active',
-  },
-  {
-    productId: 3,
-    productName: 'Cedar Bookshelf',
-    mainImageUrl: '/api/placeholder/300/300',
-    price: 299.99,
-    category: 'Furniture',
-    stock: 0,
-    status: 'Inactive',
-  },
-]);
+const productStore = useProductStore();
+const snackbar = useSnackbarStore();
 
 const categoryOptions = ['All', 'Furniture', 'Accessories', 'Decor', 'Kitchenware'];
 const statusOptions = ['All', 'Active', 'Inactive'];
@@ -219,7 +210,7 @@ const pagination = ref({
 });
 
 const filteredProducts = computed(() => {
-  let filtered = products.value;
+  let filtered = productStore.getProducts;
   if (filters.value.status !== 'All') {
     filtered = filtered.filter(p => p.status === filters.value.status);
   }
@@ -247,23 +238,62 @@ const pageCount = computed(() =>
 );
 
 const stats = computed(() => {
-  const totalProducts = products.value.length;
-  const activeProducts = products.value.filter(p => p.status === 'Active').length;
-  const totalCategories = new Set(products.value.map(p => p.category)).size;
-  const avgPrice = (
-    products.value.reduce((sum, p) => sum + p.price, 0) / (products.value.length || 1)
-  ).toFixed(2);
+  const totalProducts = productStore.getProducts.length;
+  const activeProducts = productStore.getProducts.filter(p => p.status === 'Active').length;
+  const totalCategories = new Set(productStore.getProducts.map(p => p.category)).size;
+  const validPrices = productStore.getProducts.map(p => p.price).filter(price => typeof price === 'number' && !isNaN(price));
+  const avgPrice = validPrices.length > 0
+    ? (validPrices.reduce((sum, p) => sum + p, 0) / validPrices.length).toFixed(2)
+    : '0.00';
   return { totalProducts, activeProducts, totalCategories, avgPrice };
 });
 
 const showAddDialog = ref(false);
+const addingProduct = ref(false);
+
+async function handleAddProduct(productData: any) {
+  addingProduct.value = true;
+  try {
+    await productStore.createProduct(productData);
+    snackbar.success('Product added successfully');
+  } catch (e) {
+    snackbar.error('Failed to add product');
+  } finally {
+    addingProduct.value = false;
+    showAddDialog.value = false;
+  }
+}
+
+function handleViewProduct(item) {
+  // TODO: Implement view product dialog
+  snackbar.info('View product: ' + item.productName);
+}
+function handleEditProduct(item) {
+  // TODO: Implement edit product dialog
+  snackbar.info('Edit product: ' + item.productName);
+}
+async function handleDeleteProduct(item) {
+  try {
+    await productStore.deleteProduct(item.productId);
+    snackbar.success('Product deleted successfully');
+  } catch (e) {
+    snackbar.error('Failed to delete product');
+  }
+}
 
 function clearFilters() {
   filters.value = { search: '', status: 'All', category: 'All', stock: 'All' };
 }
+
+onMounted(() => {
+  productStore.fetchProducts();
+});
 </script>
 
 <style scoped>
+.products-main-container {
+  min-height: 100vh;
+}
 .stats-card {
   transition: transform 0.2s ease-in-out;
 }

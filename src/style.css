@@ -24,15 +24,10 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  width: 100vw;
-  height: 100vh;
   background: none;
 }
 
 html, body, #app {
-  height: 100%;
   min-height: 100vh;
 }
 
@@ -44,7 +39,6 @@ html, body, #app {
 
 html, body {
   width: 100vw;
-  height: 100vh;
   margin: 0;
   padding: 0;
   background: #fff;
@@ -80,13 +74,10 @@ button:focus-visible {
 }
 
 #app {
-  width: 100vw;
-  height: 100vh;
   max-width: none;
   margin: 0;
   padding: 0;
   background: none;
-  text-align: center;
 }
 
 @media (prefers-color-scheme: light) {

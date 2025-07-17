@@ -475,3 +475,91 @@ export interface EmailQueue {
   errorMessage: string;
   createdAt: string;
 }
+
+export interface ShippingMethod {
+  shippingMethodId: number;
+  methodName: string;
+  methodCode: string;
+  description?: string;
+  estimatedDays?: string;
+  isActive: boolean;
+  isInternational: boolean;
+  sortOrder?: number;
+  createdAt?: string;
+}
+
+export interface CreateShippingMethod extends Omit<ShippingMethod, 'shippingMethodId' | 'createdAt'> {}
+
+export interface ShippingRate {
+  rateId: number;
+  shippingMethodId: number;
+  countryCode: string;
+  countryName: string;
+  rate: number;
+  currency: string;
+  isActive: boolean;
+  createdAt?: string;
+  minWeight?: number;
+  maxWeight?: number;
+  minValue?: number;
+  maxValue?: number;
+}
+
+export interface CreateShippingRate extends Omit<ShippingRate, 'rateId' | 'createdAt'> {}
+
+export interface ShippingRestriction {
+  restrictionId: number;
+  countryCode: string;
+  countryName: string;
+  allowsWoodImports: boolean;
+  requiresPhytosanitaryCertificate: boolean;
+  requiresCustomsDeclaration: boolean;
+  maxValueAllowed?: number;
+  restrictedWoodTypes?: string;
+  additionalRequirements?: string;
+  isActive: boolean;
+  createdAt?: string;
+}
+
+export interface CreateShippingRestriction extends Omit<ShippingRestriction, 'restrictionId' | 'createdAt'> {}
+
+export interface ShipmentItem {
+  shipmentItemId: number;
+  shipmentId: number;
+  orderItemId: number;
+  productId: number;
+  productName: string;
+  quantity: number;
+  customsValue: number;
+  customsDescription?: string;
+  harmonizedCode?: string;
+  countryOfOrigin?: string;
+  createdAt?: string;
+}
+
+export interface CreateShipmentItem extends Omit<ShipmentItem, 'shipmentItemId' | 'createdAt'> {}
+
+export interface Shipment {
+  shipmentId: number;
+  orderId: number;
+  shippingMethodId: number;
+  trackingNumber: string;
+  carrierName: string;
+  shippingLabelUrl?: string;
+  shipmentStatus: string;
+  packageWeight?: number;
+  packageLength?: number;
+  packageWidth?: number;
+  packageHeight?: number;
+  packagingNotes?: string;
+  requiresPhytosanitaryCertificate?: boolean;
+  phytosanitaryCertificateNumber?: string;
+  customsDeclarationNumber?: string;
+  shippedDate?: string;
+  estimatedDeliveryDate?: string;
+  actualDeliveryDate?: string;
+  createdAt?: string;
+  createdBy?: number;
+}
+
+export interface CreateShipment extends Omit<Shipment, 'shipmentId' | 'createdAt'> {}

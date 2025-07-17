@@ -68,8 +68,6 @@
       color="orange-darken-3"
     >
       <v-list nav density="comfortable" class="text-orange-lighten-5">
-        
-        <!-- Dashboard -->
         <v-list-item 
           active-class="bg-yellow-accent-3 text-orange-darken-4" 
           :to="{ name: 'dashboard' }"
@@ -110,14 +108,6 @@
           <v-list-item :to="{ name: 'order-items' }"><v-list-item-title>Order Items</v-list-item-title></v-list-item>
           <v-list-item :to="{ name: 'order-status' }"><v-list-item-title>Order Status</v-list-item-title></v-list-item>
           <v-list-item :to="{ name: 'order-status-history' }"><v-list-item-title>Status History</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'shipments' }"><v-list-item-title>Shipments</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'shipment-items' }"><v-list-item-title>Shipment Items</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'shipping-methods' }"><v-list-item-title>Shipping Methods</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'shipping-rates' }"><v-list-item-title>Shipping Rates</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'shipping-restrictions' }"><v-list-item-title>Shipping Restrictions</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'shopping-cart' }"><v-list-item-title>Shopping Cart</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'stock-alerts' }"><v-list-item-title>Stock Alerts</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'inventory-transactions' }"><v-list-item-title>Inventory Transactions</v-list-item-title></v-list-item>
         </v-list-group>
 
         <!-- Customer Management -->
@@ -154,12 +144,30 @@
           <v-list-item :to="{ name: 'revenue-reports' }"><v-list-item-title>Revenue Reports</v-list-item-title></v-list-item>
           <v-list-item :to="{ name: 'artisan-payouts' }"><v-list-item-title>Artisan Payouts</v-list-item-title></v-list-item>
         </v-list-group>
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'payment-methods' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-credit-card" />
-              </template>
-              <v-list-item-title>Payment Methods</v-list-item-title>
+       
+        <!-- Shipping -->
+        <v-list-group value="shipping">
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props" prepend-icon="mdi-truck">
+              <v-list-item-title>Shipping</v-list-item-title>
             </v-list-item>
+          </template>
+          <v-list-item :to="{ name: 'shipments' }">
+            <v-list-item-title>Shipments</v-list-item-title>
+          </v-list-item>
+          <v-list-item :to="{ name: 'shipment-items' }">
+            <v-list-item-title>Shipment Items</v-list-item-title>
+          </v-list-item>
+          <v-list-item :to="{ name: 'shipping-methods' }">
+            <v-list-item-title>Shipping Methods</v-list-item-title>
+          </v-list-item>
+          <v-list-item :to="{ name: 'shipping-rates' }">
+            <v-list-item-title>Shipping Rates</v-list-item-title>
+          </v-list-item>
+          <v-list-item :to="{ name: 'shipping-restrictions' }">
+            <v-list-item-title>Shipping Restrictions</v-list-item-title>
+          </v-list-item>
+        </v-list-group>
 
         <!-- Marketing -->
         <v-list-group value="marketing">
@@ -195,7 +203,6 @@
           <v-list-item :to="{ name: 'user-management' }"><v-list-item-title>User Management</v-list-item-title></v-list-item>
           <v-list-item :to="{ name: 'user-login-history' }"><v-list-item-title>User Login History</v-list-item-title></v-list-item>
         </v-list-group>
-
       </v-list>
     </v-navigation-drawer>
   </div>

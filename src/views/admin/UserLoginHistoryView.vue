@@ -1,9 +1,9 @@
 <template>
   <div class="user-login-history-view">
-    <v-container fluid class="pa-6">
+    <v-container fluid class="pa-6 user-login-history-main-container">
       <!-- Page Header -->
       <div class="d-flex justify-space-between align-center mb-6">
-        <div>
+  <div>
           <h1 class="text-h4 font-weight-bold text-orange-darken-3">User Login History</h1>
           <p class="text-body-1 text-grey-darken-1 mt-1">
             Track user login attempts and activity
@@ -211,11 +211,10 @@ function exportCSV() {
   URL.revokeObjectURL(url);
   exportDialog.value = false;
 }
-</script>
+</script> 
 
 <style scoped>
-.user-login-history-view {
-  background: #fff;
+.user-login-history-main-container {
   min-height: 100vh;
 }
 </style> 

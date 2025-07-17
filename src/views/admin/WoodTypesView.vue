@@ -1,6 +1,6 @@
 <template>
   <div class="wood-types-view">
-    <v-container fluid class="pa-6">
+    <v-container fluid class="pa-6 wood-types-main-container">
       <!-- Page Header -->
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
@@ -510,8 +510,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.wood-types-view {
-  background-color: #fafafa;
+.wood-types-main-container {
   min-height: 100vh;
 }
 </style>

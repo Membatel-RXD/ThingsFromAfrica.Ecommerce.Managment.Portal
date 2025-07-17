@@ -388,8 +388,7 @@ function fillArtisanInfo() {
 }
 
 function submit() {
-  // For now, just log the form data
-  console.log('Submitting product:', form.value);
+  emit('submit', { ...form.value });
   emit('update:modelValue', false);
 }
 
