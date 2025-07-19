@@ -1,689 +1,786 @@
 <template>
-    <div>
-      <!-- Header Section -->
-      <v-container fluid class="pa-6">
-        <v-row>
-          <v-col cols="12">
-            <div class="d-flex align-center justify-space-between mb-6">
-              <div>
-                <h1 class="text-h4 font-weight-bold text-orange-darken-4 mb-2">
-                  Super Admin Dashboard
-                </h1>
-                <p class="text-subtitle-1 text-grey-darken-2">
-                  Welcome back, {{ username }}! Here's what's happening with your wood craft business.
-                </p>
-              </div>
-              <v-chip
-                :color="getBusinessStatusColor()"
-                variant="elevated"
-                size="large"
-                class="font-weight-bold"
-              >
-                <v-icon start icon="mdi-trending-up"></v-icon>
-                {{ getBusinessStatus() }}
-              </v-chip>
+  <div>
+    <!-- Loading Overlay -->
+    <v-overlay v-model="loading" class="align-center justify-center">
+      <v-progress-circular
+        size="64"
+        color="orange-darken-2"
+        indeterminate
+      ></v-progress-circular>
+      <div class="text-h6 mt-4 text-white">Loading Dashboard Data...</div>
+    </v-overlay>
+
+    <!-- Header Section -->
+    <v-container fluid class="pa-6">
+      <v-row>
+        <v-col cols="12">
+          <div class="d-flex align-center justify-space-between mb-6">
+            <div>
+              <h1 class="text-h4 font-weight-bold text-orange-darken-4 mb-2">
+                Super Admin Dashboard
+              </h1>
+              <p class="text-subtitle-1 text-grey-darken-2">
+                Welcome back, {{ username }}! Here's what's happening with your wood craft business.
+              </p>
             </div>
-          </v-col>
-        </v-row>
-  
-        <!-- Key Metrics Cards -->
-        <v-row>
-          <v-col cols="12" sm="6" md="3">
-            <v-card 
-              class="stats-card elevation-4" 
+            <v-btn
+              @click="loadDashboardData"
               color="orange-darken-2"
-              variant="elevated"
+              variant="outlined"
+              :loading="loading"
+              :disabled="loading"
             >
-              <v-card-text class="text-center pa-6">
-                <v-icon size="48" color="yellow-lighten-2" icon="mdi-currency-usd" class="mb-3"></v-icon>
-                <h3 class="text-h4 font-weight-bold text-white mb-2">
-                  ${{ formatCurrency(totalRevenue) }}
-                </h3>
-                <p class="text-orange-lighten-4 mb-0">Total Revenue</p>
-                <v-chip 
-                  size="small" 
-                  :color="revenueGrowth >= 0 ? 'green-lighten-1' : 'red-lighten-1'"
-                  class="mt-2"
-                >
-                  <v-icon 
-                    start 
-                    :icon="revenueGrowth >= 0 ? 'mdi-trending-up' : 'mdi-trending-down'"
-                  ></v-icon>
-                  {{ Math.abs(revenueGrowth) }}%
-                </v-chip>
-              </v-card-text>
-            </v-card>
-          </v-col>
-  
-          <v-col cols="12" sm="6" md="3">
-            <v-card 
-              class="stats-card elevation-4" 
-              color="orange-darken-3"
+              <v-icon start icon="mdi-refresh"></v-icon>
+              Refresh
+            </v-btn>
+            <v-chip
+              :color="getBusinessStatusColor()"
               variant="elevated"
+              size="large"
+              class="font-weight-bold"
             >
-              <v-card-text class="text-center pa-6">
-                <v-icon size="48" color="yellow-lighten-2" icon="mdi-shopping" class="mb-3"></v-icon>
-                <h3 class="text-h4 font-weight-bold text-white mb-2">
-                  {{ totalOrders.toLocaleString() }}
-                </h3>
-                <p class="text-orange-lighten-4 mb-0">Total Orders</p>
-                <v-chip 
-                  size="small" 
-                  :color="orderGrowth >= 0 ? 'green-lighten-1' : 'red-lighten-1'"
-                  class="mt-2"
+              <v-icon start icon="mdi-trending-up"></v-icon>
+              {{ getBusinessStatus() }}
+            </v-chip>
+          </div>
+        </v-col>
+      </v-row>
+
+      <!-- Error Alert -->
+      <v-row v-if="error">
+        <v-col cols="12">
+          <v-alert
+            type="error"
+            variant="outlined"
+            prominent
+            closable
+            @click:close="error = null"
+          >
+            <v-alert-title class="font-weight-bold">Error Loading Dashboard</v-alert-title>
+            <div>{{ error }}</div>
+            <template v-slot:append>
+              <v-btn
+                @click="loadDashboardData"
+                color="orange-darken-2"
+                variant="outlined"
+                size="small"
+                :loading="loading"
+              >
+                Retry
+              </v-btn>
+            </template>
+          </v-alert>
+        </v-col>
+      </v-row>
+
+      <!-- Key Metrics Cards -->
+      <v-row>
+        <v-col cols="12" sm="6" md="3">
+          <v-card 
+            class="stats-card elevation-4" 
+            color="orange-darken-2"
+            variant="elevated"
+          >
+            <v-card-text class="text-center pa-6">
+              <v-icon size="48" color="yellow-lighten-2" icon="mdi-currency-usd" class="mb-3"></v-icon>
+              <h3 class="text-h4 font-weight-bold text-white mb-2">
+                ${{ formatCurrency(stats.totalRevenue) }}
+              </h3>
+              <p class="text-orange-lighten-4 mb-0">Total Revenue</p>
+              <v-chip 
+                size="small" 
+                :color="stats.revenueGrowth >= 0 ? 'green-lighten-1' : 'red-lighten-1'"
+                class="mt-2"
+              >
+                <v-icon 
+                  start 
+                  :icon="stats.revenueGrowth >= 0 ? 'mdi-trending-up' : 'mdi-trending-down'"
+                ></v-icon>
+                {{ Math.abs(stats.revenueGrowth) }}%
+              </v-chip>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" sm="6" md="3">
+          <v-card 
+            class="stats-card elevation-4" 
+            color="orange-darken-3"
+            variant="elevated"
+          >
+            <v-card-text class="text-center pa-6">
+              <v-icon size="48" color="yellow-lighten-2" icon="mdi-shopping" class="mb-3"></v-icon>
+              <h3 class="text-h4 font-weight-bold text-white mb-2">
+                {{ stats.totalOrders.toLocaleString() }}
+              </h3>
+              <p class="text-orange-lighten-4 mb-0">Total Orders</p>
+              <v-chip 
+                size="small" 
+                :color="stats.orderGrowth >= 0 ? 'green-lighten-1' : 'red-lighten-1'"
+                class="mt-2"
+              >
+                <v-icon 
+                  start 
+                  :icon="stats.orderGrowth >= 0 ? 'mdi-trending-up' : 'mdi-trending-down'"
+                ></v-icon>
+                {{ Math.abs(stats.orderGrowth) }}%
+              </v-chip>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" sm="6" md="3">
+          <v-card 
+            class="stats-card elevation-4" 
+            color="orange-darken-4"
+            variant="elevated"
+          >
+            <v-card-text class="text-center pa-6">
+              <v-icon size="48" color="yellow-lighten-2" icon="mdi-account-group" class="mb-3"></v-icon>
+              <h3 class="text-h4 font-weight-bold text-white mb-2">
+                {{ stats.totalCustomers.toLocaleString() }}
+              </h3>
+              <p class="text-orange-lighten-4 mb-0">Total Customers</p>
+              <v-chip 
+                size="small" 
+                :color="stats.customerGrowth >= 0 ? 'green-lighten-1' : 'red-lighten-1'"
+                class="mt-2"
+              >
+                <v-icon 
+                  start 
+                  :icon="stats.customerGrowth >= 0 ? 'mdi-trending-up' : 'mdi-trending-down'"
+                ></v-icon>
+                {{ Math.abs(stats.customerGrowth) }}%
+              </v-chip>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" sm="6" md="3">
+          <v-card 
+            class="stats-card elevation-4" 
+            color="brown-darken-2"
+            variant="elevated"
+          >
+            <v-card-text class="text-center pa-6">
+              <v-icon size="48" color="yellow-lighten-2" icon="mdi-package-variant" class="mb-3"></v-icon>
+              <h3 class="text-h4 font-weight-bold text-white mb-2">
+                {{ stats.totalProducts.toLocaleString() }}
+              </h3>
+              <p class="text-orange-lighten-4 mb-0">Total Products</p>
+              <v-chip 
+                size="small" 
+                color="blue-lighten-1"
+                class="mt-2"
+              >
+                <v-icon start icon="mdi-package"></v-icon>
+                {{ stats.activeProducts }} Active
+              </v-chip>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- Charts Section -->
+      <v-row class="mt-6">
+        <v-col cols="12" md="8">
+          <v-card class="elevation-4" color="white">
+            <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
+              <v-icon icon="mdi-chart-line" class="me-2"></v-icon>
+              Revenue Analytics
+            </v-card-title>
+            <v-card-text class="pa-6">
+              <div class="chart-container" style="position: relative; height: 300px;">
+                <canvas ref="revenueChart"></canvas>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col cols="12" md="4">
+          <v-card class="elevation-4" color="white">
+            <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
+              <v-icon icon="mdi-chart-donut" class="me-2"></v-icon>
+              Sales by Category
+            </v-card-title>
+            <v-card-text class="pa-6">
+              <div class="chart-container" style="position: relative; height: 300px;">
+                <canvas ref="categoryChart"></canvas>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- Recent Activity & Quick Actions -->
+      <v-row class="mt-6">
+        <v-col cols="12" md="6">
+          <v-card class="elevation-4" color="white">
+            <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
+              <v-icon icon="mdi-clock-outline" class="me-2"></v-icon>
+              Recent Orders
+            </v-card-title>
+            <v-card-text class="pa-0">
+              <v-list>
+                <v-list-item
+                  v-for="order in recentOrders"
+                  :key="order.orderId"
+                  class="px-6 py-3"
                 >
-                  <v-icon 
-                    start 
-                    :icon="orderGrowth >= 0 ? 'mdi-trending-up' : 'mdi-trending-down'"
-                  ></v-icon>
-                  {{ Math.abs(orderGrowth) }}%
-                </v-chip>
-              </v-card-text>
-            </v-card>
-          </v-col>
-  
-          <v-col cols="12" sm="6" md="3">
-            <v-card 
-              class="stats-card elevation-4" 
-              color="orange-darken-4"
-              variant="elevated"
-            >
-              <v-card-text class="text-center pa-6">
-                <v-icon size="48" color="yellow-lighten-2" icon="mdi-account-group" class="mb-3"></v-icon>
-                <h3 class="text-h4 font-weight-bold text-white mb-2">
-                  {{ totalCustomers.toLocaleString() }}
-                </h3>
-                <p class="text-orange-lighten-4 mb-0">Total Customers</p>
-                <v-chip 
-                  size="small" 
-                  :color="customerGrowth >= 0 ? 'green-lighten-1' : 'red-lighten-1'"
-                  class="mt-2"
-                >
-                  <v-icon 
-                    start 
-                    :icon="customerGrowth >= 0 ? 'mdi-trending-up' : 'mdi-trending-down'"
-                  ></v-icon>
-                  {{ Math.abs(customerGrowth) }}%
-                </v-chip>
-              </v-card-text>
-            </v-card>
-          </v-col>
-  
-          <v-col cols="12" sm="6" md="3">
-            <v-card 
-              class="stats-card elevation-4" 
-              color="brown-darken-2"
-              variant="elevated"
-            >
-              <v-card-text class="text-center pa-6">
-                <v-icon size="48" color="yellow-lighten-2" icon="mdi-package-variant" class="mb-3"></v-icon>
-                <h3 class="text-h4 font-weight-bold text-white mb-2">
-                  {{ totalProducts.toLocaleString() }}
-                </h3>
-                <p class="text-orange-lighten-4 mb-0">Total Products</p>
-                <v-chip 
-                  size="small" 
-                  color="blue-lighten-1"
-                  class="mt-2"
-                >
-                  <v-icon start icon="mdi-package"></v-icon>
-                  {{ activeProducts }} Active
-                </v-chip>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-  
-        <!-- Charts Section -->
-        <v-row class="mt-6">
-          <v-col cols="12" md="8">
-            <v-card class="elevation-4" color="white">
-              <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
-                <v-icon icon="mdi-chart-line" class="me-2"></v-icon>
-                Revenue Analytics
-              </v-card-title>
-              <v-card-text class="pa-6">
-                <canvas ref="revenueChart" height="300"></canvas>
-              </v-card-text>
-            </v-card>
-          </v-col>
-  
-          <v-col cols="12" md="4">
-            <v-card class="elevation-4" color="white">
-              <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
-                <v-icon icon="mdi-chart-donut" class="me-2"></v-icon>
-                Sales by Category
-              </v-card-title>
-              <v-card-text class="pa-6">
-                <canvas ref="categoryChart" height="300"></canvas>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-  
-        <!-- Recent Activity & Quick Actions -->
-        <v-row class="mt-6">
-          <v-col cols="12" md="6">
-            <v-card class="elevation-4" color="white">
-              <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
-                <v-icon icon="mdi-clock-outline" class="me-2"></v-icon>
-                Recent Orders
-              </v-card-title>
-              <v-card-text class="pa-0">
-                <v-list>
-                  <v-list-item
-                    v-for="order in recentOrders"
-                    :key="order.id"
-                    class="px-6 py-3"
-                  >
-                    <template v-slot:prepend>
-                      <v-avatar :color="getOrderStatusColor(order.status)" size="40">
-                        <v-icon :icon="getOrderStatusIcon(order.status)" color="white"></v-icon>
-                      </v-avatar>
-                    </template>
-                    <v-list-item-title class="font-weight-medium">
-                      Order #{{ order.id }}
-                    </v-list-item-title>
-                    <v-list-item-subtitle>
-                      {{ order.customerName }} • ${{ order.total }}
-                    </v-list-item-subtitle>
-                    <template v-slot:append>
-                      <v-chip
-                        :color="getOrderStatusColor(order.status)"
-                        size="small"
-                        variant="outlined"
-                      >
-                        {{ order.status }}
-                      </v-chip>
-                    </template>
-                  </v-list-item>
-                </v-list>
-              </v-card-text>
-            </v-card>
-          </v-col>
-  
-          <v-col cols="12" md="6">
-            <v-card class="elevation-4" color="white">
-              <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
-                <v-icon icon="mdi-flash" class="me-2"></v-icon>
-                Quick Actions
-              </v-card-title>
-              <v-card-text class="pa-6">
-                <v-row>
-                  <v-col cols="6">
-                    <v-btn
-                      :to="{ name: 'products-create' }"
-                      color="orange-darken-2"
-                      variant="elevated"
-                      block
-                      size="large"
-                      class="mb-3"
-                    >
-                      <v-icon start icon="mdi-plus"></v-icon>
-                      Add Product
-                    </v-btn>
-                  </v-col>
-                  <v-col cols="6">
-                    <v-btn
-                      :to="{ name: 'orders' }"
-                      color="orange-darken-3"
-                      variant="elevated"
-                      block
-                      size="large"
-                      class="mb-3"
-                    >
-                      <v-icon start icon="mdi-shopping"></v-icon>
-                      View Orders
-                    </v-btn>
-                  </v-col>
-                  <v-col cols="6">
-                    <v-btn
-                      :to="{ name: 'customers' }"
-                      color="brown-darken-2"
-                      variant="elevated"
-                      block
-                      size="large"
-                      class="mb-3"
-                    >
-                      <v-icon start icon="mdi-account-group"></v-icon>
-                      Customers
-                    </v-btn>
-                  </v-col>
-                  <v-col cols="6">
-                    <v-btn
-                      :to="{ name: 'inventory-dashboard' }"
-                      color="orange-darken-4"
-                      variant="elevated"
-                      block
-                      size="large"
-                      class="mb-3"
-                    >
-                      <v-icon start icon="mdi-warehouse"></v-icon>
-                      Inventory
-                    </v-btn>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-  
-        <!-- Alerts & Notifications -->
-        <v-row class="mt-6">
-          <v-col cols="12">
-            <v-card class="elevation-4" color="white">
-              <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
-                <v-icon icon="mdi-alert-circle" class="me-2"></v-icon>
-                System Alerts
-              </v-card-title>
-              <v-card-text class="pa-6">
-                <v-row>
-                  <v-col cols="12" md="4">
-                    <v-alert
-                      type="warning"
-                      variant="outlined"
-                      prominent
-                      class="mb-4"
-                    >
-                      <v-alert-title class="font-weight-bold">Low Stock Alert</v-alert-title>
-                      <div>{{ lowStockCount }} products are running low on inventory</div>
-                      <template v-slot:append>
-                        <v-btn
-                          :to="{ name: 'stock-alerts' }"
-                          color="orange-darken-2"
-                          variant="outlined"
-                          size="small"
-                        >
-                          View Details
-                        </v-btn>
-                      </template>
-                    </v-alert>
-                  </v-col>
-                  <v-col cols="12" md="4">
-                    <v-alert
-                      type="info"
-                      variant="outlined"
-                      prominent
-                      class="mb-4"
-                    >
-                      <v-alert-title class="font-weight-bold">Pending Orders</v-alert-title>
-                      <div>{{ pendingOrdersCount }} orders await processing</div>
-                      <template v-slot:append>
-                        <v-btn
-                          :to="{ name: 'orders-pending' }"
-                          color="blue-darken-2"
-                          variant="outlined"
-                          size="small"
-                        >
-                          Process
-                        </v-btn>
-                      </template>
-                    </v-alert>
-                  </v-col>
-                  <v-col cols="12" md="4">
-                    <v-alert
-                      type="success"
-                      variant="outlined"
-                      prominent
-                      class="mb-4"
-                    >
-                      <v-alert-title class="font-weight-bold">New Reviews</v-alert-title>
-                      <div>{{ newReviewsCount }} new customer reviews received</div>
-                      <template v-slot:append>
-                        <v-btn
-                          :to="{ name: 'reviews' }"
-                          color="green-darken-2"
-                          variant="outlined"
-                          size="small"
-                        >
-                          View All
-                        </v-btn>
-                      </template>
-                    </v-alert>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-  
-        <!-- Top Performing Products -->
-        <v-row class="mt-6">
-          <v-col cols="12">
-            <v-card class="elevation-4" color="white">
-              <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
-                <v-icon icon="mdi-star" class="me-2"></v-icon>
-                Top Performing Products
-              </v-card-title>
-              <v-card-text class="pa-0">
-                <v-data-table
-                  :headers="productHeaders"
-                  :items="topProducts"
-                  :items-per-page="5"
-                  class="elevation-0"
-                >
-                  <template v-slot:item.image="{ item }">
-                    <v-avatar size="60" class="my-2">
-                      <v-img :src="item.image" :alt="item.name"></v-img>
+                  <template v-slot:prepend>
+                    <v-avatar :color="getOrderStatusColor(order.status)" size="40">
+                      <v-icon :icon="getOrderStatusIcon(order.status)" color="white"></v-icon>
                     </v-avatar>
                   </template>
-                  <template v-slot:item.sales="{ item }">
-                    <div class="text-center">
-                      <div class="font-weight-bold">${{ item.sales.toLocaleString() }}</div>
-                      <div class="text-caption text-grey">{{ item.unitsSold }} units</div>
-                    </div>
-                  </template>
-                  <template v-slot:item.rating="{ item }">
-                    <div class="d-flex align-center">
-                      <v-rating
-                        :model-value="item.rating"
-                        color="amber"
-                        density="compact"
-                        half-increments
-                        readonly
-                        size="small"
-                      ></v-rating>
-                      <span class="text-caption ms-2">({{ item.reviewCount }})</span>
-                    </div>
-                  </template>
-                  <template v-slot:item.actions="{ item }">
-                    <v-btn
-                      :to="{ name: 'product-details', params: { id: item.id } }"
-                      color="orange-darken-2"
-                      variant="outlined"
+                  <v-list-item-title class="font-weight-medium">
+                    Order #{{ order.orderId }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ order.customerName }} • ${{ order.total }}
+                  </v-list-item-subtitle>
+                  <template v-slot:append>
+                    <v-chip
+                      :color="getOrderStatusColor(order.status)"
                       size="small"
+                      variant="outlined"
                     >
-                      View Details
-                    </v-btn>
+                      {{ order.status }}
+                    </v-chip>
                   </template>
-                </v-data-table>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
-    </div>
-  </template>
-  
-  <script setup lang="ts">
-  import { ref, computed, onMounted, nextTick } from 'vue'
-  import { useUserStore } from '@/stores/user'
+                </v-list-item>
+              </v-list>
+            </v-card-text>
+          </v-card>
+        </v-col>
 
-  // import { useInventoryStore } from '@/stores/inventory'
-  
-  import Chart from 'chart.js/auto'
-  import { useCustomerStore } from '@/stores/customer'
-  import { useOrderStore } from '@/stores/Order'
-  import { useProductStore } from '@/stores/product'
-  
-  // Stores
-  const userStore = useUserStore()
-  const productStore = useProductStore()
-  const orderStore = useOrderStore()
-  const customerStore = useCustomerStore()
-  // const inventoryStore = useInventoryStore()
-  
-  // Chart refs
-  const revenueChart = ref<HTMLCanvasElement | null>(null)
-  const categoryChart = ref<HTMLCanvasElement | null>(null)
-  
-  // Loading states
-  const loading = ref(false)
-  
-  // Computed properties
-  const username = computed(() => userStore.user?.username || 'Admin')
-  
-  // Mock data - replace with actual store data
-  const totalRevenue = ref(125000)
-  const revenueGrowth = ref(15.3)
-  const totalOrders = ref(1247)
-  const orderGrowth = ref(8.7)
-  const totalCustomers = ref(892)
-  const customerGrowth = ref(12.1)
-  const totalProducts = ref(156)
-  const activeProducts = ref(142)
-  const lowStockCount = ref(12)
-  const pendingOrdersCount = ref(23)
-  const newReviewsCount = ref(18)
-  
-  // Recent orders data
-  const recentOrders = ref([
-    { id: 'ORD-001', customerName: 'John Doe', total: 299.99, status: 'Processing' },
-    { id: 'ORD-002', customerName: 'Jane Smith', total: 149.50, status: 'Shipped' },
-    { id: 'ORD-003', customerName: 'Mike Johnson', total: 399.00, status: 'Delivered' },
-    { id: 'ORD-004', customerName: 'Sarah Wilson', total: 199.75, status: 'Pending' },
-    { id: 'ORD-005', customerName: 'Tom Brown', total: 450.25, status: 'Processing' }
-  ])
-  
-  // Top products data
-  const topProducts = ref([
-    {
-      id: 1,
-      name: 'Handcrafted Oak Table',
-      category: 'Furniture',
-      sales: 12500,
-      unitsSold: 25,
-      rating: 4.8,
-      reviewCount: 42,
-      image: '/api/placeholder/150/150'
-    },
-    {
-      id: 2,
-      name: 'Wooden Jewelry Box',
-      category: 'Accessories',
-      sales: 8750,
-      unitsSold: 175,
-      rating: 4.6,
-      reviewCount: 89,
-      image: '/api/placeholder/150/150'
-    },
-    {
-      id: 3,
-      name: 'Mahogany Bookshelf',
-      category: 'Furniture',
-      sales: 9200,
-      unitsSold: 23,
-      rating: 4.9,
-      reviewCount: 31,
-      image: '/api/placeholder/150/150'
-    },
-    {
-      id: 4,
-      name: 'Carved Wooden Bowl Set',
-      category: 'Kitchenware',
-      sales: 6800,
-      unitsSold: 136,
-      rating: 4.7,
-      reviewCount: 67,
-      image: '/api/placeholder/150/150'
-    },
-    {
-      id: 5,
-      name: 'Pine Wood Wall Art',
-      category: 'Decor',
-      sales: 5400,
-      unitsSold: 54,
-      rating: 4.5,
-      reviewCount: 28,
-      image: '/api/placeholder/150/150'
+        <v-col cols="12" md="6">
+          <v-card class="elevation-4" color="white">
+            <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
+              <v-icon icon="mdi-flash" class="me-2"></v-icon>
+              Quick Actions
+            </v-card-title>
+            <v-card-text class="pa-6">
+              <v-row>
+                <v-col cols="6">
+                  <v-btn
+                    :to="{ name: 'products-create' }"
+                    color="orange-darken-2"
+                    variant="elevated"
+                    block
+                    size="large"
+                    class="mb-3"
+                  >
+                    <v-icon start icon="mdi-plus"></v-icon>
+                    Add Product
+                  </v-btn>
+                </v-col>
+                <v-col cols="6">
+                  <v-btn
+                    :to="{ name: 'orders' }"
+                    color="orange-darken-3"
+                    variant="elevated"
+                    block
+                    size="large"
+                    class="mb-3"
+                  >
+                    <v-icon start icon="mdi-shopping"></v-icon>
+                    View Orders
+                  </v-btn>
+                </v-col>
+                <v-col cols="6">
+                  <v-btn
+                    :to="{ name: 'customers' }"
+                    color="brown-darken-2"
+                    variant="elevated"
+                    block
+                    size="large"
+                    class="mb-3"
+                  >
+                    <v-icon start icon="mdi-account-group"></v-icon>
+                    Customers
+                  </v-btn>
+                </v-col>
+                <v-col cols="6">
+                  <v-btn
+                    :to="{ name: 'inventory-dashboard' }"
+                    color="orange-darken-4"
+                    variant="elevated"
+                    block
+                    size="large"
+                    class="mb-3"
+                  >
+                    <v-icon start icon="mdi-warehouse"></v-icon>
+                    Inventory
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- Alerts & Notifications -->
+      <v-row class="mt-6">
+        <v-col cols="12">
+          <v-card class="elevation-4" color="white">
+            <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
+              <v-icon icon="mdi-alert-circle" class="me-2"></v-icon>
+              System Alerts
+            </v-card-title>
+            <v-card-text class="pa-6">
+              <v-row>
+                <v-col cols="12" md="4">
+                  <v-alert
+                    type="warning"
+                    variant="outlined"
+                    prominent
+                    class="mb-4"
+                  >
+                    <v-alert-title class="font-weight-bold">Low Stock Alert</v-alert-title>
+                    <div>{{ stats.lowStockCount }} products are running low on inventory</div>
+                    <template v-slot:append>
+                      <v-btn
+                        :to="{ name: 'stock-alerts' }"
+                        color="orange-darken-2"
+                        variant="outlined"
+                        size="small"
+                      >
+                        View Details
+                      </v-btn>
+                    </template>
+                  </v-alert>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <v-alert
+                    type="info"
+                    variant="outlined"
+                    prominent
+                    class="mb-4"
+                  >
+                    <v-alert-title class="font-weight-bold">Pending Orders</v-alert-title>
+                    <div>{{ stats.pendingOrdersCount }} orders await processing</div>
+                    <template v-slot:append>
+                      <v-btn
+                        :to="{ name: 'orders-pending' }"
+                        color="blue-darken-2"
+                        variant="outlined"
+                        size="small"
+                      >
+                        Process
+                      </v-btn>
+                    </template>
+                  </v-alert>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <v-alert
+                    type="success"
+                    variant="outlined"
+                    prominent
+                    class="mb-4"
+                  >
+                    <v-alert-title class="font-weight-bold">New Reviews</v-alert-title>
+                    <div>{{ stats.newReviewsCount }} new customer reviews received</div>
+                    <template v-slot:append>
+                      <v-btn
+                        :to="{ name: 'reviews' }"
+                        color="green-darken-2"
+                        variant="outlined"
+                        size="small"
+                      >
+                        View All
+                      </v-btn>
+                    </template>
+                  </v-alert>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- Top Performing Products -->
+      <v-row class="mt-6">
+        <v-col cols="12">
+          <v-card class="elevation-4" color="white">
+            <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
+              <v-icon icon="mdi-star" class="me-2"></v-icon>
+              Top Performing Products
+            </v-card-title>
+            <v-card-text class="pa-0">
+              <v-data-table
+                :headers="productHeaders"
+                :items="topProducts"
+                :items-per-page="5"
+                class="elevation-0"
+              >
+                <template v-slot:item.categoryId="{ item }">
+                  <div class="text-center">
+                    <div class="font-weight-bold">{{ getCategoryName(item.categoryId) }}</div>
+                  </div>
+                </template>
+            
+                <template v-slot:item.actions="{ item }">
+                  <v-btn
+                    :to="{ name: 'product-details', params: { id: item.productId } }"
+                    color="orange-darken-2"
+                    variant="outlined"
+                    size="small"
+                  >
+                    View Details
+                  </v-btn>
+                </template>
+              </v-data-table>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted, nextTick } from 'vue'
+import { useUserStore } from '@/stores/user'
+import Chart from 'chart.js/auto'
+import { dashboardService, type DashboardData, type DashboardStats, type RecentOrder, type TopProduct } from '@/services/dashboard'
+import { apiService, type IAPIResponse } from '@/services/api'
+import { MostSoldProduct, ProductCategory } from '@/stores/types/member'
+
+// Stores
+const userStore = useUserStore()
+
+// Chart refs
+const revenueChart = ref<HTMLCanvasElement | null>(null)
+const categoryChart = ref<HTMLCanvasElement | null>(null)
+
+// Chart instances
+let revenueChartInstance: Chart | null = null
+let categoryChartInstance: Chart | null = null
+
+// Loading states
+const loading = ref(false)
+
+// Computed properties
+const username = computed(() => userStore.user?.username || 'Admin')
+
+// Dashboard data
+const dashboardData = ref<DashboardData | null>(null)
+const stats = ref<DashboardStats>({
+  totalRevenue: 0,
+  totalOrders: 0,
+  totalCustomers: 0,
+  totalProducts: 0,
+  activeProducts: 0,
+  lowStockCount: 0,
+  pendingOrdersCount: 0,
+  newReviewsCount: 0,
+  revenueGrowth: 0,
+  orderGrowth: 0,
+  customerGrowth: 0
+})
+const error = ref<string | null>(null)
+
+// Recent orders data
+const recentOrders = ref<RecentOrder[]>([])
+
+// Top products data
+const topProducts = ref<MostSoldProduct[]>([])
+const productCategories = ref<ProductCategory[]>([])
+
+function getCategoryName(catId: number): string {
+  return productCategories.value.find(a => a.categoryId === catId)?.categoryName ?? 'Unknown';
+}
+
+
+// Table headers
+const productHeaders = [
+  { title: 'Product Name', key: 'productName' },
+  { title: 'SKU', key: 'productSku' },
+  { title: 'Category', key: 'categoryId' }, // Or 'categoryName' if you map it
+  { title: 'Wood Type', key: 'woodType' },
+  { title: 'Artisan', key: 'artisanName' },
+  { title: 'Total Sold', key: 'totalQuantitySold', align: 'center' },
+  { title: 'Revenue', key: 'totalRevenue', align: 'center' },
+  { title: 'Orders', key: 'orderCount', align: 'center' },
+  { title: 'Actions', key: 'actions', sortable: false }
+];
+
+
+// Methods
+const formatCurrency = (amount: number) => {
+  return amount.toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  })
+}
+
+const getBusinessStatus = () => {
+  if (stats.value.revenueGrowth >= 15) return 'Excellent'
+  if (stats.value.revenueGrowth >= 10) return 'Good'
+  if (stats.value.revenueGrowth >= 5) return 'Stable'
+  return 'Needs Attention'
+}
+
+const getBusinessStatusColor = () => {
+  if (stats.value.revenueGrowth >= 15) return 'green'
+  if (stats.value.revenueGrowth >= 10) return 'orange'
+  if (stats.value.revenueGrowth >= 5) return 'blue'
+  return 'red'
+}
+
+const getOrderStatusColor = (status: string) => {
+  switch (status.toLowerCase()) {
+    case 'delivered': return 'green'
+    case 'shipped': return 'blue'
+    case 'processing': return 'orange'
+    case 'pending': return 'grey'
+    default: return 'grey'
+  }
+}
+
+const getOrderStatusIcon = (status: string) => {
+  switch (status.toLowerCase()) {
+    case 'delivered': return 'mdi-check-circle'
+    case 'shipped': return 'mdi-truck-delivery'
+    case 'processing': return 'mdi-cog'
+    case 'pending': return 'mdi-clock-outline'
+    default: return 'mdi-help-circle'
+  }
+}
+
+// API Functions
+const fetchRevenueData = async () => {
+  try {
+    const response = await apiService.get<IAPIResponse<any>>(`/dashboard/revenue-chart`)
+    if (!response.isSuccessful) throw new Error('Failed to fetch revenue data')
+    return response.payload
+  } catch (error) {
+    console.error('Error fetching revenue data:', error)
+    // Return fallback data
+    return {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      data: [15000, 18000, 22000, 19000, 25000, 28000]
     }
-  ])
-  
-  // Table headers
-  const productHeaders = [
-    { title: 'Image', key: 'image', sortable: false },
-    { title: 'Product Name', key: 'name' },
-    { title: 'Category', key: 'category' },
-    { title: 'Sales', key: 'sales', align: 'center' },
-    { title: 'Rating', key: 'rating', sortable: false },
-    { title: 'Actions', key: 'actions', sortable: false }
-  ]
-  
-  // Methods
-  const formatCurrency = (amount: number) => {
-    return amount.toLocaleString('en-US', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    })
   }
-  
-  const getBusinessStatus = () => {
-    if (revenueGrowth.value >= 15) return 'Excellent'
-    if (revenueGrowth.value >= 10) return 'Good'
-    if (revenueGrowth.value >= 5) return 'Stable'
-    return 'Needs Attention'
-  }
-  
-  const getBusinessStatusColor = () => {
-    if (revenueGrowth.value >= 15) return 'green'
-    if (revenueGrowth.value >= 10) return 'orange'
-    if (revenueGrowth.value >= 5) return 'blue'
-    return 'red'
-  }
-  
-  const getOrderStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'delivered': return 'green'
-      case 'shipped': return 'blue'
-      case 'processing': return 'orange'
-      case 'pending': return 'grey'
-      default: return 'grey'
+}
+
+const fetchCategoryData = async () => {
+  try {
+    const response = await apiService.get<IAPIResponse<any>>(`/dashboard/category-chart`)
+    if (!response.isSuccessful) throw new Error('Failed to fetch category data')
+    return response.payload
+  } catch (error) {
+    console.error('Error fetching category data:', error)
+    // Return fallback data
+    return {
+      labels: ['Furniture', 'Accessories', 'Kitchenware', 'Decor', 'Tools'],
+      data: [35, 25, 15, 20, 5]
     }
   }
-  
-  const getOrderStatusIcon = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'delivered': return 'mdi-check-circle'
-      case 'shipped': return 'mdi-truck-delivery'
-      case 'processing': return 'mdi-cog'
-      case 'pending': return 'mdi-clock-outline'
-      default: return 'mdi-help-circle'
+}
+
+const initializeCharts = async () => {
+  try {
+    // Ensure canvas elements are available
+    if (!revenueChart.value || !categoryChart.value) {
+      console.error('Chart canvases not available')
+      return
     }
-  }
-  
-  const initializeCharts = () => {
+
+    // Destroy existing charts if they exist
+    if (revenueChartInstance) {
+      revenueChartInstance.destroy()
+    }
+    if (categoryChartInstance) {
+      categoryChartInstance.destroy()
+    }
+
     // Revenue Chart
-    if (revenueChart.value) {
-      new Chart(revenueChart.value, {
-        type: 'line',
-        data: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-          datasets: [{
-            label: 'Revenue',
-            data: [15000, 18000, 22000, 19000, 25000, 28000],
-            borderColor: '#E65100',
-            backgroundColor: 'rgba(230, 81, 0, 0.1)',
-            borderWidth: 3,
-            fill: true,
-            tension: 0.4
-          }]
+    const revenueData = await fetchRevenueData()
+    revenueChartInstance = new Chart(revenueChart.value, {
+      type: 'line',
+      data: {
+        labels: revenueData.labels,
+        datasets: [{
+          label: 'Revenue',
+          data: revenueData.data,
+          borderColor: '#E65100',
+          backgroundColor: 'rgba(230, 81, 0, 0.1)',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                callback: function(value) {
-                  return '$' + value.toLocaleString()
-                }
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value: any) {
+                return '$' + value.toLocaleString()
               }
             }
           }
         }
-      })
-    }
-  
+      }
+    })
+
     // Category Chart
-    if (categoryChart.value) {
-      new Chart(categoryChart.value, {
-        type: 'doughnut',
-        data: {
-          labels: ['Furniture', 'Accessories', 'Kitchenware', 'Decor', 'Tools'],
-          datasets: [{
-            data: [35, 25, 15, 20, 5],
-            backgroundColor: [
-              '#E65100',
-              '#F57C00',
-              '#FF9800',
-              '#FFB74D',
-              '#FFCC02'
-            ],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom'
-            }
+    const categoryData = await fetchCategoryData()
+    categoryChartInstance = new Chart(categoryChart.value, {
+      type: 'doughnut',
+      data: {
+        labels: categoryData.labels,
+        datasets: [{
+          data: categoryData.data,
+          backgroundColor: [
+            '#E65100',
+            '#F57C00',
+            '#FF9800',
+            '#FFB74D',
+            '#FFCC02'
+          ],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom' as const
           }
         }
-      })
-    }
+      }
+    })
+
+    // Load additional dashboard data
+    await loadMostSoldProduct()
+    await loadDashboardSummary()
+    await loadTopProducts()
+    
+  } catch (error) {
+    console.error('Error initializing charts:', error)
   }
-  
-  // Lifecycle
-  onMounted(async () => {
+}
+
+const loadMostSoldProduct = async () => {
+  try {
+    const response = await apiService.get<IAPIResponse<any>>(`/dashboard/most-sold-product`)
+    if (!response.isSuccessful) throw new Error('Failed to fetch most sold product')
+    const product = response.payload
+    
+    // Handle most sold product data as needed
+    console.log('Most sold product:', product)
+  } catch (error) {
+    console.error('Error fetching most sold product:', error)
+  }
+}
+
+const loadDashboardSummary = async () => {
+  try {
+    const response = await apiService.get<IAPIResponse<any>>(`/dashboard/dashboard-summary`)
+    if (!response.isSuccessful) throw new Error('Failed to fetch dashboard summary')
+    const summary = response.payload
+    
+    // Update stats with summary data
+    stats.value = { ...stats.value, ...summary }
+  } catch (error) {
+    console.error('Error fetching dashboard summary:', error)
+  }
+}
+
+const loadTopProducts = async (count = 10) => {
+  try {
+    const response = await apiService.get<IAPIResponse<MostSoldProduct[]>>(`/dashboard/top-products?count=${count}`)
+    if (!response.isSuccessful) throw new Error('Failed to fetch top products')
+    const products = response.payload
+    
+    topProducts.value = products || []
+  } catch (error) {
+    console.error('Error fetching top products:', error)
+  }
+}
+
+// Load dashboard data
+const loadDashboardData = async () => {
+  try {
     loading.value = true
+    error.value = null
     
-    // Load data from stores
-    await productStore.fetchProducts()
-    await orderStore.fetchOrders()
-    await customerStore.fetchCustomers()
-    // await inventoryStore.fetchInventory()
-    
-    loading.value = false
-    
-    // Initialize charts after DOM is ready
+    // Load main dashboard data
+    const data = await dashboardService.getDashboardData()
+    dashboardData.value = data
+    stats.value = data.stats
+    recentOrders.value = data.recentOrders
+    productCategories.value = data.categories
+
+    // Initialize charts after data is loaded
     await nextTick()
-    initializeCharts()
-  })
-  </script>
-  
-  <style scoped>
-  .stats-card {
-    transition: transform 0.2s ease-in-out;
+    await initializeCharts()
+    
+  } catch (err) {
+    console.error('Error loading dashboard data:', err)
+    error.value = 'Failed to load dashboard data. Please try again.'
+  } finally {
+    loading.value = false
   }
-  
-  .stats-card:hover {
-    transform: translateY(-2px);
-  }
-  
-  .v-data-table ::v-deep(.v-data-table__wrapper) {
-    border-radius: 0;
-  }
-  
-  .v-data-table ::v-deep(.v-data-table-header) {
-    background-color: #FFF3E0;
-  }
-  
-  .v-data-table ::v-deep(.v-data-table-header th) {
-    color: #E65100 !important;
-    font-weight: bold;
-  }
-  
-  .v-alert {
-    border-left: 4px solid currentColor;
-  }
-  
-  .v-card {
-    border-radius: 12px;
-  }
-  
-  .v-btn {
-    border-radius: 8px;
-  }
-  
-  .v-chip {
-    border-radius: 6px;
-  }
-  </style>
+}
+
+// Lifecycle
+onMounted(async () => {
+  await loadDashboardData()
+})
+</script>
+
+<style scoped>
+.stats-card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+}
+
+.v-data-table ::v-deep(.v-data-table__wrapper) {
+  border-radius: 0;
+}
+
+.v-data-table ::v-deep(.v-data-table-header) {
+  background-color: #FFF3E0;
+}
+
+.v-data-table ::v-deep(.v-data-table-header th) {
+  color: #E65100 !important;
+  font-weight: bold;
+}
+
+.v-alert {
+  border-left: 4px solid currentColor;
+}
+
+.v-card {
+  border-radius: 12px;
+}
+
+.v-btn {
+  border-radius: 8px;
+}
+
+.v-chip {
+  border-radius: 6px;
+}
+
+.chart-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+</style>

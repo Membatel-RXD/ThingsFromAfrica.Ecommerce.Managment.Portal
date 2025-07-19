@@ -1,5 +1,3 @@
-
-
 export interface IAPIResponse<T> {
   isSuccessful: boolean;
   message?: string | null;

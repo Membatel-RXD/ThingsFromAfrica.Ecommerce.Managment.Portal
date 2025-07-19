@@ -516,6 +516,12 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/admin/user-login-history",
+    name: "user-login-history",
+    component: () => import("@/views/admin/UserLoginHistoryView.vue"),
+    meta: { layout: "admin", requiresAuth: true, roles: ["admin", "superadmin"] },
+  },
+  {
     path: "/system-logs",
     name: "system-logs",
     component: () => import("@/views/admin/SystemLogsView.vue"),

@@ -357,14 +357,18 @@
               </template>
               <v-list-item-title>General Settings</v-list-item-title>
             </v-list-item>
-
+            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'user-login-history' }">
+              <template v-slot:prepend>
+                <v-icon size="small" icon="mdi-file-document-outline" />
+              </template>
+              <v-list-item-title>User Login History</v-list-item-title>
+            </v-list-item>
             <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'user-management' }">
               <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-account-multiple" />
+                <v-icon size="small" icon="mdi-user-outline" />
               </template>
               <v-list-item-title>User Management</v-list-item-title>
             </v-list-item>
-
             <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'system-logs' }">
               <template v-slot:prepend>
                 <v-icon size="small" icon="mdi-file-document-outline" />
@@ -372,12 +376,7 @@
               <v-list-item-title>System Logs</v-list-item-title>
             </v-list-item>
 
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'backup-restore' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-backup-restore" />
-              </template>
-              <v-list-item-title>Backup & Restore</v-list-item-title>
-            </v-list-item>
+           
           </v-list-group>
         </template>
 

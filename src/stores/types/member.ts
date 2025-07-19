@@ -677,3 +677,15 @@ export interface ShipmentDTO {
   createdBy: number;
 }
 export interface CreateShipment extends Omit<ShipmentDTO,'shipmentId'>{}
+
+export interface MostSoldProduct {
+  productId: number;
+  categoryId: number;
+  productName: string;
+  productSku: string;
+  woodType: string;
+  artisanName: string;
+  totalQuantitySold: number;
+  totalRevenue: number;
+  orderCount: number;
+}
