@@ -659,9 +659,9 @@ const routes: RouteRecordRaw[] = [
   { path: '/products/care-instructions', name: 'product-care-instructions', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
   { path: '/discount-types', name: 'discount-types', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
   { path: '/promotions/usage', name: 'promotion-usage', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
-  { path: '/orders/items', name: 'order-items', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
-  { path: '/orders/status', name: 'order-status', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
-  { path: '/orders/status-history', name: 'order-status-history', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/orders/items', name: 'order-items', component: () => import('@/views/admin/OrderItemsView.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/orders/status', name: 'order-status', component: () => import('@/views/admin/OrderStatusView.vue'), meta: { layout: 'admin', requiresAuth: true } },
+  { path: '/orders/status-history', name: 'order-status-history', component: () => import('@/views/admin/OrderStatusHistoryView.vue'), meta: { layout: 'admin', requiresAuth: true } },
   { path: '/shipments/items', name: 'shipment-items', component: () => import('@/views/admin/ShipmentItemsView.vue'), meta: { layout: 'admin', requiresAuth: true } },
   { path: '/shipping/methods', name: 'shipping-methods', component: () => import('@/views/admin/ShippingMethodsView.vue'), meta: { layout: 'admin', requiresAuth: true } },
   { path: '/shipping/rates', name: 'shipping-rates', component: () => import('@/views/admin/ShippingRatesView.vue'), meta: { layout: 'admin', requiresAuth: true } },
@@ -682,11 +682,6 @@ const routes: RouteRecordRaw[] = [
   { path: '/user-management/oauth-providers', name: 'oauth-providers', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
   { path: '/user-management/oauth-connections', name: 'user-oauth-connections', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
   { path: '/settings/logged-crud-operations', name: 'logged-crud-operations', component: () => import('@/components/EmptyComponent.vue'), meta: { layout: 'admin', requiresAuth: true } },
-  {
-    path: '/admin/care-instructions',
-    name: 'CareInstructions',
-    component: () => import('@/views/admin/CareInstructionsView.vue')
-  },
   {
     path: '/admin/discount-types',
     name: 'DiscountTypes',
@@ -753,6 +748,37 @@ const routes: RouteRecordRaw[] = [
     path: "/admin/shipment-items",
     name: "shipment-items",
     component: () => import("@/views/admin/ShipmentItemsView.vue"),
+    meta: { layout: "admin", requiresAuth: true, roles: ["admin", "superadmin"] },
+  },
+  // Returns & Refunds
+  {
+    path: "/admin/return-requests",
+    name: "return-requests",
+    component: () => import("@/views/admin/returns/ReturnRequestsView.vue"),
+    meta: { layout: "admin", requiresAuth: true, roles: ["admin", "superadmin"] },
+  },
+  {
+    path: "/admin/rma-management",
+    name: "rma-management",
+    component: () => import("@/views/admin/returns/RmaManagementView.vue"),
+    meta: { layout: "admin", requiresAuth: true, roles: ["admin", "superadmin"] },
+  },
+  {
+    path: "/admin/refund-handling",
+    name: "refund-handling",
+    component: () => import("@/views/admin/returns/RefundHandlingView.vue"),
+    meta: { layout: "admin", requiresAuth: true, roles: ["admin", "superadmin"] },
+  },
+  {
+    path: "/admin/restock-items",
+    name: "restock-items",
+    component: () => import("@/views/admin/returns/RestockItemsView.vue"),
+    meta: { layout: "admin", requiresAuth: true, roles: ["admin", "superadmin"] },
+  },
+  {
+    path: "/admin/damaged-goods",
+    name: "damaged-goods",
+    component: () => import("@/views/admin/returns/DamagedGoodsView.vue"),
     meta: { layout: "admin", requiresAuth: true, roles: ["admin", "superadmin"] },
   },
   // Catch all route

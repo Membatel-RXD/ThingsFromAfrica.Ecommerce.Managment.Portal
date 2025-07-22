@@ -560,6 +560,7 @@ import type{ ArtisanDTO } from '@/stores/types/member'
   const editArtisan = (item: any) => {
     editMode.value = true
     formData.value = { ...item }
+    selectedArtisan.value = item
     dialog.value = true
   }
   

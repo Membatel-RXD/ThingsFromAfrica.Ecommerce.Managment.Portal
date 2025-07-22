@@ -89,9 +89,11 @@
           <v-list-item :to="{ name: 'admin-products' }" link exact>
             <v-list-item-title>All Products</v-list-item-title>
           </v-list-item>
+          <v-list-item :to="{ name: 'admin-product-create' }" link exact>
+            <v-list-item-title>Add Product</v-list-item-title>
+          </v-list-item>
           <v-list-item :to="{ name: 'admin-categories' }"><v-list-item-title>Categories</v-list-item-title></v-list-item>
           <v-list-item :to="{ name: 'reviews' }"><v-list-item-title>Reviews</v-list-item-title></v-list-item>
-          <v-list-item :to="{ name: 'CareInstructions' }"><v-list-item-title>Care Instructions</v-list-item-title></v-list-item>
           <v-list-item :to="{ name: 'DiscountTypes' }"><v-list-item-title>Discount Types</v-list-item-title></v-list-item>
           <v-list-item :to="{ name: 'promotions' }"><v-list-item-title>Promotions</v-list-item-title></v-list-item>
           <v-list-item :to="{ name: 'PromotionUsage' }"><v-list-item-title>Promotion Usage</v-list-item-title></v-list-item>
@@ -169,6 +171,29 @@
           </v-list-item>
         </v-list-group>
 
+        <v-list-group value="Returns & Refunds">
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props" prepend-icon="mdi-backup-restore">
+              <v-list-item-title>Returns & Refunds</v-list-item-title>
+            </v-list-item>
+          </template>
+          <v-list-item :to="{ name: 'return-requests' }">
+            <v-list-item-title>Return Requests</v-list-item-title>
+          </v-list-item>
+          <v-list-item :to="{ name: 'rma-management' }">
+            <v-list-item-title>RMA Management</v-list-item-title>
+          </v-list-item>
+          <v-list-item :to="{ name: 'refund-handling' }">
+            <v-list-item-title>Refund Handling</v-list-item-title>
+          </v-list-item>
+          <v-list-item :to="{ name: 'restock-items' }">
+            <v-list-item-title>Restock Items</v-list-item-title>
+          </v-list-item>
+          <v-list-item :to="{ name: 'damaged-goods' }">
+            <v-list-item-title>Damaged Goods</v-list-item-title>
+          </v-list-item>
+        </v-list-group>
+
         <!-- Marketing -->
         <v-list-group value="marketing">
           <template v-slot:activator="{ props }">
@@ -179,6 +204,7 @@
           <v-list-item :to="{ name: 'email-templates' }"><v-list-item-title>Email Templates</v-list-item-title></v-list-item>
           <v-list-item :to="{ name: 'email-queue' }"><v-list-item-title>Email Queue</v-list-item-title></v-list-item>
         </v-list-group>
+
 
         <!-- Analytics -->
         <v-list-group value="analytics">
@@ -246,7 +272,7 @@ import { UserRole } from "@/stores/types/member";
     }
 
     // Check if the user's role is in the list of allowed roles
-    return allowedRoles.includes(userStore.role as string);
+    return allowedRoles.includes(userStore.role?.roleName as string);
   };
 </script>
 

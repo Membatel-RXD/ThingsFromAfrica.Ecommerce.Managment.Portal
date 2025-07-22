@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { apiService, type IAPIResponse } from "@/services/api";
+import { API_ENDPOINTS } from "@/config/api-endpoints";
 import type { Product } from "./types/member";
 
 export const useProductStore = defineStore("product", {
@@ -23,7 +24,7 @@ export const useProductStore = defineStore("product", {
     async fetchProducts() {
       try {
         this.loading = true;
-        const response = await apiService.get<IAPIResponse<Product[]>>("/Products/GetAll");
+        const response = await apiService.get<IAPIResponse<Product[]>>(API_ENDPOINTS.GET_ALL_PRODUCTS);
         this.products = response.payload || [];
       } catch (error) {
         this.error = "Failed to fetch products";
@@ -37,7 +38,7 @@ export const useProductStore = defineStore("product", {
       try {
         this.loading = true;
         // For now, we'll get all products and filter by rating/sales
-        const response = await apiService.get<IAPIResponse<Product[]>>("/Products/GetAll");
+        const response = await apiService.get<IAPIResponse<Product[]>>(API_ENDPOINTS.ADD_PRODUCT);
         this.topProducts = (response.payload || []).slice(0, 5); // Get top 5 for now
       } catch (error) {
         this.error = "Failed to fetch top products";
@@ -47,16 +48,16 @@ export const useProductStore = defineStore("product", {
       }
     },
 
-    async createProduct(data: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<IAPIResponse<Product>> {
+    async addProduct(formData: FormData): Promise<IAPIResponse<Product>> {
       try {
         this.loading = true;
-        const response = await apiService.post<IAPIResponse<Product>>("/Products/Add", data);
+        const response = await apiService.post<IAPIResponse<Product>>(API_ENDPOINTS.ADD_PRODUCT, formData);
         if (response.payload) {
           this.products.push(response.payload);
         }
         return response;
       } catch (error) {
-        this.error = "Failed to create product";
+        this.error = 'Failed to add product';
         throw error;
       } finally {
         this.loading = false;
@@ -66,7 +67,7 @@ export const useProductStore = defineStore("product", {
     async updateProduct(id: number, data: Partial<Product>): Promise<IAPIResponse<Product>> {
       try {
         this.loading = true;
-        const response = await apiService.put<IAPIResponse<Product>>(`/Products/Update`, data);
+        const response = await apiService.put<IAPIResponse<Product>>(API_ENDPOINTS.UPDATE_PRODUCT, data);
         const index = this.products.findIndex(p => p.productId === id);
         if (index !== -1 && response.payload) {
           this.products[index] = response.payload;
@@ -83,7 +84,7 @@ export const useProductStore = defineStore("product", {
     async deleteProduct(id: number): Promise<IAPIResponse<object>> {
       try {
         this.loading = true;
-        const response = await apiService.delete<IAPIResponse<object>>(`/Products/Delete`);
+        const response = await apiService.delete<IAPIResponse<object>>(API_ENDPOINTS.DELETE_PRODUCT);
         this.products = this.products.filter(p => p.productId !== id);
         return response;
       } catch (error) {

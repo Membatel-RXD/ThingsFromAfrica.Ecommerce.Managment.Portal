@@ -27,8 +27,10 @@ body {
   background: none;
 }
 
-html, body, #app {
+html, body, #app, .v-application {
   min-height: 100vh;
+  width: 100vw;
+  overflow-y: auto;
 }
 
 .v-application {

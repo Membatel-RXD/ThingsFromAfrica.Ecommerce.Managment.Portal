@@ -1,77 +1,71 @@
 <template>
     <div class="promotions-view">
-      <v-container fluid class="pa-6">
+      <v-container fluid class="pa-6 promotions-main-container">
         <!-- Page Header -->
-        <div class="d-flex justify-space-between align-center mb-6">
-          <div>
-            <h1 class="text-h4 font-weight-bold text-deep-purple-darken-3">Promotions & Discounts</h1>
-            <p class="text-body-1 text-grey-darken-1 mt-1">
-              Manage promotional campaigns and discount codes
-            </p>
-          </div>
-          <v-btn
-            color="deep-purple-darken-2"
-            variant="elevated"
-            prepend-icon="mdi-ticket-percent"
-            @click="openCreateDialog"
-          >
-            Create Promotion
-          </v-btn>
-        </div>
+        <v-row>
+          <v-col cols="12">
+            <div class="d-flex align-center justify-space-between mb-6">
+              <div>
+                <h1 class="text-h4 font-weight-bold text-orange-darken-4 mb-2">
+                  Promotions
+                </h1>
+                <p class="text-subtitle-1 text-grey-darken-2">
+                  Manage your promotional campaigns and discount codes
+                </p>
+              </div>
+              <v-btn color="orange-darken-2" variant="elevated" size="large" @click="openCreateDialog">
+                <v-icon start icon="mdi-plus"></v-icon>
+                Create Promotion
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
   
-        <!-- Statistics Cards -->
+        <!-- Stat Cards -->
         <v-row class="mb-6">
-          <v-col cols="12" md="3">
-            <v-card color="deep-purple-lighten-4" class="pa-4">
-              <div class="d-flex align-center">
-                <v-icon color="deep-purple-darken-3" size="40" class="me-3">mdi-ticket-percent</v-icon>
-                <div>
-                  <h3 class="text-h5 font-weight-bold text-deep-purple-darken-3">{{ totalPromotions }}</h3>
-                  <p class="text-body-2 text-deep-purple-darken-1">Total Promotions</p>
-                </div>
-              </div>
+          <v-col cols="12" sm="3">
+            <v-card color="orange-lighten-3" variant="elevated">
+              <v-card-text class="text-center pa-4">
+                <v-icon size="32" color="orange-darken-2" icon="mdi-ticket-percent" class="mb-2"></v-icon>
+                <h3 class="text-h5 font-weight-bold text-orange-darken-4">{{ totalPromotions }}</h3>
+                <p class="mb-0">Total Promotions</p>
+              </v-card-text>
             </v-card>
           </v-col>
-          <v-col cols="12" md="3">
-            <v-card color="green-lighten-4" class="pa-4">
-              <div class="d-flex align-center">
-                <v-icon color="green-darken-3" size="40" class="me-3">mdi-check-circle</v-icon>
-                <div>
-                  <h3 class="text-h5 font-weight-bold text-green-darken-3">{{ activePromotions }}</h3>
-                  <p class="text-body-2 text-green-darken-1">Active Promotions</p>
-                </div>
-              </div>
+          <v-col cols="12" sm="3">
+            <v-card color="green-lighten-4" variant="elevated">
+              <v-card-text class="text-center pa-4">
+                <v-icon size="32" color="green-darken-2" icon="mdi-check-circle" class="mb-2"></v-icon>
+                <h3 class="text-h5 font-weight-bold text-green-darken-2">{{ activePromotions }}</h3>
+                <p class="mb-0">Active Promotions</p>
+              </v-card-text>
             </v-card>
           </v-col>
-          <v-col cols="12" md="3">
-            <v-card color="orange-lighten-4" class="pa-4">
-              <div class="d-flex align-center">
-                <v-icon color="orange-darken-3" size="40" class="me-3">mdi-clock-outline</v-icon>
-                <div>
-                  <h3 class="text-h5 font-weight-bold text-orange-darken-3">{{ validPromotions }}</h3>
-                  <p class="text-body-2 text-orange-darken-1">Valid Now</p>
-                </div>
-              </div>
+          <v-col cols="12" sm="3">
+            <v-card color="blue-lighten-4" variant="elevated">
+              <v-card-text class="text-center pa-4">
+                <v-icon size="32" color="blue-darken-2" icon="mdi-clock-outline" class="mb-2"></v-icon>
+                <h3 class="text-h5 font-weight-bold text-blue-darken-2">{{ validPromotions }}</h3>
+                <p class="mb-0">Valid Now</p>
+              </v-card-text>
             </v-card>
           </v-col>
-          <v-col cols="12" md="3">
-            <v-card color="blue-lighten-4" class="pa-4">
-              <div class="d-flex align-center">
-                <v-icon color="blue-darken-3" size="40" class="me-3">mdi-airplane</v-icon>
-                <div>
-                  <h3 class="text-h5 font-weight-bold text-blue-darken-3">{{ touristOnlyPromotions }}</h3>
-                  <p class="text-body-2 text-blue-darken-1">Tourist Only</p>
-                </div>
-              </div>
+          <v-col cols="12" sm="3">
+            <v-card color="purple-lighten-4" variant="elevated">
+              <v-card-text class="text-center pa-4">
+                <v-icon size="32" color="purple-darken-2" icon="mdi-airplane" class="mb-2"></v-icon>
+                <h3 class="text-h5 font-weight-bold text-purple-darken-2">{{ touristOnlyPromotions }}</h3>
+                <p class="mb-0">Tourist Only</p>
+              </v-card-text>
             </v-card>
           </v-col>
         </v-row>
   
         <!-- Filters and Search -->
-        <v-card class="mb-6">
-          <v-card-text>
+        <v-card class="elevation-4 mb-6">
+          <v-card-text class="pa-6">
             <v-row>
-              <v-col cols="12" md="3">
+              <v-col cols="12" md="4">
                 <v-text-field
                   v-model="search"
                   label="Search promotions..."
@@ -79,180 +73,60 @@
                   variant="outlined"
                   density="compact"
                   hide-details
-                />
+                ></v-text-field>
               </v-col>
               <v-col cols="12" md="2">
-                <v-select
-                  v-model="statusFilter"
-                  label="Status"
-                  :items="statusOptions"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                />
-              </v-col>
-              <v-col cols="12" md="2">
-                <v-select
-                  v-model="validityFilter"
-                  label="Validity"
-                  :items="validityOptions"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                />
-              </v-col>
-              <v-col cols="12" md="2">
-                <v-select
-                  v-model="typeFilter"
-                  label="Type"
-                  :items="typeOptions"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                />
-              </v-col>
-              <v-col cols="12" md="2">
-                <v-select
-                  v-model="touristFilter"
-                  label="Tourist Only"
-                  :items="touristOptions"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                />
-              </v-col>
-              <v-col cols="12" md="1">
-                <v-btn
-                  color="deep-purple-darken-2"
-                  variant="outlined"
-                  block
-                  @click="clearFilters"
-                >
-                  Clear
+                <v-btn color="orange-darken-2" variant="outlined" block @click="clearFilters">
+                  Clear Filters
                 </v-btn>
               </v-col>
             </v-row>
           </v-card-text>
         </v-card>
   
-        <!-- Promotions Data Table -->
-        <v-card>
-          <v-card-title class="pa-6 bg-deep-purple-lighten-5">
-            <v-icon class="me-2" color="deep-purple-darken-3">mdi-ticket-percent</v-icon>
+        <!-- Promotions Table -->
+        <v-card class="elevation-4">
+          <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
+            <v-icon icon="mdi-ticket-percent" class="me-2"></v-icon>
             Promotions Management
           </v-card-title>
-          
           <v-data-table
             :headers="headers"
             :items="filteredPromotions"
             :loading="promotionStore.loading"
             :search="search"
-            class="elevation-1"
+            class="elevation-0"
             :sort-by="[{ key: 'startDate', order: 'desc' }]"
+            :items-per-page="itemsPerPage"
+            :page.sync="page"
+            show-current-page
+            :footer-props="{ 'items-per-page-options': [10, 20, 50, 100], 'items-per-page-text': 'Items per page:' }"
           >
             <template v-slot:item.promotionCode="{ item }">
-              <v-chip
-                color="deep-purple"
-                size="small"
-                variant="flat"
-                prepend-icon="mdi-tag"
-              >
+              <v-chip color="orange-darken-2" size="small" variant="flat" prepend-icon="mdi-tag">
                 {{ item.promotionCode }}
               </v-chip>
             </template>
-  
             <template v-slot:item.discountValue="{ item }">
               <span class="font-weight-bold">
                 {{ item.isPercentage ? item.discountValue + '%' : '$' + item.discountValue }}
               </span>
             </template>
-  
-            <template v-slot:item.startDate="{ item }">
-              <span class="text-body-2">
-                {{ formatDate(item.startDate) }}
-              </span>
-            </template>
-  
-            <template v-slot:item.endDate="{ item }">
-              <span class="text-body-2">
-                {{ formatDate(item.endDate) }}
-              </span>
-            </template>
-  
             <template v-slot:item.isActive="{ item }">
-              <v-chip
-                :color="item.isActive ? 'green' : 'grey'"
-                size="small"
-                variant="flat"
-              >
+              <v-chip :color="item.isActive ? 'green' : 'grey'" size="small" variant="flat">
                 {{ item.isActive ? 'Active' : 'Inactive' }}
               </v-chip>
             </template>
-  
-            <template v-slot:item.validity="{ item }">
-              <v-chip
-                :color="getValidityColor(item)"
-                size="small"
-                variant="flat"
-              >
-                {{ getValidityStatus(item) }}
-              </v-chip>
-            </template>
-  
-            <template v-slot:item.usage="{ item }">
-              <div class="d-flex align-center">
-                <v-progress-linear
-                  :model-value="(item.currentUsageCount / item.maxUsageCount) * 100"
-                  height="8"
-                  color="deep-purple"
-                  class="me-2"
-                  style="width: 60px;"
-                />
-                <span class="text-body-2">
-                  {{ item.currentUsageCount }}/{{ item.maxUsageCount }}
-                </span>
-              </div>
-            </template>
-  
             <template v-slot:item.isTouristOnly="{ item }">
-              <v-chip
-                :color="item.isTouristOnly ? 'blue' : 'grey'"
-                size="small"
-                variant="flat"
-              >
+              <v-chip :color="item.isTouristOnly ? 'purple-darken-2' : 'grey'" size="small" variant="flat">
                 {{ item.isTouristOnly ? 'Tourist Only' : 'All Users' }}
               </v-chip>
             </template>
-  
             <template v-slot:item.actions="{ item }">
-              <v-btn
-                icon="mdi-eye"
-                variant="text"
-                size="small"
-                color="primary"
-                @click="viewPromotion(item)"
-              />
-              <v-btn
-                icon="mdi-pencil"
-                variant="text"
-                size="small"
-                color="warning"
-                @click="editPromotion(item)"
-              />
-              <v-btn
-                icon="mdi-toggle-switch"
-                variant="text"
-                size="small"
-                color="info"
-                @click="toggleStatus(item)"
-              />
-              <v-btn
-                icon="mdi-delete"
-                variant="text"
-                size="small"
-                color="error"
-                @click="deletePromotion(item)"
-              />
+              <v-btn icon="mdi-eye" size="small" variant="text" color="blue" @click="viewPromotion(item)"></v-btn>
+              <v-btn icon="mdi-pencil" size="small" variant="text" color="orange" @click="editPromotion(item)"></v-btn>
+              <v-btn icon="mdi-toggle-switch" size="small" variant="text" color="info" @click="toggleStatus(item)"></v-btn>
+              <v-btn icon="mdi-delete" size="small" variant="text" color="red" @click="askDeletePromotion(item)"></v-btn>
             </template>
           </v-data-table>
         </v-card>
@@ -404,7 +278,7 @@
                     <v-switch
                       v-model="formData.isTouristOnly"
                       label="Tourist Only"
-                      color="blue"
+                      color="purple-darken-2"
                       hide-details
                     />
                   </v-col>
@@ -512,79 +386,209 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+
+        <!-- Delete Confirmation Dialog -->
+        <v-dialog v-model="deleteDialog" max-width="400px">
+          <v-card>
+            <v-card-title class="pa-6 bg-red-lighten-5">
+              <v-icon class="me-2" color="red-darken-3">mdi-delete</v-icon>
+              Confirm Deletion
+            </v-card-title>
+            <v-card-text class="pa-6 text-center">
+              <p class="text-body-1">Are you sure you want to delete this promotion?</p>
+            </v-card-text>
+            <v-card-actions class="pa-6">
+              <v-btn
+                variant="outlined"
+                @click="deleteDialog = false"
+              >
+                Cancel
+              </v-btn>
+              <v-spacer />
+              <v-btn
+                color="red-darken-2"
+                variant="elevated"
+                @click="confirmDeletePromotion"
+                :loading="saving"
+              >
+                Delete
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-container>
     </div>
   </template>
   
   <script setup lang="ts">
-  import { usePromotionStore } from '@/stores/promotion'
-  import { ref, computed, onMounted } from 'vue'
-  import { useSnackbarStore } from '@/stores/snackbar'
-import { PromotionDTO } from '@/stores/types/member'
-  
-  const promotionStore = usePromotionStore()
-  const snackbar = useSnackbarStore()
-  
-  // Data
-  const saving = ref(false)
-  const dialog = ref(false)
-  const viewDialog = ref(false)
-  const editMode = ref(false)
-  const valid = ref(false)
-  const search = ref('')
-  const statusFilter = ref('all')
-  const validityFilter = ref('all')
-  const typeFilter = ref('all')
-  const touristFilter = ref('all')
-  const selectedPromotion = ref<PromotionDTO | null>(null)
-  
-  // Form data
+  import { ref, computed, onMounted } from 'vue';
+  import { usePromotionStore } from '@/stores/promotion';
+  import { useSnackbarStore } from '@/stores/snackbar';
+
+  const API_BASE = import.meta.env.VITE_API_BASE_URL;
+  const promotionStore = usePromotionStore();
+  const snackbar = useSnackbarStore();
+
+  const dialog = ref(false);
+  const viewDialog = ref(false);
+  const deleteDialog = ref(false);
+  const editMode = ref(false);
+  const saving = ref(false);
+  const valid = ref(false);
+  const deleteId = ref<number|null>(null);
+  const selectedPromotion = ref(null);
+  const search = ref('');
+  const itemsPerPage = ref(10);
+  const page = ref(1);
+
   const formData = ref({
     promotionName: '',
     promotionCode: '',
     description: '',
-    discountValue: 0,
     discountTypeId: 1,
+    discountValue: 0,
     isPercentage: false,
     startDate: '',
     endDate: '',
+    isActive: true,
+    isTouristOnly: false,
     minimumOrderAmount: 0,
     maximumDiscountAmount: 0,
     maxUsageCount: 1,
     maxUsagePerCustomer: 1,
     applicableCountries: '',
-    isActive: true,
-    isTouristOnly: false,
     createdBy: 1
-  })
-  
-  // Options
-  const statusOptions = [
-    { title: 'All', value: 'all' },
-    { title: 'Active', value: 'active' },
-    { title: 'Inactive', value: 'inactive' }
-  ]
-  
-  const validityOptions = [
-    { title: 'All', value: 'all' },
-    { title: 'Valid Now', value: 'valid' },
-    { title: 'Expired', value: 'expired' },
-    { title: 'Future', value: 'future' }
-  ]
-  
-  const typeOptions = [
-    { title: 'All', value: 'all' },
-    { title: 'Percentage', value: 'percentage' },
-    { title: 'Fixed Amount', value: 'fixed' }
-  ]
-  
-  const touristOptions = [
-    { title: 'All', value: 'all' },
-    { title: 'Tourist Only', value: 'tourist' },
-    { title: 'All Users', value: 'all-users' }
-  ]
-  
-  // Table headers
+  });
+
+  async function fetchPromotions() {
+    try {
+      await promotionStore.fetchPromotions();
+    } catch (e: any) {
+      snackbar.error(e?.message || 'Failed to fetch promotions');
+    }
+  }
+
+  onMounted(fetchPromotions);
+
+  function openCreateDialog() {
+    editMode.value = false;
+    formData.value = {
+      promotionName: '',
+      promotionCode: '',
+      description: '',
+      discountTypeId: 1,
+      discountValue: 0,
+      isPercentage: false,
+      startDate: '',
+      endDate: '',
+      isActive: true,
+      isTouristOnly: false,
+      minimumOrderAmount: 0,
+      maximumDiscountAmount: 0,
+      maxUsageCount: 1,
+      maxUsagePerCustomer: 1,
+      applicableCountries: '',
+      createdBy: 1
+    };
+    dialog.value = true;
+  }
+
+  function editPromotion(item: any) {
+    editMode.value = true;
+    formData.value = { ...item };
+    dialog.value = true;
+  }
+
+  function closeDialog() {
+    dialog.value = false;
+    editMode.value = false;
+  }
+
+  async function savePromotion() {
+    saving.value = true;
+    try {
+      if (editMode.value) {
+        const id = formData.value.promotionId;
+        const res = await promotionStore.updatePromotion(id, { ...formData.value, promotionId: id });
+        if (res.isSuccessful) {
+          snackbar.success('Promotion updated successfully');
+          dialog.value = false;
+        } else {
+          snackbar.error(res.remark || 'Failed to update promotion');
+        }
+      } else {
+        const res = await promotionStore.createPromotion({ ...formData.value });
+        if (res.isSuccessful) {
+          snackbar.success('Promotion created successfully');
+          dialog.value = false;
+        } else {
+          snackbar.error(res.remark || 'Failed to create promotion');
+        }
+      }
+      await fetchPromotions();
+    } catch (e: any) {
+      snackbar.error(e?.message || 'Failed to save promotion');
+    } finally {
+      saving.value = false;
+    }
+  }
+
+  function viewPromotion(item: any) {
+    selectedPromotion.value = item;
+    viewDialog.value = true;
+  }
+
+  function askDeletePromotion(item: any) {
+    deleteId.value = item.promotionId;
+    deleteDialog.value = true;
+  }
+
+  async function confirmDeletePromotion() {
+    if (!deleteId.value) return;
+    saving.value = true;
+    try {
+      const res = await promotionStore.deletePromotion(deleteId.value);
+      if (res.isSuccessful) {
+        snackbar.success('Promotion deleted successfully');
+      } else {
+        snackbar.error(res.remark || 'Failed to delete promotion');
+      }
+      await fetchPromotions();
+    } catch (e: any) {
+      snackbar.error(e?.message || 'Failed to delete promotion');
+    } finally {
+      saving.value = false;
+      deleteDialog.value = false;
+      deleteId.value = null;
+    }
+  }
+
+  async function toggleStatus(item: any) {
+    try {
+      const res = await promotionStore.updatePromotion(item.promotionId, { ...item, isActive: !item.isActive });
+      if (res.isSuccessful) {
+        snackbar.success(`Promotion ${item.isActive ? 'deactivated' : 'activated'} successfully`);
+        await fetchPromotions();
+      } else {
+        snackbar.error(res.remark || 'Failed to update status');
+      }
+    } catch (e: any) {
+      snackbar.error(e?.message || 'Failed to update status');
+    }
+  }
+
+  function clearFilters() {
+    search.value = '';
+  }
+
+  const filteredPromotions = computed(() => {
+    const s = search.value.toLowerCase();
+    return promotionStore.getPromotions.filter((item: any) =>
+      item.promotionName.toLowerCase().includes(s) ||
+      item.promotionCode.toLowerCase().includes(s)
+    );
+  });
+
   const headers = [
     { title: 'Code', key: 'promotionCode' },
     { title: 'Name', key: 'promotionName' },
@@ -592,52 +596,15 @@ import { PromotionDTO } from '@/stores/types/member'
     { title: 'Start Date', key: 'startDate' },
     { title: 'End Date', key: 'endDate' },
     { title: 'Status', key: 'isActive' },
-    { title: 'Validity', key: 'validity' },
     { title: 'Usage', key: 'usage' },
     { title: 'Tourist Only', key: 'isTouristOnly' },
     { title: 'Actions', key: 'actions', sortable: false }
-  ]
-  
-  // Validation rules
-  const rules = {
-    required: (value: string) => !!value || 'This field is required',
-    number: (value: any) => !isNaN(value) || 'Must be a number'
+  ];
+
+  function formatDate(date: string) {
+    if (!date) return '';
+    return new Date(date).toLocaleDateString();
   }
-  
-  // Computed properties
-  const filteredPromotions = computed(() => {
-    let filtered = promotionStore.getPromotions
-  
-    if (statusFilter.value === 'active') {
-      filtered = filtered.filter(item => item.isActive)
-    } else if (statusFilter.value === 'inactive') {
-      filtered = filtered.filter(item => !item.isActive)
-    }
-  
-    if (validityFilter.value === 'valid') {
-      filtered = promotionStore.getValidPromotions
-    } else if (validityFilter.value === 'expired') {
-      const now = new Date()
-      filtered = filtered.filter(item => new Date(item.endDate) < now)
-    } else if (validityFilter.value === 'future') {
-      const now = new Date()
-      filtered = filtered.filter(item => new Date(item.startDate) > now)
-    }
-  
-    if (typeFilter.value === 'percentage') {
-      filtered = filtered.filter(item => item.isPercentage)
-    } else if (typeFilter.value === 'fixed') {
-      filtered = filtered.filter(item => !item.isPercentage)
-    }
-  
-    if (touristFilter.value === 'tourist') {
-      filtered = filtered.filter(item => item.isTouristOnly)
-    } else if (touristFilter.value === 'all-users') {
-      filtered = filtered.filter(item => !item.isTouristOnly)
-    }
-  
-    return filtered
-  })
   
   const totalPromotions = computed(() => promotionStore.getPromotions.length)
   const activePromotions = computed(() => promotionStore.getActivePromotions.length)
@@ -645,17 +612,7 @@ import { PromotionDTO } from '@/stores/types/member'
   const touristOnlyPromotions = computed(() => promotionStore.getTouristOnlyPromotions.length)
   
   // Methods
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-  
-  const getValidityStatus = (promotion: PromotionDTO) => {
+  const getValidityStatus = (promotion: any) => {
     const now = new Date()
     const start = new Date(promotion.startDate)
     const end = new Date(promotion.endDate)
@@ -666,7 +623,7 @@ import { PromotionDTO } from '@/stores/types/member'
     return 'Valid'
   }
   
-  const getValidityColor = (promotion: PromotionDTO) => {
+  const getValidityColor = (promotion: any) => {
     const status = getValidityStatus(promotion)
     switch (status) {
       case 'Valid': return 'green'
@@ -677,150 +634,8 @@ import { PromotionDTO } from '@/stores/types/member'
     }
   }
   
-  const openCreateDialog = () => {
-    editMode.value = false
-    const now = new Date()
-    const futureDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
-    
-    formData.value = {
-      promotionName: '',
-      promotionCode: '',
-      description: '',
-      discountValue: 0,
-      discountTypeId: 1,
-      isPercentage: false,
-      startDate: now.toISOString().slice(0, 16),
-      endDate: futureDate.toISOString().slice(0, 16),
-      minimumOrderAmount: 0,
-      maximumDiscountAmount: 0,
-      maxUsageCount: 1,
-      maxUsagePerCustomer: 1,
-      applicableCountries: '',
-      isActive: true,
-      isTouristOnly: false,
-      createdBy: 1
-    }
-    dialog.value = true
+  const rules = {
+    required: (value: string) => !!value || 'This field is required',
+    number: (value: any) => !isNaN(value) || 'Must be a number'
   }
-  
-  const editPromotion = (item: PromotionDTO) => {
-    editMode.value = true
-    formData.value = {
-      ...item,
-      startDate: new Date(item.startDate).toISOString().slice(0, 16),
-      endDate: new Date(item.endDate).toISOString().slice(0, 16)
-    }
-    dialog.value = true
-  }
-  
-  const viewPromotion = (item: PromotionDTO) => {
-    selectedPromotion.value = item
-    viewDialog.value = true
-  }
-  
-  const closeDialog = () => {
-    dialog.value = false
-    formData.value = {
-      promotionName: '',
-      promotionCode: '',
-      description: '',
-      discountValue: 0,
-      discountTypeId: 1,
-      isPercentage: false,
-      startDate: '',
-      endDate: '',
-      minimumOrderAmount: 0,
-      maximumDiscountAmount: 0,
-      maxUsageCount: 1,
-      maxUsagePerCustomer: 1,
-      applicableCountries: '',
-      isActive: true,
-      isTouristOnly: false,
-      createdBy: 1
-    }
-  }
-  
-  const savePromotion = async () => {
-    saving.value = true
-    
-    try {
-      // Convert dates to ISO strings
-      const promotionData = {
-        ...formData.value,
-        startDate: new Date(formData.value.startDate).toISOString(),
-        endDate: new Date(formData.value.endDate).toISOString(),
-        currentUsageCount:0
-      }
-  
-      if (editMode.value) {
-        const response = await promotionStore.updatePromotion(selectedPromotion.value?.promotionId!, promotionData)
-        if (response.isSuccessful) {
-          snackbar.success('Promotion updated successfully')
-          closeDialog()
-        } else {
-          snackbar.error('Error updating promotion')
-        }
-      } else {
-        const response = await promotionStore.createPromotion(promotionData)
-        if (response.isSuccessful) {
-          snackbar.success('Promotion created successfully')
-          closeDialog()
-        } else {
-          snackbar.error('Error creating promotion')
-        }
-      }
-    } catch (error) {
-      console.error('Error saving promotion:', error)
-      snackbar.error('Error saving promotion')
-    } finally {
-      saving.value = false
-    }
-  }
-  
-  const deletePromotion = async (item: PromotionDTO) => {
-    if (confirm(`Are you sure you want to delete ${item.promotionName}?`)) {
-      try {
-        const response = await promotionStore.deletePromotion(item.promotionId)
-        if (response.isSuccessful) {
-          snackbar.success('Promotion deleted successfully')
-        } else {
-          snackbar.error('Error deleting promotion')
-        }
-      } catch (error) {
-        console.error('Error deleting promotion:', error)
-        snackbar.error('Error deleting promotion')
-      }
-    }
-  }
-  
-  const toggleStatus = async (item: PromotionDTO) => {
-    try {
-      const response = await promotionStore.updatePromotion(item.promotionId, {
-        ...item,
-        isActive: !item.isActive
-      })
-      if (response.isSuccessful) {
-        snackbar.success(`Promotion ${item.isActive ? 'deactivated' : 'activated'} successfully`)
-      } else {
-        snackbar.error('Error updating promotion status')
-      }
-    } catch (error) {
-      console.error('Error toggling status:', error)
-      snackbar.error('Error updating promotion status')
-    }
-  }
-  
-  const clearFilters = () => {
-    search.value = ''
-    statusFilter.value = ''
-  }
-  
-  onMounted(async () => {
-    try {
-      await promotionStore.fetchPromotions()
-    } catch (error) {
-      console.error('Error fetching categories:', error)
-      snackbar.error('Error loading categories')
-    }
-  })
   </script>

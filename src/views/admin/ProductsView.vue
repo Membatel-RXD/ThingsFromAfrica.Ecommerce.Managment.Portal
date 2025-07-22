@@ -13,9 +13,9 @@
                 Manage your product catalog, inventory, and pricing
               </p>
             </div>
-            <v-btn color="orange-darken-2" variant="elevated" size="large" @click="showAddDialog = true">
-              <v-icon start icon="mdi-plus"></v-icon>
-              Add Product
+            <v-btn color="orange-darken-2" variant="elevated" size="large" @click="exportDialog = true">
+              <v-icon start icon="mdi-file-delimited"></v-icon>
+              Export CSV
             </v-btn>
           </div>
         </v-col>
@@ -169,19 +169,45 @@
         </v-data-table>
       </v-card>
     </v-container>
-    <!-- Product Add Dialog -->
-    <ProductFormDialog v-model="showAddDialog" @submit="handleAddProduct" />
+    <v-dialog v-model="exportDialog" max-width="400">
+      <v-card>
+        <v-card-title class="font-weight-bold">Export Products as CSV</v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="startDate"
+            label="Start Date"
+            type="date"
+            prepend-inner-icon="mdi-calendar"
+            class="mb-4"
+          />
+          <v-text-field
+            v-model="endDate"
+            label="End Date"
+            type="date"
+            prepend-inner-icon="mdi-calendar"
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn text @click="exportDialog = false">Cancel</v-btn>
+          <v-btn color="orange-darken-2" variant="elevated" @click="exportProducts">Export CSV</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useProductStore } from '@/stores/product';
-import ProductFormDialog from './ProductFormDialog.vue';
 import { useSnackbarStore } from '@/stores/snackbar';
 
 const productStore = useProductStore();
 const snackbar = useSnackbarStore();
+
+const startDate = ref('');
+const endDate = ref('');
+const exportDialog = ref(false);
 
 const categoryOptions = ['All', 'Furniture', 'Accessories', 'Decor', 'Kitchenware'];
 const statusOptions = ['All', 'Active', 'Inactive'];
@@ -248,20 +274,37 @@ const stats = computed(() => {
   return { totalProducts, activeProducts, totalCategories, avgPrice };
 });
 
-const showAddDialog = ref(false);
-const addingProduct = ref(false);
-
-async function handleAddProduct(productData: any) {
-  addingProduct.value = true;
-  try {
-    await productStore.createProduct(productData);
-    snackbar.success('Product added successfully');
-  } catch (e) {
-    snackbar.error('Failed to add product');
-  } finally {
-    addingProduct.value = false;
-    showAddDialog.value = false;
+function exportProducts() {
+  // Simple CSV export logic with date filtering
+  let products = productStore.getProducts;
+  if (startDate.value) {
+    products = products.filter(p => p.createdAt && p.createdAt >= startDate.value);
   }
+  if (endDate.value) {
+    products = products.filter(p => p.createdAt && p.createdAt <= endDate.value);
+  }
+  if (!products.length) {
+    snackbar.info('No products to export for selected date range');
+    return;
+  }
+  const headers = Object.keys(products[0]);
+  const csvRows = [headers.join(',')];
+  for (const product of products) {
+    const row = headers.map(h => JSON.stringify(product[h] ?? ''));
+    csvRows.push(row.join(','));
+  }
+  const csvContent = csvRows.join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'products_export.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  snackbar.success('Products exported as CSV');
+  exportDialog.value = false;
 }
 
 function handleViewProduct(item) {

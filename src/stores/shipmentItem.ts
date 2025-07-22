@@ -58,7 +58,7 @@ export const useShipmentItemStore = defineStore('shipmentItem', {
       this.loading = true;
       this.error = null;
       try {
-        const res = await apiService.put<IAPIResponse<ShipmentItem>>('ShipmentItems/Update', { ...data, shipmentItemId: id });
+        const res = await apiService.put<IAPIResponse<ShipmentItem>>(`ShipmentItems/Update?shipmentitemid=${id}`, data);
         const idx = this.items.findIndex(i => i.shipmentItemId === id);
         if (idx !== -1 && res.payload) this.items[idx] = res.payload;
         this.success = 'Shipment item updated';
@@ -73,7 +73,7 @@ export const useShipmentItemStore = defineStore('shipmentItem', {
       this.loading = true;
       this.error = null;
       try {
-        const res = await apiService.delete<IAPIResponse<object>>(`ShipmentItems/Delete?id=${id}`);
+        const res = await apiService.delete<IAPIResponse<object>>(`ShipmentItems/Delete?shipmentitemid=${id}`);
         if (res.isSuccessful) {
           this.items = this.items.filter(i => i.shipmentItemId !== id);
           this.success = 'Shipment item deleted';

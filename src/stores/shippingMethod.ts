@@ -59,7 +59,7 @@ export const useShippingMethodStore = defineStore('shippingMethod', {
       this.loading = true;
       this.error = null;
       try {
-        const res = await apiService.put<IAPIResponse<ShippingMethod>>("ShippingMethods/Update", { ...data, shippingMethodId: id });
+        const res = await apiService.put<IAPIResponse<ShippingMethod>>(`ShippingMethods/Update?shippingmethodid=${id}`, data);
         const idx = this.methods.findIndex(m => m.shippingMethodId === id);
         if (idx !== -1 && res.payload) this.methods[idx] = res.payload;
         this.success = 'Shipping method updated';
@@ -74,7 +74,7 @@ export const useShippingMethodStore = defineStore('shippingMethod', {
       this.loading = true;
       this.error = null;
       try {
-        const res = await apiService.delete<IAPIResponse<object>>(`ShippingMethods/Delete?id=${id}`);
+        const res = await apiService.delete<IAPIResponse<object>>(`ShippingMethods/Delete?shippingmethodid=${id}`);
         if (res.isSuccessful) {
           this.methods = this.methods.filter(m => m.shippingMethodId !== id);
           this.success = 'Shipping method deleted';

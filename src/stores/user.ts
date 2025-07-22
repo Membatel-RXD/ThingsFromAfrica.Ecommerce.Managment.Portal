@@ -1,20 +1,22 @@
 import { defineStore } from "pinia";
 import { apiService, type IAPIResponse } from "@/services/api";
+import { API_ENDPOINTS } from "@/config/api-endpoints";
 import type { LoginCredentials, AuthenticationResponse } from "./types/member";
+import type { UserRole } from "./types/userRole";
 
 interface User {
   userId: number;
   username: string;
   email: string;
   token: string;
-  role: any; // simplified, since UserRoleRequest is removed
+  role: UserRole | null;
 }
 
 export const useUserStore = defineStore('user', {
   state: () => ({
     user: null as User | null,
-    isAuthenticated: false,
-    role: null as string | null,
+    isAuthenticated: true, // Force sidebar/header to show for dev
+    role: null as UserRole | null,
     token: null as string | null,
     users: [] as User[],
     isInitialized: false, 
@@ -52,12 +54,12 @@ export const useUserStore = defineStore('user', {
       }
     },
     hasRole(requiredRole: string): boolean {
-      return this.role === requiredRole;
+      return this.role?.roleName === requiredRole;
     },
     async login(email: string, password: string) {
       try {
         const credentials: LoginCredentials = { Email: email, password };
-        const apiResponse = await apiService.post<IAPIResponse<AuthenticationResponse>>("/Users/Authenticate", credentials);
+        const apiResponse = await apiService.post<IAPIResponse<AuthenticationResponse>>(API_ENDPOINTS.LOGIN, credentials);
         if (apiResponse && apiResponse.isSuccessful && apiResponse.payload) {
 
           const response = apiResponse.payload;
@@ -66,11 +68,11 @@ export const useUserStore = defineStore('user', {
             username: response.userName,
             email: response.email,
             token: response.token,
-            role: response.userRole?.roleName,
+            role: response.userRole,
           };
           this.isAuthenticated = true;
           this.token = response.token;
-          this.role = response.userRole?.roleName;
+          this.role = response.userRole;
          
           return apiResponse;
         } else {
@@ -81,38 +83,6 @@ export const useUserStore = defineStore('user', {
         throw error;
       }
     },
-    loginLocal(email: string, password: string): boolean {
-      // Hardcoded credentials for development only
-      const validUser = {
-        email: 'admin@thingsfromafrica.com',
-        password: 'admin123!',
-        role: 'superadmin',
-        username: 'admin',
-        userId: 1,
-        token: 'local-dev-token',
-      };
-      if (email === validUser.email && password === validUser.password) {
-        this.user = {
-          userId: validUser.userId,
-          username: validUser.username,
-          email: validUser.email,
-          token: validUser.token,
-          role: validUser.role,
-        };
-        this.isAuthenticated = true;
-        this.token = validUser.token;
-        this.role = validUser.role;
-        this.isInitialized = true;
-        localStorage.setItem('user', JSON.stringify(this.user));
-        return true;
-      } else {
-        this.user = null;
-        this.isAuthenticated = false;
-        this.token = null;
-        this.role = null;
-        return false;
-      }
-    }
   },
 
   persist: {

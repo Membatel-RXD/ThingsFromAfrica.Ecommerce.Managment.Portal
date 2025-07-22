@@ -317,15 +317,3 @@ const showNotification = (text:string, color:string) => {
   }
 }
 </style>
-
-<style>
-html, body, #app {
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  background: #fff !important;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-</style>

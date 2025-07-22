@@ -212,46 +212,47 @@ export interface Order {
   billingFirstName: string;
   billingLastName: string;
   billingAddressLine1: string;
-  billingAddressLine2: string;
   billingCity: string;
-  billingStateProvince: string;
-  billingPostalCode: string;
   billingCountryCode: string;
   billingCountryName: string;
-  billingCompany: string;
   shippingFirstName: string;
   shippingLastName: string;
   shippingAddressLine1: string;
-  shippingAddressLine2: string;
   shippingCity: string;
-  shippingStateProvince: string;
-  shippingPostalCode: string;
   shippingCountryCode: string;
   shippingCountryName: string;
-  shippingCompany: string;
   subTotal: number;
   totalAmount: number;
-  taxAmount: number;
-  shippingAmount: number;
-  discountAmount: number;
   currency: string;
   isTouristOrder: boolean;
   touristCountry: string;
   requiresPhytosanitaryCertificate: boolean;
   customerNotes: string;
   adminNotes: string;
-  orderDate: string; // ISO date string
-  requiredDate: string; // ISO date string
-  shippedDate: string; // ISO date string
-  deliveredDate: string; // ISO date string
-  createdAt: string; // ISO date string
-  modifiedAt: string; // ISO date string
+  orderDate: string;
+  requiredDate: string;
+  shippedDate: string;
+  deliveredDate: string;
+  createdAt: string;
+  modifiedAt: string;
   createdBy: number;
   modifiedBy: number;
+  taxAmount: number;
+  shippingAmount: number;
+  discountAmount: number;
+  shippingStateProvince: string;
+  shippingPostalCode: string;
+  shippingAddressLine2: string;
+  shippingCompany: string;
+  billingStateProvince: string;
+  billingPostalCode: string;
+  billingAddressLine2: string;
+  billingCompany: string;
   customerId: number;
   customerPhone: string;
-  status: string;
 }
+
+export interface CreateOrder extends Omit<Order, 'orderId' | 'createdAt' | 'modifiedAt'> {}
 export interface Customer extends User{
   
 }
@@ -563,3 +564,44 @@ export interface Shipment {
 }
 
 export interface CreateShipment extends Omit<Shipment, 'shipmentId' | 'createdAt'> {}
+
+export interface OrderItem {
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
+  currency: string;
+  orderItemId: number;
+  orderId: number;
+  productId: number;
+  productName: string;
+  productSKU: string;
+  woodType: string;
+  artisanName: string;
+  specialInstructions: string;
+  giftMessage: string;
+  giftWrapRequired: boolean;
+  createdAt?: string;
+}
+
+export interface CreateOrderItem extends Omit<OrderItem, 'orderItemId' | 'createdAt'> {}
+
+export interface OrderStatus {
+  statusId: number;
+  statusName: string;
+  statusDescription: string;
+  isActive: boolean;
+  sortOrder: number;
+}
+
+export interface CreateOrderStatus extends Omit<OrderStatus, 'statusId'> {}
+
+export interface OrderStatusHistory {
+  newStatus: string;
+  historyId: number;
+  orderId: number;
+  oldStatus: string;
+  statusDate: string;
+  notes: string;
+  updatedBy: number;
+  isCustomerNotified: boolean;
+}

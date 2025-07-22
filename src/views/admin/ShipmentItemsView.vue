@@ -135,8 +135,8 @@
           </template>
           <template v-slot:item.actions="{ item }">
             <v-btn icon="mdi-eye" variant="text" size="small" color="blue" @click="viewItem(item)" />
-            <v-btn icon="mdi-pencil" variant="text" size="small" color="primary" @click="editItem(item)" />
-            <v-btn icon="mdi-delete" variant="text" size="small" color="error" @click="deleteItem(item)" />
+            <v-btn icon="mdi-pencil" variant="text" size="small" color="primary" @click="openEditDialog(item)" />
+            <v-btn icon="mdi-delete" variant="text" size="small" color="error" @click="openDeleteDialog(item)" />
           </template>
         </v-data-table>
       </v-card>
@@ -215,6 +215,57 @@
       </v-card>
     </v-dialog>
 
+    <!-- Edit Dialog -->
+    <v-dialog v-model="editDialog" max-width="600">
+      <v-card>
+        <v-card-title class="pa-4" style="background:#fff3e0;">
+          <v-icon color="orange" class="me-2">mdi-package-variant</v-icon>
+          Edit Shipment Item
+        </v-card-title>
+        <v-card-text>
+          <v-form ref="editForm" v-model="editFormValid">
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-text-field v-model="editItemData.productName" label="Product Name" prepend-inner-icon="mdi-cube-outline" :rules="[rules.required]" required />
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-text-field v-model="editItemData.productId" label="Product ID" prepend-inner-icon="mdi-pound" type="number" :rules="[rules.required]" required />
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-text-field v-model="editItemData.shipmentId" label="Shipment ID" prepend-inner-icon="mdi-truck" type="number" :rules="[rules.required]" required />
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-text-field v-model="editItemData.orderItemId" label="Order Item ID" prepend-inner-icon="mdi-format-list-numbered" type="number" :rules="[rules.required]" required />
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-text-field v-model="editItemData.quantity" label="Quantity" prepend-inner-icon="mdi-counter" type="number" :rules="[rules.required]" required />
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-text-field v-model="editItemData.customsValue" label="Customs Value" prepend-inner-icon="mdi-cash" type="number" :rules="[rules.required]" required />
+              </v-col>
+              <v-col cols="12">
+                <v-text-field v-model="editItemData.customsDescription" label="Customs Description" prepend-inner-icon="mdi-text" />
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-text-field v-model="editItemData.harmonizedCode" label="Harmonized Code" prepend-inner-icon="mdi-barcode" />
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-text-field v-model="editItemData.countryOfOrigin" label="Country of Origin" prepend-inner-icon="mdi-earth" />
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-text-field v-model="editItemData.createdAt" label="Created At" prepend-inner-icon="mdi-calendar" type="date" />
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="editDialog = false">Cancel</v-btn>
+          <v-btn color="orange-darken-2" :disabled="!editFormValid" @click="submitEditShipmentItem">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Delete Confirmation Dialog -->
     <v-dialog v-model="deleteDialog" max-width="400">
       <v-card>
@@ -229,7 +280,7 @@
         <v-card-actions class="pa-6">
           <v-spacer></v-spacer>
           <v-btn color="grey-darken-1" variant="outlined" @click="deleteDialog = false">Cancel</v-btn>
-          <v-btn color="red-darken-2" variant="elevated" @click="confirmDelete">Delete</v-btn>
+          <v-btn color="red-darken-2" variant="elevated" @click="confirmDeleteShipmentItem">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -345,8 +396,10 @@ const createShipmentItem = async () => {
     customsDescription: newItem.value.customsDescription,
     harmonizedCode: newItem.value.harmonizedCode,
     countryOfOrigin: newItem.value.countryOfOrigin,
+    createdAt: newItem.value.createdAt,
   };
   await shipmentItemStore.addItem(payload);
+  await shipmentItemStore.fetchItems();
   if (shipmentItemStore.error) {
     snackbar.error(shipmentItemStore.error);
   } else {
@@ -401,6 +454,60 @@ const confirmDelete = async () => {
   deleteDialog.value = false;
   itemToDelete.value = null;
 };
+
+const editDialog = ref(false);
+const editForm = ref();
+const editFormValid = ref(false);
+const editItemData = ref<any>({});
+
+function openEditDialog(item: any) {
+  editDialog.value = true;
+  Object.assign(editItemData.value, { ...item });
+  editFormValid.value = false;
+  if (editForm.value) editForm.value.resetValidation();
+}
+
+async function submitEditShipmentItem() {
+  if (!editForm.value?.validate()) return;
+  await shipmentItemStore.updateItem(editItemData.value.shipmentItemId, {
+    productName: editItemData.value.productName,
+    productId: Number(editItemData.value.productId),
+    shipmentId: Number(editItemData.value.shipmentId),
+    orderItemId: Number(editItemData.value.orderItemId),
+    quantity: Number(editItemData.value.quantity),
+    customsValue: Number(editItemData.value.customsValue),
+    customsDescription: editItemData.value.customsDescription,
+    harmonizedCode: editItemData.value.harmonizedCode,
+    countryOfOrigin: editItemData.value.countryOfOrigin,
+    createdAt: editItemData.value.createdAt,
+  });
+  await shipmentItemStore.fetchItems();
+  if (shipmentItemStore.error) {
+    snackbar.error(shipmentItemStore.error);
+  } else {
+    snackbar.success('Shipment item updated successfully');
+  }
+  editDialog.value = false;
+}
+
+function openDeleteDialog(item: any) {
+  itemToDelete.value = item;
+  deleteDialog.value = true;
+}
+
+async function confirmDeleteShipmentItem() {
+  if (itemToDelete.value) {
+    await shipmentItemStore.deleteItem(itemToDelete.value.shipmentItemId);
+    await shipmentItemStore.fetchItems();
+    if (shipmentItemStore.error) {
+      snackbar.error(shipmentItemStore.error);
+    } else {
+      snackbar.success('Shipment item deleted successfully');
+    }
+  }
+  deleteDialog.value = false;
+  itemToDelete.value = null;
+}
 
 onMounted(() => {
   shipmentItemStore.fetchItems();

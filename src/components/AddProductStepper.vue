@@ -1,10 +1,5 @@
 <template>
-  <v-dialog
-    :model-value="modelValue"
-    @update:model-value="val => emit('update:modelValue', val)"
-    max-width="700px"
-    persistent
-  >
+  <v-dialog v-model="internalOpen" max-width="700px" persistent>
     <v-card>
       <!-- Header with icon and title -->
       <div class="d-flex align-center pa-4" style="background: #fff3e0;">
@@ -201,41 +196,36 @@
             </v-col>
           </v-row>
           <v-row v-else-if="step === 8">
-            <!-- Metadata -->
-            <v-col cols="12" md="4">
-              <v-text-field v-model="form.metaTitle" label="Meta Title" prepend-inner-icon="mdi-tag" />
+            <!-- SEO & Year -->
+            <v-col cols="12" md="6">
+              <v-text-field v-model="form.metaTitle" label="Meta Title" prepend-inner-icon="mdi-tag-text-outline" />
             </v-col>
-            <v-col cols="12" md="4">
+            <v-col cols="12" md="6">
               <v-text-field v-model="form.metaDescription" label="Meta Description" prepend-inner-icon="mdi-text" />
             </v-col>
-            <v-col cols="12" md="4">
-              <v-text-field v-model="form.metaKeywords" label="Meta Keywords" prepend-inner-icon="mdi-key" />
+            <v-col cols="12" md="6">
+              <v-text-field v-model="form.metaKeywords" label="Meta Keywords" prepend-inner-icon="mdi-tag" />
             </v-col>
-            <v-col cols="12" md="4">
+            <v-col cols="12" md="6">
               <v-text-field v-model.number="form.yearMade" label="Year Made" type="number" prepend-inner-icon="mdi-calendar" />
             </v-col>
-            <v-col cols="12" md="4">
-              <v-switch v-model="form.isAntique" label="Is Antique" color="brown" />
+            <v-col cols="12" md="6">
+              <v-switch v-model="form.isAntique" label="Antique" color="brown" />
             </v-col>
-            <v-col cols="12" md="4">
-              <v-text-field v-model="form.ageCategory" label="Age Category" prepend-inner-icon="mdi-timer-sand" />
+            <v-col cols="12" md="6">
+              <v-select v-model="form.ageCategory" :items="ageCategoryOptions" label="Age Category" prepend-inner-icon="mdi-timeline" />
             </v-col>
           </v-row>
           <div class="d-flex justify-space-between mt-6">
-            <v-btn variant="text" color="error" @click="$emit('update:modelValue', false)">Cancel</v-btn>
-            <div>
-              <v-btn v-if="step > 1" variant="text" @click="step--">Back</v-btn>
-              <v-btn
-                v-if="step < 8"
-                :color="'orange-darken-2'"
-                :disabled="!isSectionValid(step)"
-                :style="!isSectionValid(step) ? 'opacity: 0.5;' : ''"
-                @click="step++"
-              >
-                Next
-              </v-btn>
-              <v-btn v-if="step === 8" color="success" type="submit">Submit</v-btn>
-            </div>
+            <v-btn variant="tonal" color="orange-darken-2" size="large" class="px-8 py-3" @click="prevStep" :disabled="step === 1">
+              <v-icon left>mdi-arrow-left</v-icon> Back
+            </v-btn>
+            <v-btn v-if="step < 8" color="orange-darken-2" size="large" class="px-8 py-3" @click="nextStep">
+              Next <v-icon right>mdi-arrow-right</v-icon>
+            </v-btn>
+            <v-btn v-else color="success" size="large" class="px-8 py-3" type="submit">
+              <v-icon left>mdi-check-circle-outline</v-icon> Submit
+            </v-btn>
           </div>
         </v-form>
       </v-card-text>
@@ -243,177 +233,154 @@
   </v-dialog>
 </template>
 
-<script setup lang="ts">
-import { ref, watch } from 'vue';
-const props = defineProps({
-  modelValue: Boolean
-});
-const emit = defineEmits(['update:modelValue']);
-const step = ref(1);
-const sectionTitles = [
-  'Basic Product Info',
-  'Artisan Info',
-  'Physical Specs',
-  'Wood & Craft Details',
-  'Cultural & Storytelling',
-  'Inventory & Stock',
-  'Extra Options',
-  'Metadata'
-];
+<script>
+import { useProductStore } from '@/stores/product';
+import { useSnackbarStore } from '@/stores/snackbar';
 
-// Mock options for selects
-const categoryOptions = [
-  { title: 'Furniture', value: 1 },
-  { title: 'Accessories', value: 2 },
-  { title: 'Decor', value: 3 }
-];
-const craftTypeOptions = [
-  { title: 'Carving', value: 1 },
-  { title: 'Weaving', value: 2 }
-];
-const woodTypeOptions = [
-  { title: 'Oak', value: 1 },
-  { title: 'Mahogany', value: 2 }
-];
-const artisanOptions = [
-  { title: 'John Doe', value: 1, name: 'John Doe', village: 'Village A', story: 'A skilled artisan.' },
-  { title: 'Jane Smith', value: 2, name: 'Jane Smith', village: 'Village B', story: 'Expert in weaving.' }
-];
-const currencyOptions = ['MWK', 'USD'];
-const stockStatusOptions = ['In Stock', 'Low Stock', 'Out of Stock'];
-const productStatusOptions = ['Active', 'Inactive', 'Archived'];
-
-const form = ref({
-  // Section 1
-  productName: '',
-  productSlug: '',
-  sku: '',
-  itemCode: '',
-  productDescription: '',
-  shortDescription: '',
-  basePrice: 0,
-  localPrice: 0,
-  touristPrice: 0,
-  usdPrice: 0,
-  currency: '',
-  categoryId: null,
-  craftTypeId: null,
-  woodTypeId: null,
-  mainImageFile: null as File | null,
-  mainImageUrl: '',
-  galleryImages: [] as File[],
-  // Section 2
-  artisanId: null,
-  artisanName: '',
-  artisanVillage: '',
-  artisanStory: '',
-  // Section 3
-  weight: 0,
-  length: 0,
-  width: 0,
-  height: 0,
-  shippingWeight: 0,
-  packingFriendly: false,
-  shippingFragile: false,
-  // Section 4
-  woodType: '',
-  woodOrigin: '',
-  woodColor: '',
-  woodGrain: '',
-  woodHardness: '',
-  woodFinish: '',
-  craftingTechnique: '',
-  craftingTime: '',
-  difficultyLevel: '',
-  // Section 5
-  culturalSignificance: '',
-  tribalOrigin: '',
-  culturalStory: '',
-  traditionalUse: '',
-  // Section 6
-  stockQuantity: 0,
-  lowStockThreshold: 0,
-  stockStatus: '',
-  productStatus: '',
-  isUnique: false,
-  isVisible: true,
-  isFeatured: false,
-  isAuthentic: false,
-  isCertified: false,
-  // Section 7
-  giftWrappingAvailable: false,
-  personalizationAvailable: false,
-  careInstructions: '',
-  cleaningInstructions: '',
-  storageInstructions: '',
-  // Section 8
-  metaTitle: '',
-  metaDescription: '',
-  metaKeywords: '',
-  yearMade: 0,
-  isAntique: false,
-  ageCategory: ''
-});
-
-watch(() => props.modelValue, (val) => {
-  if (!val) {
-    // Reset form when dialog closes
-    step.value = 1;
-    form.value = {
-      productName: '', sku: '', itemCode: '', productDescription: '', shortDescription: '', basePrice: 0, localPrice: 0, touristPrice: 0, usdPrice: 0, currency: '', categoryId: null, craftTypeId: null, woodTypeId: null, mainImageFile: null, mainImageUrl: '', galleryImages: [], artisanId: null, artisanName: '', artisanVillage: '', artisanStory: '', weight: 0, length: 0, width: 0, height: 0, shippingWeight: 0, packingFriendly: false, shippingFragile: false, woodType: '', woodOrigin: '', woodColor: '', woodGrain: '', woodHardness: '', woodFinish: '', craftingTechnique: '', craftingTime: '', difficultyLevel: '', culturalSignificance: '', tribalOrigin: '', culturalStory: '', traditionalUse: '', stockQuantity: 0, lowStockThreshold: 0, stockStatus: '', productStatus: '', isUnique: false, isVisible: true, isFeatured: false, isAuthentic: false, isCertified: false, giftWrappingAvailable: false, personalizationAvailable: false, careInstructions: '', cleaningInstructions: '', storageInstructions: '', metaTitle: '', metaDescription: '', metaKeywords: '', yearMade: 0, isAntique: false, ageCategory: ''
-    };
-  }
-});
-
-function autoSlug() {
-  form.value.productSlug = form.value.productName
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9\-]/g, '')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-function fillArtisanInfo() {
-  const selected = artisanOptions.find(a => a.value === form.value.artisanId);
-  if (selected) {
-    form.value.artisanName = selected.name;
-    form.value.artisanVillage = selected.village;
-    form.value.artisanStory = selected.story;
-  } else {
-    form.value.artisanName = '';
-    form.value.artisanVillage = '';
-    form.value.artisanStory = '';
+export default {
+  name: 'AddProductStepper',
+  props: {
+    open: {
+      type: Boolean,
+      required: true
+    }
+  },
+  data() {
+    return {
+      internalOpen: false,
+      step: 1,
+      form: {
+        productName: '',
+        productSlug: '',
+        sku: '',
+        itemCode: '',
+        categoryId: null,
+        craftTypeId: null,
+        woodTypeId: null,
+        artisanId: null,
+        basePrice: 0,
+        touristPrice: 0,
+        localPrice: 0,
+        stockQuantity: 0,
+        isUnique: false,
+        isVisible: true,
+        productDescription: '',
+        shortDescription: '',
+        mainImageUrl: '',
+        galleryImages: '',
+        metaTitle: '',
+        metaDescription: '',
+        metaKeywords: '',
+      },
+      categoryOptions: [
+        { categoryId: 1, categoryName: 'Woodwork' },
+        { categoryId: 2, categoryName: 'Textiles' },
+      ],
+      craftTypeOptions: [
+        { craftTypeId: 1, craftTypeName: 'Carving' },
+        { craftTypeId: 2, craftTypeName: 'Weaving' },
+      ],
+      woodTypeOptions: [
+        { woodTypeId: 1, woodName: 'Mahogany' },
+        { woodTypeId: 2, woodName: 'Teak' }
+      ],
+      artisanOptions: [
+        { artisanId: 1, artisanName: 'John Doe', village: 'Village A' },
+        { artisanId: 2, artisanName: 'Jane Smith', village: 'Village B' },
+      ],
+    }
+  },
+  watch: {
+    open: {
+      immediate: true,
+      handler(val) {
+        this.internalOpen = val;
+        if (!val) this.step = 1;
+      }
+    },
+    internalOpen(val) {
+      if (!val) {
+        this.$emit('close');
+      }
+    },
+    'form.productName'(val) {
+      // Auto-generate slug
+      if (!this.form.productSlug || this.form.productSlug === this.slugify(this.form.productName)) {
+        this.form.productSlug = this.slugify(val);
+      }
+    }
+  },
+  methods: {
+    slugify(text) {
+      return text
+        .toString()
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '')
+        .replace(/-+/g, '-');
+    },
+    getCategoryName(id) {
+      const cat = this.categoryOptions.find(c => c.categoryId === id);
+      return cat ? cat.categoryName : '';
+    },
+    getCraftTypeName(id) {
+      const craft = this.craftTypeOptions.find(c => c.craftTypeId === id);
+      return craft ? craft.craftTypeName : '';
+    },
+    getArtisanName(id) {
+      const art = this.artisanOptions.find(a => a.artisanId === id);
+      return art ? art.artisanName : '';
+    },
+    async submit() {
+      const productStore = useProductStore();
+      const snackbar = useSnackbarStore();
+      try {
+        // Build FormData
+        const formData = new FormData();
+        for (const key in this.form) {
+          if (this.form[key] !== undefined && this.form[key] !== null) {
+            formData.append(key, this.form[key]);
+          }
+        }
+        await productStore.addProduct(formData);
+        snackbar.success('Product added successfully');
+        this.$emit('close');
+      } catch (error) {
+        snackbar.error('Failed to add product');
+      }
+    },
   }
 }
+</script>
 
-function submit() {
-  emit('submit', { ...form.value });
-  emit('update:modelValue', false);
+<style scoped>
+.step-header {
+  background: #fff3e0;
+  display: flex;
+  align-items: center;
+  padding: 18px 24px 12px 24px;
+  border-radius: 0 0 12px 12px;
+  margin-bottom: 18px;
+  gap: 12px;
 }
-
-// Validation for each section
-function isSectionValid(currentStep: number) {
-  const f = form.value;
-  switch (currentStep) {
-    case 1:
-      return !!(f.productName && f.sku && f.basePrice && f.categoryId && f.craftTypeId && f.woodTypeId && f.currency);
-    case 2:
-      return !!f.artisanId;
-    case 3:
-      return f.weight > 0 && f.length > 0 && f.width > 0 && f.height > 0;
-    case 4:
-      return true; // Optional fields
-    case 5:
-      return true; // Optional fields
-    case 6:
-      return f.stockQuantity >= 0 && f.stockStatus && f.productStatus;
-    case 7:
-      return true; // Optional fields
-    case 8:
-      return true; // Optional fields
-    default:
-      return false;
+.step-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #b45309;
+  margin-left: 8px;
+}
+.review-card {
+  background: #fff8e1;
+  border-radius: 12px;
+}
+@media (max-width: 600px) {
+  .step-header {
+    padding: 12px 8px 8px 8px;
+    font-size: 1rem;
+  }
+  .step-title {
+    font-size: 1rem;
   }
 }
-</script> 
+</style> 

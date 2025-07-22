@@ -9,6 +9,7 @@ import axios, {
   AxiosError,
 } from "axios";
 import { API_CONFIG } from "../config/api-config";
+import type { UserRole } from "@/stores/types/userRole";
 
 export interface AuthenticationResponse {
   token: string;
@@ -17,7 +18,7 @@ export interface AuthenticationResponse {
   fullName: string;
   email: string;
   phoneNumber: string;
-  userRole: any;
+  userRole: UserRole;
   userName: string;
 }
 
@@ -103,4 +104,3 @@ class ApiService {
 }
 
 export const apiService = new ApiService();
-export { AuthenticationResponse };
