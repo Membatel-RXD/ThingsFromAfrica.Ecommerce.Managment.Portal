@@ -689,3 +689,107 @@ export interface MostSoldProduct {
   totalRevenue: number;
   orderCount: number;
 }
+export  interface StockAlert {
+  alertId: number;
+  productId: number;
+  productName:string;
+  sku:string;
+  productImage:string;
+  alertType: string;
+  currentStock: number;
+  category:string;
+  thresholdValue: number;
+  isResolved: boolean;
+  resolvedAt: string;   // or `Date` if you plan to parse it
+  createdAt: string;    // or `Date` if you plan to parse it
+  alertMessage: string;
+  status:string;
+}
+export interface CreateStockAlert{
+  productId: number;
+  alertType: string;
+  currentStock: number;
+  thresholdValue: number;
+  isResolved: boolean;
+  resolvedAt: string;   // or `Date` if you plan to parse it
+  createdAt: string;    // or `Date` if you plan to parse it
+  alertMessage: string;
+  status:string;
+}
+
+
+// Stock Alert Severity Types
+export type AlertSeverity = 'Critical' | 'Warning' | 'Info';
+
+// Stock Alert Status Types
+export type AlertStatus = 'Unread' | 'Read' | 'Dismissed';
+
+// Notification Frequency Types
+export type NotificationFrequency = 'immediate' | 'hourly' | 'daily' | 'weekly';
+
+// Notification Types
+export type NotificationType = 'email' | 'sms' | 'browser' | 'push';
+
+// Stock Alert Settings Interface
+export interface StockAlertSettings {
+  settingsId?: number;
+  userId?: number;
+  
+  // Notification Preferences
+  emailNotifications: boolean;
+  smsNotifications: boolean;
+  browserNotifications: boolean;
+  pushNotifications?: boolean;
+  
+  // Email Settings
+  emailAddress?: string;
+  emailOnCritical?: boolean;
+  emailOnWarning?: boolean;
+  emailDigest?: boolean;
+  
+  // SMS Settings
+  phoneNumber?: string;
+  smsOnCritical?: boolean;
+  smsOnWarning?: boolean;
+  
+  // Threshold Settings
+  criticalThreshold: number;
+  warningThreshold: number;
+  infoThreshold?: number;
+  
+  // Timing Settings
+  notificationFrequency: NotificationFrequency;
+  digestSchedule?: string; // Cron expression for digest emails
+  quietHoursEnabled?: boolean;
+  quietHoursStart?: string; // Format: "HH:mm"
+  quietHoursEnd?: string; // Format: "HH:mm"
+  
+  // Auto-Resolution Settings
+  autoResolve: boolean;
+  autoResolveAfterDays?: number;
+  autoResolveOnRestock?: boolean;
+  
+  // Category-Specific Settings
+  categorySettings?: CategoryAlertSettings[];
+  
+  // Advanced Settings
+  duplicateAlertPrevention?: boolean;
+  alertCooldownMinutes?: number;
+  escalationEnabled?: boolean;
+  escalationAfterHours?: number;
+  escalationRecipients?: string[];
+  
+  // Audit Fields
+  createdAt?: string;
+  updatedAt?: string;
+  createdBy?: string;
+  updatedBy?: string;
+}
+export interface CategoryAlertSettings {
+  categoryId: number;
+  categoryName: string;
+  criticalThreshold: number;
+  warningThreshold: number;
+  enabled: boolean;
+  notificationTypes: NotificationType[];
+}

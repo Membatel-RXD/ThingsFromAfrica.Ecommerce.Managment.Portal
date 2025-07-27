@@ -201,13 +201,6 @@
               </v-list-item>
             </template>
 
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'inventory-dashboard' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-view-dashboard-outline" />
-              </template>
-              <v-list-item-title>Inventory Dashboard</v-list-item-title>
-            </v-list-item>
-
             <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'stock-alerts' }">
               <template v-slot:prepend>
                 <v-icon size="small" icon="mdi-alert-circle-outline" />
