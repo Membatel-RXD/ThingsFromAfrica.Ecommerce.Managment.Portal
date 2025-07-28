@@ -1,4 +1,3 @@
-// stores/user.ts
 import { defineStore } from "pinia";
 import { apiService, type IAPIResponse } from "@/services/api";
 import { UserRole, type AuthenticationResponse, type CreateUsersRequest, type LoginCredentials, type UserDTO, type UserRoleRequest } from "./types/member";
