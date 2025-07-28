@@ -156,6 +156,7 @@
         <v-dialog v-model="addDialog" max-width="500">
           <v-card>
             <v-card-title>Add New User</v-card-title>
+            Note: default password is defaultPassword
             <v-card-text>
               <v-form ref="addUserForm" v-model="addUserValid">
                 <v-text-field v-model="newUser.firstName" label="First Name" :rules="[rules.required]" required />
@@ -231,12 +232,22 @@
   import { ref, computed, onMounted } from 'vue';
   import { useUserStore } from '@/stores/user';
   import { useCustomerStore } from '@/stores/customer';
-
+  import { SystemUserRoles, UserAccount, UserRole } from '@/stores/types/member';
+import { apiService, IAPIResponse } from '@/services/api';
   const userStore = useUserStore();
   const customerStore = useCustomerStore();
   // Dummy data for demonstration (replace with API call)
   const users = computed(()=>userStore.users);
   
+  const roleOptions = ref<SystemUserRoles[]>([]);
+
+async function getUserRoles() {
+  const response = await apiService.get<IAPIResponse<SystemUserRoles[]>>('Roles/GetAll');
+  if (response && response.isSuccessful && response.payload) {
+    roleOptions.value = response.payload.filter(a => a.isActive === true);
+  }
+}
+
   const search = ref('');
   const statusFilter = ref('All');
   const statusOptions = ['All', 'Active', 'Locked'];
@@ -261,17 +272,8 @@
     username: '',
     email: '',
     password: '',
-    role: '',
+    role: null,
   });
-  const roleOptions = [
-    'SuperAdmin',
-    'Admin',
-    'Manager',
-    'Staff',
-    'Marketing',
-    'Customer',
-    'Guest',
-  ];
   const rules = {
     required: (v: string) => !!v || 'Required',
     email: (v: string) => /.+@.+\..+/.test(v) || 'E-mail must be valid',
@@ -314,23 +316,28 @@
     addDialog.value = true;
     Object.assign(newUser.value, { firstName: '', lastName: '', username: '', email: '', password: '', role: '' });
   }
-  function addUser() {
+  async function addUser() {
     if (!addUserForm.value?.validate()) return;
-    users.value.push({
-      userId: users.value.length + 1,
+    var user: UserAccount = {
       username: newUser.value.username,
       email: newUser.value.email,
       displayName: newUser.value.firstName + ' ' + newUser.value.lastName,
       firstName: newUser.value.firstName,
       lastName: newUser.value.lastName,
       profileImageUrl: '',
+      phoneVerified:true,
+      emailVerified:true,
       isLocked: false,
       lastLoginAt: '',
       twoFactorEnabled: false,
       userStatus: 'active',
+      passwordHash:newUser.value.password,
+      passwordSalt:newUser.value.password,
       createdAt: new Date().toISOString(),
-      role: newUser.value.role,
-    });
+      roleId: newUser.value.role||0,
+    };
+    const response = await userStore.CreateUser(user);
+
     addDialog.value = false;
   }
   // Dialog states and user objects
@@ -378,9 +385,17 @@
     userToDelete.value = null;
   }
 
-  onMounted(async()=>{
-   Promise.all([userStore.getAllUsers()]);
-  })
+  onMounted(async () => {
+  try {
+    await Promise.all([
+      userStore.getAllUsers(),
+      getUserRoles()
+    ]);
+  } catch (error) {
+    console.error('Error loading initial data:', error);
+  }
+});
+
   </script>
   
   <style scoped>

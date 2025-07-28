@@ -16,6 +16,15 @@ export enum UserRole {
     Customer = "Customer",
     Guest = "Guest"
 }
+export interface SystemUserRoles {
+  roleId: number;
+  roleName: string;
+  roleDescription: string;
+  isActive: boolean;
+  createdAt: string;   // or Date if you'll parse it
+  modifiedAt: string;  // or Date if you'll parse it
+}
+
 export interface UserRoleRequest {
   roleId: number;
   roleName: string;
@@ -866,4 +875,43 @@ export interface LoginHistory {
   loginMethod: string;
   failureReason: string;
   loginAt: string; // ISO 8601 datetime string
+}
+export interface UserAccount {
+  roleId: number;
+  passwordHash: string;
+  username: string;
+  email: string;
+  emailVerified: boolean;
+  emailVerificationToken: string;
+  emailVerificationExpiry: string; // or Date
+  passwordSalt: string;
+  passwordResetToken: string;
+  passwordResetExpiry: string; // or Date
+  lastPasswordChange: string; // or Date
+  isLocked: boolean;
+  lockoutEndDate: string; // or Date
+  failedLoginAttempts: number;
+  lastLoginAt: string; // or Date
+  lastLoginIP: string;
+  twoFactorEnabled: boolean;
+  twoFactorSecret: string;
+  twoFactorBackupCodes: string;
+  userStatus: string;
+  firstName: string;
+  lastName: string;
+  displayName: string;
+  dateOfBirth: string; // or Date
+  gender: string;
+  profileImageUrl: string;
+  phoneNumber: string;
+  phoneVerified: boolean;
+  phoneVerificationCode: string;
+  phoneVerificationExpiry: string; // or Date
+  preferredLanguage: string;
+  preferredCurrency: string;
+  timeZone: string;
+  notificationPreferences: string;
+  createdAt: string; // or Date
+  modifiedAt: string; // or Date
+  lastActiveAt: string; // or Date
 }
