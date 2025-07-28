@@ -60,6 +60,7 @@
             :headers="headers"
             :items="filteredHistory"
             :search="search"
+            :loading="isLoading"
             class="elevation-1"
             :sort-by="[{ key: 'loginAt', order: 'desc' }]"
           >
@@ -110,33 +111,13 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, computed } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
+  import { useLoginHistoryStore } from '@/stores/useLoginHistoryStore';
+
+  const loginHistoryStore = useLoginHistoryStore();
   
   // Dummy data for demonstration (replace with API call)
-  const loginHistory = ref([
-    {
-      loginHistoryId: 1,
-      userId: 1,
-      loginStatus: 'Success',
-      ipAddress: '192.168.1.10',
-      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-      deviceInfo: 'Windows 10, Chrome',
-      loginMethod: 'Password',
-      failureReason: '',
-      loginAt: '2025-07-13T11:01:35.476Z',
-    },
-    {
-      loginHistoryId: 2,
-      userId: 2,
-      loginStatus: 'Failure',
-      ipAddress: '192.168.1.11',
-      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
-      deviceInfo: 'MacOS, Safari',
-      loginMethod: 'Password',
-      failureReason: 'Wrong password',
-      loginAt: '2025-07-13T10:55:00.000Z',
-    },
-  ]);
+  const loginHistory = computed(()=>loginHistoryStore.loginHistories);
   
   const search = ref('');
   const statusFilter = ref('All');
@@ -174,6 +155,7 @@
   const exportEnd = ref('');
   const startMenu = ref(false);
   const endMenu = ref(false);
+  const isLoading = ref(false);
   
   function formatDate(dateStr: string) {
     if (!dateStr) return '-';
@@ -211,6 +193,12 @@
     URL.revokeObjectURL(url);
     exportDialog.value = false;
   }
+
+  onMounted(()=>{
+    isLoading.value =true
+    Promise.all([loginHistoryStore.fetchLoginHistories()]);
+    isLoading.value = false;
+  })
   </script>
   
   <style scoped>

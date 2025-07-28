@@ -855,3 +855,15 @@ export interface UserDTO {
   modifiedAt: string; // ISO date string
   lastActiveAt: string; // ISO date string
 }
+export interface LoginHistory {
+  loginHistoryId: number;
+  userId: number;
+  userName:string;
+  loginStatus: string;
+  ipAddress: string;
+  userAgent: string;
+  deviceInfo: string;
+  loginMethod: string;
+  failureReason: string;
+  loginAt: string; // ISO 8601 datetime string
+}
