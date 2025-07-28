@@ -134,7 +134,7 @@
               <span class="text-caption">{{ item.email }}</span>
             </template>
             <template v-slot:item.role="{ item }">
-              <v-chip color="primary" size="small" variant="flat">{{ item.role }}</v-chip>
+              <v-chip color="primary" size="small" variant="flat">Customer</v-chip>
             </template>
             <template v-slot:item.userStatus="{ item }">
               <v-chip :color="item.isLocked ? 'grey' : 'green'" size="small" variant="flat">
@@ -228,42 +228,14 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, computed } from 'vue';
-  import { UserRole } from '@/stores/types/member';
-  
+  import { ref, computed, onMounted } from 'vue';
+  import { useUserStore } from '@/stores/user';
+  import { useCustomerStore } from '@/stores/customer';
+
+  const userStore = useUserStore();
+  const customerStore = useCustomerStore();
   // Dummy data for demonstration (replace with API call)
-  const users = ref([
-    {
-      userId: 1,
-      username: 'admin',
-      email: 'admin@thingsfromafrica.com',
-      displayName: 'Admin User',
-      firstName: 'Admin',
-      lastName: 'User',
-      profileImageUrl: '',
-      isLocked: false,
-      lastLoginAt: '2025-07-13T10:29:44.990Z',
-      twoFactorEnabled: true,
-      userStatus: 'active',
-      createdAt: '2025-07-13T10:29:44.990Z',
-      role: 'SuperAdmin',
-    },
-    {
-      userId: 2,
-      username: 'jdoe',
-      email: 'jdoe@example.com',
-      displayName: 'John Doe',
-      firstName: 'John',
-      lastName: 'Doe',
-      profileImageUrl: '',
-      isLocked: true,
-      lastLoginAt: '2025-07-12T09:15:00.000Z',
-      twoFactorEnabled: false,
-      userStatus: 'locked',
-      createdAt: '2025-07-12T09:15:00.000Z',
-      role: 'Staff',
-    },
-  ]);
+  const users = computed(()=>userStore.users);
   
   const search = ref('');
   const statusFilter = ref('All');
@@ -405,6 +377,10 @@
     deleteDialog.value = false;
     userToDelete.value = null;
   }
+
+  onMounted(async()=>{
+   Promise.all([userStore.getAllUsers()]);
+  })
   </script>
   
   <style scoped>

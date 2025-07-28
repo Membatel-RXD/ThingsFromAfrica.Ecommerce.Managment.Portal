@@ -793,3 +793,65 @@ export interface CategoryAlertSettings {
   enabled: boolean;
   notificationTypes: NotificationType[];
 }
+
+export interface LocationStats {
+  country: string
+  customers: number
+  percentage: number
+}
+export interface TopProduct {
+  id: number
+  name: string
+  orders: number
+}
+export interface CustomerInsight {
+  id: number
+  name: string
+  email: string
+  customerType: string
+  totalOrders: number
+  totalSpent: number
+  lastOrderDate: string // Consider using Date if parsing it
+  valueSegment: 'High Value' | 'Medium Value' | 'Low Value'
+}
+
+export interface UserDTO {
+  roleId: number;
+  passwordHash: string;
+  userId: number;
+  username: string;
+  email: string;
+  emailVerified: boolean;
+  emailVerificationToken: string;
+  emailVerificationExpiry: string; // ISO date string
+  passwordSalt: string;
+  passwordResetToken: string;
+  passwordResetExpiry: string; // ISO date string
+  lastPasswordChange: string; // ISO date string
+  isLocked: boolean;
+  lockoutEndDate: string; // ISO date string
+  failedLoginAttempts: number;
+  lastLoginAt: string; // ISO date string
+  lastLoginIP: string;
+  twoFactorEnabled: boolean;
+  twoFactorSecret: string;
+  twoFactorBackupCodes: string;
+  userStatus: string;
+  firstName: string;
+  lastName: string;
+  displayName: string;
+  dateOfBirth: string; // ISO date string or format: 'YYYY-MM-DD'
+  gender: string;
+  profileImageUrl: string;
+  phoneNumber: string;
+  phoneVerified: boolean;
+  phoneVerificationCode: string;
+  phoneVerificationExpiry: string; // ISO date string
+  preferredLanguage: string;
+  preferredCurrency: string;
+  timeZone: string;
+  notificationPreferences: string;
+  createdAt: string; // ISO date string
+  modifiedAt: string; // ISO date string
+  lastActiveAt: string; // ISO date string
+}

@@ -249,13 +249,6 @@
               </template>
               <v-list-item-title>Revenue Reports</v-list-item-title>
             </v-list-item>
-
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'artisan-payouts' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-account-cash" />
-              </template>
-              <v-list-item-title>Artisan Payouts</v-list-item-title>
-            </v-list-item>
           </v-list-group>
         </template>
 
@@ -277,20 +270,6 @@
                 <v-icon size="small" icon="mdi-sale" />
               </template>
               <v-list-item-title>Promotions</v-list-item-title>
-            </v-list-item>
-
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'email-templates' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-email-outline" />
-              </template>
-              <v-list-item-title>Email Templates</v-list-item-title>
-            </v-list-item>
-
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'newsletters' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-newspaper" />
-              </template>
-              <v-list-item-title>Newsletters</v-list-item-title>
             </v-list-item>
           </v-list-group>
         </template>
@@ -315,13 +294,6 @@
               <v-list-item-title>Sales Reports</v-list-item-title>
             </v-list-item>
 
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'product-analytics' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-analytics" />
-              </template>
-              <v-list-item-title>Product Analytics</v-list-item-title>
-            </v-list-item>
-
             <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'customer-insights' }">
               <template v-slot:prepend>
                 <v-icon size="small" icon="mdi-account-search" />
@@ -343,13 +315,6 @@
                 <v-list-item-title>Settings</v-list-item-title>
               </v-list-item>
             </template>
-
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'general-settings' }">
-              <template v-slot:prepend>
-                <v-icon size="small" icon="mdi-cog-outline" />
-              </template>
-              <v-list-item-title>General Settings</v-list-item-title>
-            </v-list-item>
             <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'user-login-history' }">
               <template v-slot:prepend>
                 <v-icon size="small" icon="mdi-file-document-outline" />
@@ -362,17 +327,14 @@
               </template>
               <v-list-item-title>User Management</v-list-item-title>
             </v-list-item>
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'system-logs' }">
+            <!-- <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'system-logs' }">
               <template v-slot:prepend>
                 <v-icon size="small" icon="mdi-file-document-outline" />
               </template>
               <v-list-item-title>System Logs</v-list-item-title>
-            </v-list-item>
-
-           
+            </v-list-item> -->
           </v-list-group>
         </template>
-
       </v-list>
     </v-navigation-drawer>
   </div>

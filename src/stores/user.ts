@@ -1,7 +1,7 @@
 // stores/user.ts
 import { defineStore } from "pinia";
 import { apiService, type IAPIResponse } from "@/services/api";
-import { UserRole, type AuthenticationResponse, type CreateUsersRequest, type LoginCredentials, type UserRoleRequest } from "./types/member";
+import { UserRole, type AuthenticationResponse, type CreateUsersRequest, type LoginCredentials, type UserDTO, type UserRoleRequest } from "./types/member";
 
 interface User {
   userId: number;
@@ -17,7 +17,7 @@ export const useUserStore = defineStore('user', {
     isAuthenticated: false,
     role: null as string | null,
     token: null as string | null,
-    users: [] as User[],
+    users: [] as UserDTO[],
     isInitialized: false, 
     isHydrated: false, // Track if store has been hydrated from localStorage
   }),
@@ -133,8 +133,8 @@ export const useUserStore = defineStore('user', {
 
     async getAllUsers() {
       try {
-        const response = await apiService.get<IAPIResponse<User[]>>(
-          "/Users/GetUsers",
+        const response = await apiService.get<IAPIResponse<UserDTO[]>>(
+          "/Users/GetAll",
         );
         if (response != null) {
           if (response.isSuccessful) {
