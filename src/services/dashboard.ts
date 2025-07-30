@@ -1,4 +1,4 @@
-import type { Product, ProductCategory } from "@/stores/types/member";
+import type { Order, Product, ProductCategory } from "@/stores/types/member";
 import { apiService, type IAPIResponse } from "./api";
 
 export interface DashboardStats {
@@ -47,7 +47,7 @@ class DashboardService {
       // Fetch all required data in parallel
       const [productsResponse, ordersResponse, customersResponse,productCategoryResponse] = await Promise.all([
         apiService.get<IAPIResponse<Product[]>>("/Products/GetAll"),
-        apiService.get<IAPIResponse<any[]>>("/Orders/GetAll"),
+        apiService.get<IAPIResponse<Order[]>>("/Orders/GetAll"),
         apiService.get<IAPIResponse<any[]>>("/CustomerProfiles/GetAll"),
         apiService.get<IAPIResponse<ProductCategory[]>>("/ProductCategories/GetAll"),
       ]);
@@ -109,15 +109,15 @@ class DashboardService {
     };
   }
 
-  private getRecentOrders(orders: any[]): RecentOrder[] {
+  private getRecentOrders(orders: Order[]): RecentOrder[] {
     return orders
       .sort((a, b) => new Date(b.createdAt || b.orderDate).getTime() - new Date(a.createdAt || a.orderDate).getTime())
       .slice(0, 5)
       .map(order => ({
-        orderId: order.orderId?.toString() || order.id?.toString() || 'N/A',
-        customerName: order.customerName || order.customer?.name || 'Unknown',
-        total: order.totalAmount || order.total || 0,
-        status: order.status || 'Pending',
+        orderId: order.orderId?.toString()  || 'N/A',
+        customerName: order.customerEmail || 'Unknown',
+        total: order.totalAmount  || 0,
+        status: order.orderStatus || 'Pending',
         createdAt: order.createdAt || order.orderDate || new Date().toISOString()
       }));
   }

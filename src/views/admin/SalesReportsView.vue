@@ -350,6 +350,7 @@
   import { Chart, registerables } from 'chart.js'
 import { apiService, IAPIResponse } from '@/services/api'
 import { useProductCategoryStore } from '@/stores/productCategory';
+import { ChartData } from '@/stores/types/member';
   
   const categoryStore = useProductCategoryStore();
   Chart.register(...registerables)
@@ -401,10 +402,7 @@ interface TopCustomers {
     orderCount: number
 }
 
-interface ChartData {
-  labels: string[];
-  data: number[];
-}
+
 interface DailySalesMetric {
   date: string;
   revenue: number;

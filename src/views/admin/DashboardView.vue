@@ -236,7 +236,7 @@
                     Order #{{ order.orderId }}
                   </v-list-item-title>
                   <v-list-item-subtitle>
-                    {{ order.customerName }} • ${{ order.total }}
+                    {{ order.customerName}} • ${{ order.total }}
                   </v-list-item-subtitle>
                   <template v-slot:append>
                     <v-chip
@@ -444,10 +444,18 @@ import { useUserStore } from '@/stores/user'
 import Chart from 'chart.js/auto'
 import { dashboardService, type DashboardData, type DashboardStats, type RecentOrder, type TopProduct } from '@/services/dashboard'
 import { apiService, type IAPIResponse } from '@/services/api'
-import { MostSoldProduct, ProductCategory } from '@/stores/types/member'
+import { ChartData, MostSoldProduct, ProductCategory } from '@/stores/types/member'
 
 // Stores
 const userStore = useUserStore()
+interface SalesSummary {
+  totalRevenue: number;
+  monthlyRevenue: number;
+  totalOrders: number;
+  monthlyOrders: number;
+  totalCustomers: number;
+  averageOrderValue: number;
+}
 
 // Chart refs
 const revenueChart = ref<HTMLCanvasElement | null>(null)
@@ -551,9 +559,12 @@ const getOrderStatusIcon = (status: string) => {
 // API Functions
 const fetchRevenueData = async () => {
   try {
-    const response = await apiService.get<IAPIResponse<any>>(`/dashboard/revenue-chart`)
-    if (!response.isSuccessful) throw new Error('Failed to fetch revenue data')
-    return response.payload
+    const response = await apiService.get<IAPIResponse<ChartData>>(`/dashboard/revenue-chart`)
+  
+    return response.payload || {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      data: [15000, 18000, 22000, 19000, 25000, 28000]
+    }
   } catch (error) {
     console.error('Error fetching revenue data:', error)
     // Return fallback data
@@ -600,10 +611,10 @@ const initializeCharts = async () => {
     revenueChartInstance = new Chart(revenueChart.value, {
       type: 'line',
       data: {
-        labels: revenueData.labels,
+        labels: revenueData!.labels,
         datasets: [{
           label: 'Revenue',
-          data: revenueData.data,
+          data: revenueData!.data,
           borderColor: '#E65100',
           backgroundColor: 'rgba(230, 81, 0, 0.1)',
           borderWidth: 3,
@@ -686,7 +697,7 @@ const loadMostSoldProduct = async () => {
 
 const loadDashboardSummary = async () => {
   try {
-    const response = await apiService.get<IAPIResponse<any>>(`/dashboard/dashboard-summary`)
+    const response = await apiService.get<IAPIResponse<SalesSummary>>(`/dashboard/dashboard-summary`)
     if (!response.isSuccessful) throw new Error('Failed to fetch dashboard summary')
     const summary = response.payload
     

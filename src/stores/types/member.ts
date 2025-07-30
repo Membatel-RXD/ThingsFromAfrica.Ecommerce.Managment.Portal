@@ -16,6 +16,10 @@ export enum UserRole {
     Customer = "Customer",
     Guest = "Guest"
 }
+export interface ChartData {
+  labels: string[];
+  data: number[];
+}
 export interface SystemUserRoles {
   roleId: number;
   roleName: string;
