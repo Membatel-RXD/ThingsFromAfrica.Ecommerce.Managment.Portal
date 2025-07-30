@@ -208,12 +208,12 @@
               <v-list-item-title>Stock Alerts</v-list-item-title>
             </v-list-item>
 
-            <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'stock-movement' }">
+            <!-- <v-list-item active-class="bg-yellow-accent-3 text-orange-darken-4" :to="{ name: 'stock-movement' }">
               <template v-slot:prepend>
                 <v-icon size="small" icon="mdi-swap-horizontal" />
               </template>
               <v-list-item-title>Stock Movement</v-list-item-title>
-            </v-list-item>
+            </v-list-item> -->
           </v-list-group>
         </template>
 

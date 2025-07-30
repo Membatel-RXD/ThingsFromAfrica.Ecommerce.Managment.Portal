@@ -346,10 +346,12 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, computed, onMounted, nextTick } from 'vue'
+  import { ref, onMounted, nextTick } from 'vue'
   import { Chart, registerables } from 'chart.js'
 import { apiService, IAPIResponse } from '@/services/api'
+import { useProductCategoryStore } from '@/stores/productCategory';
   
+  const categoryStore = useProductCategoryStore();
   Chart.register(...registerables)
   
   // Data
@@ -404,7 +406,7 @@ interface ChartData {
   data: number[];
 }
 interface DailySalesMetric {
-  date: Date;
+  date: string;
   revenue: number;
   orders: number;
   averageOrderValue: number;
@@ -434,15 +436,8 @@ interface CustomerTypeChartData {
     { title: 'Custom Range', value: 'custom' }
   ]
   
-  const categoryOptions = [
-    { title: 'All Categories', value: 'all' },
-    { title: 'Handmade Jewelry', value: 'jewelry' },
-    { title: 'Wooden Crafts', value: 'wooden' },
-    { title: 'Textiles', value: 'textiles' },
-    { title: 'Pottery', value: 'pottery' },
-    { title: 'Art & Paintings', value: 'art' }
-  ]
-  
+  const categoryOptions = ref<string[]>([]);
+
   const customerTypeOptions = [
     { title: 'All Customers', value: 'all' },
     { title: 'Tourist Orders', value: 'tourist' },
@@ -811,6 +806,8 @@ async function GetCategoryChartData() {
     GetSalesMetricsData(),
     GetTopSoldProducts(),
     GetTopCustomers(),
+    categoryStore.fetchCategories(),
+
     GetSalesData(),
     GetRevenueChartData(),
     GetCategoryChartData(),
@@ -818,6 +815,7 @@ async function GetCategoryChartData() {
     GetCustomerTypeDistributionata()
   ]);
   initializeCharts();
+  categoryOptions.value = ['all', ...categoryStore.categories.map(c => c.categoryName)];
 
 });
 

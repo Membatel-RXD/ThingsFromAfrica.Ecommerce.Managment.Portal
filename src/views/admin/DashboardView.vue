@@ -289,7 +289,7 @@
                 </v-col>
                 <v-col cols="6">
                   <v-btn
-                    :to="{ name: 'customers' }"
+                    :to="{ name: 'admin-customers' }"
                     color="brown-darken-2"
                     variant="elevated"
                     block
@@ -302,7 +302,7 @@
                 </v-col>
                 <v-col cols="6">
                   <v-btn
-                    :to="{ name: 'inventory-dashboard' }"
+                    :to="{ name: 'stock-alerts' }"
                     color="orange-darken-4"
                     variant="elevated"
                     block
@@ -310,7 +310,7 @@
                     class="mb-3"
                   >
                     <v-icon start icon="mdi-warehouse"></v-icon>
-                    Inventory
+                    Stock Alerts
                   </v-btn>
                 </v-col>
               </v-row>
