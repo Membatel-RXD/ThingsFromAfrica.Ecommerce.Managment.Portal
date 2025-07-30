@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { apiService, type IAPIResponse } from "@/services/api";
-import type { ShipmentDTO, CreateShipment } from "./types/member";
+import type { ShipmentDTO, CreateShipment, CreateShipmentRequest } from "./types/member";
 
 export const useShipmentStore = defineStore("shipment", {
   state: () => ({
@@ -32,10 +32,10 @@ export const useShipmentStore = defineStore("shipment", {
       }
     },
 
-    async createShipment(data: CreateShipment): Promise<IAPIResponse<ShipmentDTO>> {
+    async createShipment(data: CreateShipmentRequest): Promise<IAPIResponse<ShipmentDTO>> {
       try {
         this.loading = true;
-        const response = await apiService.post<IAPIResponse<ShipmentDTO>>("/Shipments/Add", data);
+        const response = await apiService.post<IAPIResponse<ShipmentDTO>>("/Shipments", data);
         if (response && response.isSuccessful && response.payload) {
           this.shipments.push(response.payload);
         }

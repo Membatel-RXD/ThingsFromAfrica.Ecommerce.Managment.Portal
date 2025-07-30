@@ -688,6 +688,11 @@ export interface ShipmentDTO {
   actualDeliveryDate: string; // ISO 8601 date string
   createdAt: string; // ISO 8601 date string
   createdBy: number;
+  orderNumber:string;
+  customerEmail:string;
+  totalAmount:number;
+  currency:string;
+  shippingAddress:string
 }
 export interface CreateShipment extends Omit<ShipmentDTO,'shipmentId'>{}
 
@@ -920,25 +925,25 @@ export interface UserAccount {
   lastActiveAt: string; // or Date
 }
 export interface CreateShipmentRequest {
-  orderId: number;
+  orderIds: number[];
   shippingMethodId: number;
-  trackingNumber: string;
-  carrierName: string;
-  shippingLabelUrl: string;
-  shipmentStatus: string;
-  packageWeight: number;
-  packageLength: number;
-  packageWidth: number;
-  packageHeight: number;
-  packagingNotes: string;
+  trackingNumber: string|null;
+  carrierName: string|null;
+  shippingLabelUrl: string|null;
+  shipmentStatus: string|null;
+  packageWeight: number|null;
+  packageLength: number|null;
+  packageWidth: number|null;
+  packageHeight: number|null;
+  packagingNotes: string|null;
   requiresPhytosanitaryCertificate: boolean;
-  phytosanitaryCertificateNumber: string;
-  customsDeclarationNumber: string;
+  phytosanitaryCertificateNumber: string|null;
+  customsDeclarationNumber: string|null;
   shippedDate: string; // ISO date string
   estimatedDeliveryDate: string; // ISO date string
   actualDeliveryDate: string; // ISO date string
   createdAt: string; // ISO date string
-  createdBy: number;
+  createdBy: number|null;
 }
 export interface ShippingMethod {
   shippingMethodId: number;
