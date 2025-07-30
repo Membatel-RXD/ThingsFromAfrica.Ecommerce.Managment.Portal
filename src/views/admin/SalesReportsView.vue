@@ -348,6 +348,7 @@
   <script setup lang="ts">
   import { ref, computed, onMounted, nextTick } from 'vue'
   import { Chart, registerables } from 'chart.js'
+import { apiService, IAPIResponse } from '@/services/api'
   
   Chart.register(...registerables)
   
@@ -371,6 +372,58 @@
   let customerTypeChartInstance: Chart | null = null
   let monthlyChartInstance: Chart | null = null
   
+  interface SalesReportItem {
+    id: number;
+    name: string;
+    category: string;
+    quantitySold: number;
+    revenue: number;
+ }
+
+ interface DashboardMetrics {
+  totalRevenue: number;
+  revenueGrowth: number;
+  totalOrders: number;
+  ordersGrowth: number;
+  averageOrderValue: number;
+  aovGrowth: number;
+  totalCustomers: number;
+  customersGrowth: number;
+}
+
+interface TopCustomers {
+    id: number,
+    name: string,
+    email: string,
+    totalSpent: number,
+    orderCount: number
+}
+
+interface ChartData {
+  labels: string[];
+  data: number[];
+}
+interface DailySalesMetric {
+  date: Date;
+  revenue: number;
+  orders: number;
+  averageOrderValue: number;
+  customerType: string;
+  conversionRate: number;
+}
+interface CategoryChartData {
+  categories: string[];
+  values: number[];
+}
+
+interface CustomerTypeChartData {
+  tourist: number;
+  local: number;
+}
+
+
+
+
   // Options
   const periodOptions = [
     { title: 'Last 7 Days', value: 'last7days' },
@@ -395,124 +448,114 @@
     { title: 'Tourist Orders', value: 'tourist' },
     { title: 'Local Orders', value: 'local' }
   ]
-  
-  // Sales metrics (sample data)
-  const salesMetrics = ref({
-    totalRevenue: 125750.50,
-    revenueGrowth: 12.5,
-    totalOrders: 342,
-    ordersGrowth: 8.3,
-    averageOrderValue: 367.69,
-    aovGrowth: 4.2,
-    totalCustomers: 189,
-    customersGrowth: 15.7
+  const salesMetrics = ref<DashboardMetrics>({
+    totalRevenue: 0,
+    revenueGrowth: 0,
+    totalOrders: 0,
+    ordersGrowth: 0,
+    averageOrderValue: 0,
+    aovGrowth: 0,
+    totalCustomers: 0,
+    customersGrowth: 0
   })
-  
-  // Top products (sample data)
-  const topProducts = ref([
-    {
-      id: 1,
-      name: 'Handcrafted Silver Bracelet',
-      category: 'Jewelry',
-      quantitySold: 45,
-      revenue: 13500.00
-    },
-    {
-      id: 2,
-      name: 'Traditional Wooden Bowl Set',
-      category: 'Wooden Crafts',
-      quantitySold: 32,
-      revenue: 9600.00
-    },
-    {
-      id: 3,
-      name: 'Embroidered Table Runner',
-      category: 'Textiles',
-      quantitySold: 28,
-      revenue: 8400.00
-    },
-    {
-      id: 4,
-      name: 'Ceramic Vase Collection',
-      category: 'Pottery',
-      quantitySold: 22,
-      revenue: 6600.00
-    },
-    {
-      id: 5,
-      name: 'Local Landscape Painting',
-      category: 'Art',
-      quantitySold: 18,
-      revenue: 5400.00
+  async function GetSalesMetricsData() {
+    try {
+        const response = await apiService.get<IAPIResponse<DashboardMetrics>>('Dashboard/metrics');
+        if (response.isSuccessful && response.payload) {
+            salesMetrics.value = response.payload;
+        }
+    } catch (error) {
+        console.log("Failed to retirve sales data metrics")
     }
-  ])
+  }
+    // Top products (sample data)
+  const topProducts = ref<SalesReportItem[]>([]);
+  async function GetTopSoldProducts() {
+    try {
+        const response = await apiService.get<IAPIResponse<SalesReportItem[]>>('Dashboard/top-performing-products');
+        if (response.isSuccessful && response.payload) {
+            topProducts.value = response.payload;
+        }
+    } catch (error) {
+        console.log("Failed to retirve sales data metrics")
+    }
+  }
+const revenueChartData = ref<ChartData>({ labels: [], data: [] });
+
+async function GetRevenueChartData() {
+  try {
+    const response = await apiService.get<IAPIResponse<ChartData>>('Dashboard/revenue-trend');
+    if (response.isSuccessful && response.payload) {
+      revenueChartData.value = response.payload;
+    }
+  } catch (error) {
+    console.error('Failed to retrieve revenue chart data', error);
+  }
+}
+const monthlyPerformanceChartData = ref<ChartData>({ labels: [], data: [] });
+
+async function GetMonthlyPerfomanceData() {
+  try {
+    const response = await apiService.get<IAPIResponse<ChartData>>('Dashboard/monthly-performance');
+    if (response.isSuccessful && response.payload) {
+        monthlyPerformanceChartData.value = response.payload;
+    }
+  } catch (error) {
+    console.error('Failed to retrieve revenue chart data', error);
+  }
+}
+const categoryChartData = ref<CategoryChartData>({ categories: [], values: [] });
+
+async function GetCategoryChartData() {
+  try {
+    const response = await apiService.get<IAPIResponse<CategoryChartData>>('Dashboard/category-distribution');
+    if (response.isSuccessful && response.payload) {
+      categoryChartData.value = response.payload;
+    }
+  } catch (error) {
+    console.error('Failed to retrieve category chart data', error);
+  }
+}
+
   
   // Top customers (sample data)
-  const topCustomers = ref([
-    {
-      id: 1,
-      name: 'Sarah Johnson',
-      email: 'sarah@email.com',
-      totalSpent: 2450.00,
-      orderCount: 8
-    },
-    {
-      id: 2,
-      name: 'Michael Chen',
-      email: 'michael@email.com',
-      totalSpent: 1890.00,
-      orderCount: 6
-    },
-    {
-      id: 3,
-      name: 'Emma Wilson',
-      email: 'emma@email.com',
-      totalSpent: 1650.00,
-      orderCount: 5
-    },
-    {
-      id: 4,
-      name: 'David Brown',
-      email: 'david@email.com',
-      totalSpent: 1420.00,
-      orderCount: 4
-    },
-    {
-      id: 5,
-      name: 'Lisa Davis',
-      email: 'lisa@email.com',
-      totalSpent: 1280.00,
-      orderCount: 7
+  const topCustomers = ref<TopCustomers[]>([])
+
+  async function GetTopCustomers() {
+    try {
+        const response = await apiService.get<IAPIResponse<TopCustomers[]>>('Dashboard/top-customers');
+        if (response.isSuccessful && response.payload) {
+            topCustomers.value = response.payload;
+        }
+    } catch (error) {
+        console.log("Failed to retirve sales data metrics")
     }
-  ])
+  }
   
-  // Detailed sales data (sample)
-  const detailedSalesData = ref([
-    {
-      date: '2024-01-25',
-      revenue: 3450.00,
-      orders: 12,
-      averageOrderValue: 287.50,
-      customerType: 'Mixed',
-      conversionRate: 0.124
-    },
-    {
-      date: '2024-01-24',
-      revenue: 2890.00,
-      orders: 9,
-      averageOrderValue: 321.11,
-      customerType: 'Tourist',
-      conversionRate: 0.156
-    },
-    {
-      date: '2024-01-23',
-      revenue: 4120.00,
-      orders: 15,
-      averageOrderValue: 274.67,
-      customerType: 'Mixed',
-      conversionRate: 0.189
+  const detailedSalesData = ref<DailySalesMetric[]>();
+
+  async function GetSalesData() {
+    try {
+        const response = await apiService.get<IAPIResponse<DailySalesMetric[]>>('Dashboard/sales-data');
+        if (response.isSuccessful && response.payload) {
+            detailedSalesData.value = response.payload;
+        }
+    } catch (error) {
+        console.log("Failed to retirve sales data metrics")
     }
-  ])
+  }
+  const customerTypeChartData = ref<CustomerTypeChartData>({ tourist: 0, local: 0 });
+
+  async function GetCustomerTypeDistributionata() {
+    try {
+        const response = await apiService.get<IAPIResponse<CustomerTypeChartData>>('Dashboard/customer-type-distribution');
+        if (response.isSuccessful && response.payload) {
+            customerTypeChartData.value = response.payload;
+        }
+    } catch (error) {
+        console.log("Failed to retirve sales data metrics")
+    }
+  }
   
   // Table headers
   const salesHeaders = [
@@ -602,10 +645,10 @@
         revenueChartInstance = new Chart(ctx, {
           type: 'line',
           data: {
-            labels: ['Jan 20', 'Jan 21', 'Jan 22', 'Jan 23', 'Jan 24', 'Jan 25', 'Jan 26'],
+            labels: revenueChartData.value.labels,
             datasets: [{
               label: 'Revenue',
-              data: [2800, 3200, 2900, 3500, 4100, 3800, 4200],
+              data: revenueChartData.value.data,
               borderColor: '#2E7D32',
               backgroundColor: 'rgba(46, 125, 50, 0.1)',
               tension: 0.4,
@@ -642,10 +685,10 @@
         categoryChartInstance = new Chart(ctx, {
           type: 'doughnut',
           data: {
-            labels: ['Jewelry', 'Wooden Crafts', 'Textiles', 'Pottery', 'Art'],
+            labels: categoryChartData.value.categories,
             datasets: [{
-              data: [35, 25, 20, 12, 8],
-              backgroundColor: [
+                data: categoryChartData.value.values,
+                backgroundColor: [
                 '#4CAF50',
                 '#2196F3',
                 '#FF9800',
@@ -671,13 +714,19 @@
     if (customerTypeChart.value) {
       const ctx = customerTypeChart.value.getContext('2d')
       if (ctx) {
+        const labels = ['Tourist', 'Local'];
+        const data = [
+        customerTypeChartData.value.tourist || 0,
+        customerTypeChartData.value.local || 0
+        ];
+
         customerTypeChartInstance = new Chart(ctx, {
           type: 'bar',
           data: {
-            labels: ['Tourist', 'Local'],
+            labels: labels,
             datasets: [{
               label: 'Orders',
-              data: [220, 122],
+              data: data,
               backgroundColor: ['#2196F3', '#757575']
             }]
           },
@@ -706,10 +755,10 @@
         monthlyChartInstance = new Chart(ctx, {
           type: 'bar',
           data: {
-            labels: ['Oct', 'Nov', 'Dec', 'Jan'],
+            labels:  monthlyPerformanceChartData.value.labels,
             datasets: [{
               label: 'Revenue',
-              data: [95000, 108000, 115000, 125750],
+              data: monthlyPerformanceChartData.value.data,
               backgroundColor: '#FF9800'
             }]
           },
@@ -755,11 +804,23 @@
       monthlyChartInstance = null
     }
   }
-  
-  onMounted(() => {
-    updateDateRange()
-    initializeCharts()
-  })
+  onMounted(async () => {
+  updateDateRange();
+
+  await Promise.all([
+    GetSalesMetricsData(),
+    GetTopSoldProducts(),
+    GetTopCustomers(),
+    GetSalesData(),
+    GetRevenueChartData(),
+    GetCategoryChartData(),
+    GetMonthlyPerfomanceData(),
+    GetCustomerTypeDistributionata()
+  ]);
+  initializeCharts();
+
+});
+
   </script>
   
   <style scoped>
