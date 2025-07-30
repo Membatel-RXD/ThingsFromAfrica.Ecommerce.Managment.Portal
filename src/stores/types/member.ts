@@ -919,3 +919,35 @@ export interface UserAccount {
   modifiedAt: string; // or Date
   lastActiveAt: string; // or Date
 }
+export interface CreateShipmentRequest {
+  orderId: number;
+  shippingMethodId: number;
+  trackingNumber: string;
+  carrierName: string;
+  shippingLabelUrl: string;
+  shipmentStatus: string;
+  packageWeight: number;
+  packageLength: number;
+  packageWidth: number;
+  packageHeight: number;
+  packagingNotes: string;
+  requiresPhytosanitaryCertificate: boolean;
+  phytosanitaryCertificateNumber: string;
+  customsDeclarationNumber: string;
+  shippedDate: string; // ISO date string
+  estimatedDeliveryDate: string; // ISO date string
+  actualDeliveryDate: string; // ISO date string
+  createdAt: string; // ISO date string
+  createdBy: number;
+}
+export interface ShippingMethod {
+  shippingMethodId: number;
+  methodName: string;
+  methodCode: string;
+  description: string;
+  estimatedDays: string;
+  isActive: boolean;
+  isInternational: boolean;
+  sortOrder: number;
+  createdAt: string; // ISO 8601 date string
+}

@@ -241,90 +241,205 @@
         </v-card>
   
         <!-- Ship Orders Dialog -->
-        <v-dialog v-model="shipDialog" max-width="600px">
-          <v-card>
-            <v-card-title class="pa-6 bg-purple-lighten-5">
-              <v-icon class="me-2" color="purple-darken-3">mdi-truck</v-icon>
+        <v-dialog v-model="shipDialog" max-width="800px">
+        <v-card>
+          <v-card-title class="pa-6 bg-purple-lighten-5">
+            <v-icon class="me-2" color="purple-darken-3">mdi-truck</v-icon>
+            Ship Orders
+          </v-card-title>
+
+          <v-card-text class="pa-6">
+            <v-form ref="shipForm" v-model="shipValid">
+              <v-row dense>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="shipmentData.trackingNumber"
+                    label="Tracking Number"
+                    :rules="[rules.required]"
+                    variant="outlined"
+                    prepend-inner-icon="mdi-barcode"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <v-select
+                    v-model="shipmentData.shippingMethodId"
+                    label="Shipping Carrier"
+                    :items="carrierOptions"
+                    item-title="methodName"
+                    item-value="shippingMethodId"
+                    :rules="[rules.required]"
+                    variant="outlined"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="shipmentData.carrierName"
+                    label="Carrier Name"
+                    variant="outlined"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="shipmentData.shippingLabelUrl"
+                    label="Shipping Label URL"
+                    variant="outlined"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <v-select
+                    v-model="shipmentData.shipmentStatus"
+                    label="Shipment Status"
+                    :items="['Pending', 'Shipped', 'In Transit', 'Delivered']"
+                    variant="outlined"
+                  />
+                </v-col>
+
+                <v-col cols="6" md="3">
+                  <v-text-field
+                    v-model.number="shipmentData.packageWeight"
+                    label="Weight (kg)"
+                    type="number"
+                    variant="outlined"
+                  />
+                </v-col>
+
+                <v-col cols="6" md="3">
+                  <v-text-field
+                    v-model.number="shipmentData.packageLength"
+                    label="Length (cm)"
+                    type="number"
+                    variant="outlined"
+                  />
+                </v-col>
+
+                <v-col cols="6" md="3">
+                  <v-text-field
+                    v-model.number="shipmentData.packageWidth"
+                    label="Width (cm)"
+                    type="number"
+                    variant="outlined"
+                  />
+                </v-col>
+
+                <v-col cols="6" md="3">
+                  <v-text-field
+                    v-model.number="shipmentData.packageHeight"
+                    label="Height (cm)"
+                    type="number"
+                    variant="outlined"
+                  />
+                </v-col>
+
+                <v-col cols="12">
+                  <v-textarea
+                    v-model="shipmentData.packagingNotes"
+                    label="Packaging Notes"
+                    rows="2"
+                    variant="outlined"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <v-checkbox
+                    v-model="shipmentData.requiresPhytosanitaryCertificate"
+                    label="Requires Phytosanitary Certificate"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="shipmentData.phytosanitaryCertificateNumber"
+                    label="Phytosanitary Certificate No."
+                    variant="outlined"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="shipmentData.customsDeclarationNumber"
+                    label="Customs Declaration No."
+                    variant="outlined"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="shipmentData.shippedDate"
+                    label="Shipped Date"
+                    type="date"
+                    variant="outlined"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="shipmentData.estimatedDeliveryDate"
+                    label="Estimated Delivery"
+                    type="date"
+                    variant="outlined"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="shipmentData.actualDeliveryDate"
+                    label="Actual Delivery Date"
+                    type="date"
+                    variant="outlined"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="shipmentData.createdAt"
+                    label="Created At"
+                    type="datetime-local"
+                    variant="outlined"
+                  />
+                </v-col>
+              
+              </v-row>
+
+              <v-divider class="my-4" />
+              <h3 class="text-h6 mb-3">Orders to Ship ({{ ordersToShip.length }})</h3>
+              <v-list>
+                <v-list-item
+                  v-for="order in ordersToShip"
+                  :key="order.orderId"
+                  class="px-0"
+                >
+                  <v-list-item-title>{{ order.orderNumber }}</v-list-item-title>
+                  <v-list-item-subtitle>{{ order.customerEmail }}</v-list-item-subtitle>
+                  <template v-slot:append>
+                    <v-chip size="small">
+                      {{ formatCurrency(order.totalAmount, order.currency) }}
+                    </v-chip>
+                  </template>
+                </v-list-item>
+              </v-list>
+            </v-form>
+          </v-card-text>
+
+          <v-card-actions class="pa-6">
+            <v-spacer />
+            <v-btn text @click="shipDialog = false">Cancel</v-btn>
+            <v-btn
+              color="purple-darken-2"
+              variant="elevated"
+              @click="confirmShipOrders"
+              :disabled="!shipValid"
+              :loading="shipping"
+            >
               Ship Orders
-            </v-card-title>
-  
-            <v-card-text class="pa-6">
-              <v-form ref="shipForm" v-model="shipValid">
-                <v-row>
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="shipmentData.trackingNumber"
-                      label="Tracking Number"
-                      :rules="[rules.required]"
-                      variant="outlined"
-                      prepend-inner-icon="mdi-barcode"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-select
-                      v-model="shipmentData.carrier"
-                      label="Shipping Carrier"
-                      :items="carrierOptions"
-                      :rules="[rules.required]"
-                      variant="outlined"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="shipmentData.estimatedDelivery"
-                      label="Estimated Delivery"
-                      type="date"
-                      variant="outlined"
-                    />
-                  </v-col>
-                  <v-col cols="12">
-                    <v-textarea
-                      v-model="shipmentData.notes"
-                      label="Shipping Notes"
-                      rows="3"
-                      variant="outlined"
-                    />
-                  </v-col>
-                </v-row>
-  
-                <v-divider class="my-4" />
-                <h3 class="text-h6 mb-3">Orders to Ship ({{ ordersToShip.length }})</h3>
-                <v-list>
-                  <v-list-item
-                    v-for="order in ordersToShip"
-                    :key="order.orderId"
-                    class="px-0"
-                  >
-                    <v-list-item-title>{{ order.orderNumber }}</v-list-item-title>
-                    <v-list-item-subtitle>{{ order.customerEmail }}</v-list-item-subtitle>
-                    <template v-slot:append>
-                      <v-chip size="small">{{ formatCurrency(order.totalAmount, order.currency) }}</v-chip>
-                    </template>
-                  </v-list-item>
-                </v-list>
-              </v-form>
-            </v-card-text>
-  
-            <v-card-actions class="pa-6">
-              <v-spacer />
-              <v-btn
-                text
-                @click="shipDialog = false"
-              >
-                Cancel
-              </v-btn>
-              <v-btn
-                color="purple-darken-2"
-                variant="elevated"
-                @click="confirmShipOrders"
-                :disabled="!shipValid"
-                :loading="shipping"
-              >
-                Ship Orders
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
   
         <!-- Priority Dialog -->
         <v-dialog v-model="priorityDialog" max-width="400px">
@@ -370,10 +485,10 @@
   import { useSnackbarStore } from '@/stores/snackbar'
   import { useOrderStore } from '@/stores/orderStore'
   import { OrderDto } from '@/stores/types/member'
-  
+  import { useShippingMethodStore } from '@/stores/shippingMethod'
   const orderStore = useOrderStore()
   const snackbar = useSnackbarStore()
-  
+  const shipmentMethod = useShippingMethodStore();
   // Data
   const search = ref('')
   const priorityFilter = ref('all')
@@ -392,10 +507,29 @@
   // Shipment data
   const shipmentData = ref({
     trackingNumber: '',
-    carrier: '',
-    estimatedDelivery: '',
-    notes: ''
+    shippingMethodId: null,
+    carrierName: '',
+    shippingLabelUrl: '',
+    shipmentStatus: '',
+
+    packageWeight: null,
+    packageLength: null,
+    packageWidth: null,
+    packageHeight: null,
+
+    packagingNotes: '',
+    requiresPhytosanitaryCertificate: false,
+    phytosanitaryCertificateNumber: '',
+    customsDeclarationNumber: '',
+
+    shippedDate: '',
+    estimatedDeliveryDate: '',
+    actualDeliveryDate: '',
+
+    createdAt: '',
+    createdBy: null
   })
+
   
   // Options
   const priorityOptions = [
@@ -411,14 +545,7 @@
     { title: 'Local Orders', value: 'local' }
   ]
   
-  const carrierOptions = [
-    'DHL Express',
-    'FedEx',
-    'UPS',
-    'USPS',
-    'Local Courier',
-    'Air Mail'
-  ]
+  const carrierOptions = computed(()=>shipmentMethod.shippingMethods);
   
   const priorityLevels = [
     { title: 'High Priority', value: 'high' },
@@ -564,13 +691,32 @@
       shipDialog.value = false
       selectedOrders.value = []
       
-      // Reset shipment data
+     // Reset shipment data
       shipmentData.value = {
         trackingNumber: '',
-        carrier: '',
-        estimatedDelivery: '',
-        notes: ''
+        shippingMethodId: null,
+        carrierName: '',
+        shippingLabelUrl: '',
+        shipmentStatus: '',
+
+        packageWeight: null,
+        packageLength: null,
+        packageWidth: null,
+        packageHeight: null,
+
+        packagingNotes: '',
+        requiresPhytosanitaryCertificate: false,
+        phytosanitaryCertificateNumber: '',
+        customsDeclarationNumber: '',
+
+        shippedDate: '',
+        estimatedDeliveryDate: '',
+        actualDeliveryDate: '',
+
+        createdAt: '',
+        createdBy: null
       }
+
     } catch (error) {
       console.error('Error shipping orders:', error)
       snackbar.error('Error shipping orders')
@@ -620,7 +766,8 @@
   
   onMounted(async () => {
     try {
-      await orderStore.fetchOrders()
+      await orderStore.fetchOrders();
+      await shipmentMethod.fetchShippingMethods();
     } catch (error) {
       console.error('Error fetching orders:', error)
       snackbar.error('Error loading orders')
