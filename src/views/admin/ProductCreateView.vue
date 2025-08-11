@@ -1258,7 +1258,7 @@ const processImagePreviews = ref([]);
 const artisanImagePreview = ref('');
 
 // Image preview handlers (without upload logic)
-const handleMainImageChange = (event) => {
+const handleMainImageChange = (event:Event) => {
   const file = event.target.files?.[0];
   if (file) {
     productForm.mainImageFile = file;
@@ -1315,7 +1315,7 @@ const handleArtisanImageChange = (event) => {
 };
 
 // Remove image functions
-const removeGalleryImage = (index) => {
+const removeGalleryImage = (index:number) => {
   galleryImagePreviews.value.splice(index, 1);
   const dt = new DataTransfer();
   const files = Array.from(productForm.galleryImageFiles);

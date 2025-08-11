@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { apiService, type IAPIResponse } from "@/services/api";
-import type { CreateProductCategory, ProductCategory } from "./types/member";
+import type { ProductCategory } from "./types/member";
 
 export const useProductCategoryStore = defineStore("productCategory", {
   state: () => ({
@@ -36,10 +36,10 @@ export const useProductCategoryStore = defineStore("productCategory", {
       }
     },
 
-    async createCategory(data: CreateProductCategory): Promise<IAPIResponse<ProductCategory>> {
+    async createCategory(data: FormData): Promise<IAPIResponse<ProductCategory>> {
       try {
         this.loading = true;
-        const response = await apiService.post<IAPIResponse<ProductCategory>>("/ProductCategories/Add", data);
+        const response = await apiService.post<IAPIResponse<ProductCategory>>("/Category/CreateProductCategory", data);
         if (response && response.isSuccessful && response.payload) {
           this.categories.push(response.payload);
         }
@@ -68,7 +68,22 @@ export const useProductCategoryStore = defineStore("productCategory", {
         this.loading = false;
       }
     },
-
+    async updateFormCategory(id: number, data: FormData): Promise<IAPIResponse<ProductCategory>> {
+      try {
+        this.loading = true;
+        const response = await apiService.put<IAPIResponse<ProductCategory>>(`/Category/UpdateCategory/${id}`, data);
+        const index = this.categories.findIndex(c => c.categoryId === id);
+        if (index !== -1 && response && response.isSuccessful && response.payload) {
+          this.categories[index] = response.payload;
+        }
+        return response;
+      } catch (error) {
+        this.error = "Failed to update product category";
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
     async deleteCategory(id: number): Promise<IAPIResponse<object>> {
       try {
         this.loading = true;

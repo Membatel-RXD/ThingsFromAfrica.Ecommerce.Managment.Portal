@@ -149,7 +149,12 @@
                 {{ item.isTouristFavorite ? 'Favorite' : 'Standard' }}
               </v-chip>
             </template>
-  
+            <template v-slot:item.categoryImageUrl="{ item }">
+              <v-avatar size="60" class="my-2">
+                <v-img :src="item.categoryImageUrl || '/api/placeholder/60/60'" :alt="item.categoryImageUrl"></v-img>
+              </v-avatar>
+          </template>
+
             <template v-slot:item.actions="{ item }">
               <v-btn
                 icon="mdi-pencil"
@@ -233,13 +238,34 @@
                     />
                   </v-col>
                   <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="formData.categoryImageUrl"
-                      label="Category Icon"
-                      variant="outlined"
-                      prepend-inner-icon="mdi-star"
-                      hint="Material Design Icon name (e.g., mdi-home)"
-                    />
+                    <v-file-input
+                            v-model="formData.categoryImageUrl"
+                            label="Upload Main Image"
+                            variant="outlined"
+                            color="orange-darken-2"
+                            prepend-inner-icon="mdi-camera"
+                            accept="image/*"
+                            :rules="[rules.imageSize, rules.imageType]"
+                            @change="handleMainImageChange"
+                            show-size
+                            class="text-black"
+                            style="color: black !important;"
+                          ></v-file-input>
+                          
+                          <!-- Main Image Preview -->
+                          <v-img
+                            v-if="mainImagePreview"
+                            :src="mainImagePreview"
+                            max-height="200"
+                            class="mt-4 rounded"
+                            contain
+                          >
+                            <template v-slot:placeholder>
+                              <div class="d-flex align-center justify-center fill-height">
+                                <v-progress-circular indeterminate></v-progress-circular>
+                              </div>
+                            </template>
+                          </v-img>
                   </v-col>
                   <v-col cols="12" md="4">
                     <v-switch
@@ -297,7 +323,7 @@
   
   <script setup lang="ts">
   import { useProductCategoryStore } from '@/stores/productCategory'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, reactive } from 'vue'
   import { useSnackbarStore } from '@/stores/snackbar'
   const categoryStore = useProductCategoryStore()
   const snackbar = useSnackbarStore();
@@ -310,20 +336,41 @@ import { ref, computed, onMounted } from 'vue'
   const statusFilter = ref('all')
   const favoriteFilter = ref('all')
   
+  const mainImagePreview = ref<string>('');
 
   // Form data
-  const formData = ref({
+  const formData = reactive({
     categoryId: null as number | null,
     categoryName: '',
     categoryDescription: '',
     categorySlug: '',
-    categoryImageUrl: '',
+    categoryImageUrl: null as File | null,
     sortOrder: 0,
     isActive: true,
     isTouristFavorite: false,
     isShowOnHomePage: false
   })
-  
+
+  // Image preview handlers (without upload logic)
+  const handleMainImageChange = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+
+  if (file) {
+    formData.categoryImageUrl = file;
+
+    const reader = new FileReader();
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      const result = e.target?.result;
+      if (typeof result === 'string') {
+        mainImagePreview.value = result;
+      }
+    };
+
+    reader.readAsDataURL(file);
+  }
+};
+
   // Options
   const statusOptions = [
     { title: 'All', value: 'all' },
@@ -352,7 +399,17 @@ import { ref, computed, onMounted } from 'vue'
   // Validation rules
   const rules = {
     required: (value: string) => !!value || 'This field is required',
-    number: (value: any) => !isNaN(value) || 'Must be a number'
+    number: (value: any) => !isNaN(value) || 'Must be a number',
+    imageSize: (value: File[]) => {
+    if (!value || value.length === 0) return true
+    const maxSize = 5 * 1024 * 1024 // 5MB
+    return value.every(file => file.size <= maxSize) || 'File size must be less than 5MB'
+  },
+  imageType: (value: File[]) => {
+    if (!value || value.length === 0) return true
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+    return value.every(file => allowedTypes.includes(file.type)) || 'Only image files are allowed'
+  }
   }
   
   // Computed properties
@@ -383,48 +440,71 @@ import { ref, computed, onMounted } from 'vue'
   
   const openCreateDialog = () => {
     editMode.value = false
-    formData.value = {
-      categoryId: null,
-      categoryName: '',
-      categoryDescription: '',
-      categorySlug: '',
-      categoryImageUrl: '',
-      sortOrder: categoryStore.getCategories.length + 1,
-      isActive: true,
-      isTouristFavorite: false,
-      isShowOnHomePage: false
+    Object.keys(formData).forEach(key => {
+    const typedKey = key as keyof typeof formData;
+    if (key === 'categoryImageUrl') {
+      (formData as any)[key] = null;
+    }  else if (typeof formData[typedKey] === 'string') {
+      (formData as any)[key] = '';
+    } else if (typeof formData[typedKey] === 'number') {
+      (formData as any)[key] = 0;
+    } else if (typeof formData[typedKey] === 'boolean') {
+      (formData as any)[key] = false;
     }
+  });
+  
+  // Reset previews
+    mainImagePreview.value = '';
     dialog.value = true
   }
   
   const editCategory = (item: any) => {
     editMode.value = true
-    formData.value = { ...item }
+    Object.assign(formData, item); 
     dialog.value = true
   }
   
   const closeDialog = () => {
     dialog.value = false
-    formData.value = {
-      categoryId: null,
-      categoryName: '',
-      categoryDescription: '',
-      categorySlug: '',
-      categoryImageUrl: '',
-      sortOrder: 0,
-      isActive: true,
-      isTouristFavorite: false,
-      isShowOnHomePage: false
+    Object.keys(formData).forEach(key => {
+    const typedKey = key as keyof typeof formData;
+    if (key === 'categoryImageUrl') {
+      (formData as any)[key] = null;
+    }  else if (typeof formData[typedKey] === 'string') {
+      (formData as any)[key] = '';
+    } else if (typeof formData[typedKey] === 'number') {
+      (formData as any)[key] = 0;
+    } else if (typeof formData[typedKey] === 'boolean') {
+      (formData as any)[key] = false;
     }
+  });
+  
+  // Reset previews
+  mainImagePreview.value = '';
   }
   
   const saveCategory = async () => {
     saving.value = true
     
     try {
-      if (editMode.value && formData.value.categoryId) {
+       // Create new category
+    const formDataToSubmit = new FormData();
+    
+    // Add all form fields
+    Object.keys(formData).forEach(key => {
+      if (key !== 'categoryImageUrl') {
+        const value = formData[key as keyof typeof formData];
+        formDataToSubmit.append(key, value as string | Blob);
+      }
+    });
+    
+    // Add image files
+    if (formData.categoryImageUrl) {
+      formDataToSubmit.append('categoryImageUrl', formData.categoryImageUrl);
+    }
+      if (editMode.value && formData.categoryId) {
         // Update existing category
-        const response = await categoryStore.updateCategory(formData.value.categoryId, formData.value)
+        const response = await categoryStore.updateFormCategory(formData.categoryId, formDataToSubmit)
         if (response.isSuccessful) {
             snackbar.success('Category updated successfully')
           closeDialog()
@@ -432,8 +512,8 @@ import { ref, computed, onMounted } from 'vue'
             snackbar.error('Error updating category')
         }
       } else {
-        // Create new category
-        const response = await categoryStore.createCategory(formData.value)
+       
+        const response = await categoryStore.createCategory(formDataToSubmit)
         if (response.isSuccessful) {
             snackbar.success('Category created successfully')
           closeDialog()
@@ -498,6 +578,7 @@ import { ref, computed, onMounted } from 'vue'
     statusFilter.value = 'all'
     favoriteFilter.value = 'all'
   }
+
   
   onMounted(async () => {
     try {
