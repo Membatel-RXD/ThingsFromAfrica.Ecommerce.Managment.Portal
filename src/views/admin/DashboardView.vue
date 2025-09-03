@@ -413,13 +413,13 @@
                 :items-per-page="5"
                 class="elevation-0"
               >
-                <template v-slot:item.categoryId="{ item }">
+                <template v-slot:[`item.categoryId`]="{ item }">
                   <div class="text-center">
                     <div class="font-weight-bold">{{ getCategoryName(item.categoryId) }}</div>
                   </div>
                 </template>
             
-                <template v-slot:item.actions="{ item }">
+                <template v-slot:[`item.actions`]="{ item }">
                   <v-btn
                     :to="{ name: 'product-details', params: { id: item.productId } }"
                     color="orange-darken-2"
@@ -442,9 +442,9 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useUserStore } from '@/stores/user'
 import Chart from 'chart.js/auto'
-import { dashboardService, type DashboardData, type DashboardStats, type RecentOrder, type TopProduct } from '@/services/dashboard'
+import { dashboardService, type DashboardData, type DashboardStats, type RecentOrder } from '@/services/dashboard'
 import { apiService, type IAPIResponse } from '@/services/api'
-import { ChartData, MostSoldProduct, ProductCategory } from '@/stores/types/member'
+import type { ChartData, MostSoldProduct, ProductCategory } from '@/stores/types/member'
 
 // Stores
 const userStore = useUserStore()

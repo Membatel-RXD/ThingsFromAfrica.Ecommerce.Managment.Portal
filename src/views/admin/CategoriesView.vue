@@ -130,7 +130,7 @@
             class="elevation-1"
             :sort-by="[{ key: 'sortOrder', order: 'asc' }]"
           >
-            <template v-slot:item.isActive="{ item }">
+            <template v-slot:[`item.isActive`]="{ item }">
               <v-chip
                 :color="item.isActive ? 'green' : 'grey'"
                 size="small"
@@ -140,7 +140,7 @@
               </v-chip>
             </template>
   
-            <template v-slot:item.isTouristFavorite="{ item }">
+            <template v-slot:[`item.isTouristFavorite`]="{ item }">
               <v-chip
                 :color="item.isTouristFavorite ? 'star' : 'grey'"
                 size="small"
@@ -149,13 +149,13 @@
                 {{ item.isTouristFavorite ? 'Favorite' : 'Standard' }}
               </v-chip>
             </template>
-            <template v-slot:item.categoryImageUrl="{ item }">
+            <template v-slot:[`item.categoryImageUrl`]="{ item }">
               <v-avatar size="60" class="my-2">
                 <v-img :src="item.categoryImageUrl || '/api/placeholder/60/60'" :alt="item.categoryImageUrl"></v-img>
               </v-avatar>
           </template>
 
-            <template v-slot:item.actions="{ item }">
+            <template v-slot:[`item.actions`]="{ item }">
               <v-btn
                 icon="mdi-pencil"
                 variant="text"

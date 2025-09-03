@@ -150,15 +150,15 @@
             class="elevation-1"
             :sort-by="[{ key: 'orderDate', order: 'desc' }]"
           >
-            <template v-slot:item.orderDate="{ item }">
+            <template v-slot:[`item.orderDate`]="{ item }">
               {{ formatDate(item.orderDate) }}
             </template>
   
-            <template v-slot:item.totalAmount="{ item }">
+            <template v-slot:[`item.totalAmount`]="{ item }">
               {{ formatCurrency(item.totalAmount, item.currency) }}
             </template>
   
-            <template v-slot:item.orderStatus="{ item }">
+            <template v-slot:[`item.orderStatus`]="{ item }">
               <v-chip
                 :color="getStatusColor(item.orderStatus)"
                 size="small"
@@ -168,7 +168,7 @@
               </v-chip>
             </template>
   
-            <template v-slot:item.isTouristOrder="{ item }">
+            <template v-slot:[`item.isTouristOrder`]="{ item }">
               <v-chip
                 :color="item.isTouristOrder ? 'blue' : 'grey'"
                 size="small"
@@ -178,7 +178,7 @@
               </v-chip>
             </template>
   
-            <template v-slot:item.requiresPhytosanitaryCertificate="{ item }">
+            <template v-slot:[`item.requiresPhytosanitaryCertificate`]="{ item }">
               <v-icon
                 :color="item.requiresPhytosanitaryCertificate ? 'green' : 'grey'"
                 size="small"
@@ -187,7 +187,7 @@
               </v-icon>
             </template>
   
-            <template v-slot:item.actions="{ item }">
+            <template v-slot:[`item.actions`]="{ item }">
               <v-btn
                 icon="mdi-eye"
                 variant="text"
@@ -291,8 +291,8 @@
                             :rules="[rules.required, rules.email]"
                             variant="outlined"
                             prepend-inner-icon="mdi-email"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                         <v-col cols="12" md="6">
                           <v-text-field
@@ -300,8 +300,8 @@
                             label="Customer Phone"
                             variant="outlined"
                             prepend-inner-icon="mdi-phone"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                       </v-row>
                     </v-card>
@@ -320,8 +320,8 @@
                             label="First Name"
                             :rules="[rules.required]"
                             variant="outlined"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                         <v-col cols="12" md="6">
                           <v-text-field
@@ -329,16 +329,16 @@
                             label="Last Name"
                             :rules="[rules.required]"
                             variant="outlined"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                         <v-col cols="12" md="6">
                           <v-text-field
                             v-model="formData.billingCompany"
                             label="Company (Optional)"
                             variant="outlined"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                         <v-col cols="12" md="6">
                           <v-text-field
@@ -346,16 +346,16 @@
                             label="Address Line 1"
                             :rules="[rules.required]"
                             variant="outlined"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                         <v-col cols="12" md="6">
                           <v-text-field
                             v-model="formData.billingAddressLine2"
                             label="Address Line 2 (Optional)"
                             variant="outlined"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                         <v-col cols="12" md="6">
                           <v-text-field
@@ -363,24 +363,24 @@
                             label="City"
                             :rules="[rules.required]"
                             variant="outlined"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                         <v-col cols="12" md="4">
                           <v-text-field
                             v-model="formData.billingStateProvince"
                             label="State/Province"
                             variant="outlined"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                         <v-col cols="12" md="4">
                           <v-text-field
                             v-model="formData.billingPostalCode"
                             label="Postal Code"
                             variant="outlined"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                         <v-col cols="12" md="4">
                           <v-text-field
@@ -392,8 +392,8 @@
                             rules.uppercaseOnly
                             ]"                            
                             variant="outlined"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                       </v-row>
                     </v-card>
@@ -411,8 +411,8 @@
                           variant="outlined"
                           color="orange-darken-2"
                           @click="copyBillingToShipping"
-                          :disabled="!manualCustomerEntry && selectedCustomerId"
-                        >
+                          :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                          >
                           Copy from Billing
                         </v-btn>
                       </div>
@@ -423,8 +423,8 @@
                             label="First Name"
                             :rules="[rules.required]"
                             variant="outlined"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                         <v-col cols="12" md="6">
                           <v-text-field
@@ -432,16 +432,16 @@
                             label="Last Name"
                             :rules="[rules.required]"
                             variant="outlined"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                         <v-col cols="12" md="6">
                           <v-text-field
                             v-model="formData.shippingCompany"
                             label="Company (Optional)"
                             variant="outlined"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                         <v-col cols="12" md="6">
                           <v-text-field
@@ -449,16 +449,16 @@
                             label="Address Line 1"
                             :rules="[rules.required]"
                             variant="outlined"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                         <v-col cols="12" md="6">
                           <v-text-field
                             v-model="formData.shippingAddressLine2"
                             label="Address Line 2 (Optional)"
                             variant="outlined"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                         <v-col cols="12" md="6">
                           <v-text-field
@@ -466,24 +466,24 @@
                             label="City"
                             :rules="[rules.required]"
                             variant="outlined"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                         <v-col cols="12" md="4">
                           <v-text-field
                             v-model="formData.shippingStateProvince"
                             label="State/Province"
                             variant="outlined"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                         <v-col cols="12" md="4">
                           <v-text-field
                             v-model="formData.shippingPostalCode"
                             label="Postal Code"
                             variant="outlined"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                         <v-col cols="12" md="4">
                           <v-text-field
@@ -491,8 +491,8 @@
                             label="Country Code"
                             :rules="[rules.required]"
                             variant="outlined"
-                            :disabled="!manualCustomerEntry && selectedCustomerId"
-                          />
+                            :disabled="!manualCustomerEntry && selectedCustomerId !== null"
+                            />
                         </v-col>
                       </v-row>
                     </v-card>
@@ -717,7 +717,7 @@
   import { ref, computed, onMounted } from 'vue'
   import { useSnackbarStore } from '@/stores/snackbar'
   import { useOrderStore } from '@/stores/orderStore'
-  import { OrderDto } from '@/stores/types/member'
+  import type { OrderDto } from '@/stores/types/member'
   import { useCustomerStore } from '@/stores/customer'
   const orderStore = useOrderStore()
   const snackbar = useSnackbarStore()

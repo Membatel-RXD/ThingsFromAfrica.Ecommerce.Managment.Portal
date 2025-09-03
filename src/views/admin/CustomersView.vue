@@ -159,7 +159,7 @@
             :sort-by="[{ key: 'dateJoined', order: 'desc' }]"
             item-key="userDetails.userId"
           >
-            <template v-slot:item.profilePicture="{ item }">
+            <template v-slot:[`item.profilePicture`]="{ item }">
               <v-avatar
                 size="40"
                 class="ma-2"
@@ -169,21 +169,21 @@
               </v-avatar>
             </template>
   
-            <template v-slot:item.customerName="{ item }">
+            <template v-slot:[`item.customerName`]="{ item }">
               <div>
                 <div class="font-weight-bold">{{ item.userDetails.firstName }} {{ item.userDetails.lastName }}</div>
                 <div class="text-caption text-grey-darken-1">{{ item.userDetails.email }}</div>
               </div>
             </template>
   
-            <template v-slot:item.contactInfo="{ item }">
+            <template v-slot:[`item.contactInfo`]="{ item }">
               <div class="d-flex flex-column">
                 <span class="text-caption">{{ item.userDetails.phoneNumber }}</span>
                 <span class="text-caption text-grey-darken-1">{{ item.userAddresses[0]?.country || 'N/A' }}</span>
               </div>
             </template>
             
-            <template v-slot:item.customerTier="{ item }">
+            <template v-slot:[`item.customerTier`]="{ item }">
             <v-chip
               :color="getTierColor(item.customerProfile.loyaltyTier)"
               size="small"
@@ -194,7 +194,7 @@
             </v-chip>
           </template>
           
-            <template v-slot:item.userStatus="{ item }">
+            <template v-slot:[`item.userStatus`]="{ item }">
               <v-chip
                 :color="item.userDetails.userStatus === 'active' ? 'green' : 'grey'"
                 size="small"
@@ -204,7 +204,7 @@
               </v-chip>
             </template>
   
-            <template v-slot:item.emailVerified="{ item }">
+            <template v-slot:[`item.emailVerified`]="{ item }">
               <v-chip
                 :color="item.userDetails.emailVerified ? 'blue' : 'orange'"
                 size="small"
@@ -215,20 +215,20 @@
               </v-chip>
             </template>
   
-            <template v-slot:item.totalOrders="{ item }">
+            <template v-slot:[`item.totalOrders`]="{ item }">
               <div class="text-center">
                 <div class="font-weight-bold">{{ item.customerProfile.totalOrders }}</div>
                 <div class="text-caption text-grey-darken-1">${{ item.customerProfile.totalSpent?.toFixed(2) || '0.00' }}</div>
               </div>
             </template>
   
-            <template v-slot:item.dateJoined="{ item }">
+            <template v-slot:[`item.dateJoined`]="{ item }">
               <span class="text-body-2">
                 {{ formatDate(item.userDetails.createdAt) }}
               </span>
             </template>
   
-            <template v-slot:item.actions="{ item }">
+            <template v-slot:[`item.actions`]="{ item }">
               <v-btn
                 icon="mdi-eye"
                 variant="text"
@@ -457,7 +457,7 @@
   <script setup lang="ts">
   import { ref, computed, onMounted } from 'vue';
   import { useSnackbarStore } from '@/stores/snackbar';
-  import { CustomerProfileContainerDTO, User } from '@/stores/types/member';
+  import type { CustomerProfileContainerDTO } from '@/stores/types/member';
   import { useCustomerStore } from '@/stores/customer';
   
   // Mock store - replace with actual customer store

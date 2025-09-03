@@ -154,7 +154,7 @@
           :sort-by="[{ key: 'orderDate', order: 'asc' }]"
           item-value="orderId"
         >
-          <template v-slot:item.orderDate="{ item }">
+          <template v-slot:[`item.orderDate`]="{ item }">
             <div>
               {{ formatDate(item.orderDate) }}
               <v-chip
@@ -168,11 +168,11 @@
             </div>
           </template>
 
-          <template v-slot:item.totalAmount="{ item }">
+          <template v-slot:[`item.totalAmount`]="{ item }">
             {{ formatCurrency(item.totalAmount, item.currency) }}
           </template>
 
-          <template v-slot:item.priority="{ item }">
+          <template v-slot:[`item.priority`]="{ item }">
             <v-chip
               :color="getPriorityColor(item)"
               size="small"
@@ -182,7 +182,7 @@
             </v-chip>
           </template>
 
-          <template v-slot:item.isTouristOrder="{ item }">
+          <template v-slot:[`item.isTouristOrder`]="{ item }">
             <v-chip
               :color="item.isTouristOrder ? 'blue' : 'grey'"
               size="small"
@@ -192,7 +192,7 @@
             </v-chip>
           </template>
 
-          <template v-slot:item.requiresPhytosanitaryCertificate="{ item }">
+          <template v-slot:[`item.requiresPhytosanitaryCertificate`]="{ item }">
             <v-icon
               :color="item.requiresPhytosanitaryCertificate ? 'green' : 'grey'"
               size="small"
@@ -201,7 +201,7 @@
             </v-icon>
           </template>
 
-          <template v-slot:item.actions="{ item }">
+          <template v-slot:[`item.actions`]="{ item }">
             <v-btn
               icon="mdi-eye"
               variant="text"
@@ -600,7 +600,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useSnackbarStore } from '@/stores/snackbar'
 import { useOrderStore } from '@/stores/orderStore'
-import { OrderDto } from '@/stores/types/member'
+import type { OrderDto } from '@/stores/types/member'
 import { useShippingMethodStore } from '@/stores/shippingMethod'
 import { useShipmentStore } from '@/stores/shipment'
 

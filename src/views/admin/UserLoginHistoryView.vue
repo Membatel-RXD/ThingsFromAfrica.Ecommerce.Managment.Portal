@@ -64,19 +64,19 @@
             class="elevation-1"
             :sort-by="[{ key: 'loginAt', order: 'desc' }]"
           >
-            <template v-slot:item.loginStatus="{ item }">
+            <template v-slot:[`item.loginStatus`]="{ item }">
               <v-chip :color="item.loginStatus === 'Success' ? 'green' : 'red'" size="small" variant="flat">
                 {{ item.loginStatus }}
               </v-chip>
             </template>
-            <template v-slot:item.loginAt="{ item }">
+            <template v-slot:[`item.loginAt`]="{ item }">
               <span class="text-caption">{{ formatDate(item.loginAt) }}</span>
             </template>
           </v-data-table>
         </v-card>
   
         <!-- Export Dialog -->
-        <v-dialog v-model="exportDialog" max-width="400">
+        <!-- <v-dialog v-model="exportDialog" max-width="400">
           <v-card>
             <v-card-title>Export Login History</v-card-title>
             <v-card-text>
@@ -105,7 +105,7 @@
               <v-btn color="primary" @click="exportCSV">Export</v-btn>
             </v-card-actions>
           </v-card>
-        </v-dialog>
+        </v-dialog> -->
       </v-container>
     </div>
   </template>
@@ -153,8 +153,6 @@
   const exportDialog = ref(false);
   const exportStart = ref('');
   const exportEnd = ref('');
-  const startMenu = ref(false);
-  const endMenu = ref(false);
   const isLoading = ref(false);
   
   function formatDate(dateStr: string) {

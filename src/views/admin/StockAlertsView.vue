@@ -151,7 +151,7 @@
             class="elevation-0"
             :items-per-page="15"
           >
-            <template v-slot:item.severity="{ item }">
+            <template v-slot:[`item.severity`]="{ item }">
               <v-chip
                 :color="getSeverityColor(item.alertType)"
                 size="small"
@@ -162,7 +162,7 @@
               </v-chip>
             </template>
   
-            <template v-slot:item.productName="{ item }">
+            <template v-slot:[`item.productName`]="{ item }">
               <div class="d-flex align-center">
                 <v-avatar size="40" class="me-3">
                   <v-img :src="item.productImage || '/api/placeholder/40/40'" :alt="item.productName"></v-img>
@@ -174,7 +174,7 @@
               </div>
             </template>
   
-            <template v-slot:item.currentStock="{ item }">
+            <template v-slot:[`item.currentStock`]="{ item }">
               <div class="text-center">
                 <v-chip
                   :color="getStockColor(item.currentStock, item.thresholdValue)"
@@ -187,7 +187,7 @@
               </div>
             </template>
   
-            <template v-slot:item.status="{ item }">
+            <template v-slot:[`item.status`]="{ item }">
               <v-chip
                 :color="getStatusColor(item.status)"
                 size="small"
@@ -197,14 +197,14 @@
               </v-chip>
             </template>
   
-            <template v-slot:item.createdAt="{ item }">
+            <template v-slot:[`item.createdAt`]="{ item }">
               <div>
                 <div class="font-weight-medium">{{ formatDate(item.createdAt) }}</div>
                 <div class="text-caption text-grey">{{ formatTime(item.createdAt) }}</div>
               </div>
             </template>
   
-            <template v-slot:item.actions="{ item }">
+            <template v-slot:[`item.actions`]="{ item }">
               <div class="d-flex ga-2">
                 <v-btn
                   icon="mdi-eye"
@@ -411,7 +411,7 @@
   </template>
   
   <script setup lang="ts">
-  import { StockAlert } from '@/stores/types/member'
+  import { type StockAlert } from '@/stores/types/member'
   import { ref, computed, onMounted } from 'vue'
   import { useStockAlertStore } from '@/stores/stockAlertStore'
   import { useProductCategoryStore } from '@/stores/productCategory';

@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { apiService, type IAPIResponse } from "@/services/api";
-import type { ShipmentDTO, CreateShipment, CreateShipmentRequest } from "./types/member";
+import type { ShipmentDTO, CreateShipmentRequest } from "./types/member";
 
 export const useShipmentStore = defineStore("shipment", {
   state: () => ({

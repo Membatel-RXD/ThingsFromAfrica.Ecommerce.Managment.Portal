@@ -348,9 +348,9 @@
   <script setup lang="ts">
   import { ref, onMounted, nextTick } from 'vue'
   import { Chart, registerables } from 'chart.js'
-import { apiService, IAPIResponse } from '@/services/api'
+import { apiService, type IAPIResponse } from '@/services/api'
 import { useProductCategoryStore } from '@/stores/productCategory';
-import { ChartData } from '@/stores/types/member';
+import { type ChartData } from '@/stores/types/member';
   
   const categoryStore = useProductCategoryStore();
   Chart.register(...registerables)
@@ -764,15 +764,16 @@ async function GetCategoryChartData() {
               }
             },
             scales: {
-              y: {
-                beginAtZero: true,
-                ticks: {
-                  callback: function(value) {
-                    return '$' + (value / 1000) + 'K'
+                    y: {
+                      beginAtZero: true,
+                      ticks: {
+                        callback: function(tickValue: string | number, index: number, ticks: any[]) {
+                          const numValue = typeof tickValue === 'string' ? parseFloat(tickValue) : tickValue;
+                          return '$' + (numValue / 1000) + 'K'
+                        }
+                      }
+                    }
                   }
-                }
-              }
-            }
           }
         })
       }

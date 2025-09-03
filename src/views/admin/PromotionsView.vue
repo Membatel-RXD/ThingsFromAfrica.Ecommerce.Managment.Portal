@@ -150,7 +150,7 @@
             class="elevation-1"
             :sort-by="[{ key: 'startDate', order: 'desc' }]"
           >
-            <template v-slot:item.promotionCode="{ item }">
+            <template v-slot:[`item.promotionCode`]="{ item }">
               <v-chip
                 color="deep-purple"
                 size="small"
@@ -161,25 +161,25 @@
               </v-chip>
             </template>
   
-            <template v-slot:item.discountValue="{ item }">
+            <template v-slot:[`item.discountValue`]="{ item }">
               <span class="font-weight-bold">
                 {{ item.isPercentage ? item.discountValue + '%' : '$' + item.discountValue }}
               </span>
             </template>
   
-            <template v-slot:item.startDate="{ item }">
+            <template v-slot:[`item.startDate`]="{ item }">
               <span class="text-body-2">
                 {{ formatDate(item.startDate) }}
               </span>
             </template>
   
-            <template v-slot:item.endDate="{ item }">
+            <template v-slot:[`item.endDate`]="{ item }">
               <span class="text-body-2">
                 {{ formatDate(item.endDate) }}
               </span>
             </template>
   
-            <template v-slot:item.isActive="{ item }">
+            <template v-slot:[`item.isActive`]="{ item }">
               <v-chip
                 :color="item.isActive ? 'green' : 'grey'"
                 size="small"
@@ -189,7 +189,7 @@
               </v-chip>
             </template>
   
-            <template v-slot:item.validity="{ item }">
+            <template v-slot:[`item.validity`]="{ item }">
               <v-chip
                 :color="getValidityColor(item)"
                 size="small"
@@ -199,7 +199,7 @@
               </v-chip>
             </template>
   
-            <template v-slot:item.usage="{ item }">
+            <template v-slot:[`item.usage`]="{ item }">
               <div class="d-flex align-center">
                 <v-progress-linear
                   :model-value="(item.currentUsageCount / item.maxUsageCount) * 100"
@@ -214,7 +214,7 @@
               </div>
             </template>
   
-            <template v-slot:item.isTouristOnly="{ item }">
+            <template v-slot:[`item.isTouristOnly`]="{ item }">
               <v-chip
                 :color="item.isTouristOnly ? 'blue' : 'grey'"
                 size="small"
@@ -224,7 +224,7 @@
               </v-chip>
             </template>
   
-            <template v-slot:item.actions="{ item }">
+            <template v-slot:[`item.actions`]="{ item }">
               <v-btn
                 icon="mdi-eye"
                 variant="text"
@@ -510,7 +510,7 @@
   import { usePromotionStore } from '@/stores/promotion'
   import { ref, computed, onMounted } from 'vue'
   import { useSnackbarStore } from '@/stores/snackbar'
-  import { PromotionDTO } from '@/stores/types/member'
+  import type { CreatePromotionRequest, PromotionDTO } from '@/stores/types/member'
 import { useUserStore } from '@/stores/user'
   
   const promotionStore = usePromotionStore()
@@ -741,10 +741,17 @@ import { useUserStore } from '@/stores/user'
         startDate: new Date(formData.value.startDate).toISOString(),
         endDate: new Date(formData.value.endDate).toISOString(),
         currentUsageCount:0
-      }
+      } as CreatePromotionRequest
   
       if (editMode.value) {
-        const response = await promotionStore.updatePromotion(selectedPromotion.value?.promotionId!, promotionData)
+        if (!selectedPromotion.value) {
+          throw new Error("No promotion selected");
+        }
+
+        const response = await promotionStore.updatePromotion(
+          selectedPromotion.value.promotionId,
+          promotionData
+        );
         if (response.isSuccessful) {
           snackbar.success('Promotion updated successfully')
           closeDialog()

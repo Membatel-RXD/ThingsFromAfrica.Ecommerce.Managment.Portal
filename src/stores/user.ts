@@ -130,6 +130,30 @@ export const useUserStore = defineStore('user', {
       }
     },
 
+    async deleteUser(id: number): Promise<IAPIResponse<object>> {
+      try {
+        const response = await apiService.delete<IAPIResponse<object>>(`/Users/Delete?userId=${id}`);
+        if (response && response.isSuccessful) {
+          this.users = this.users.filter(s => s.userId !== id);
+        }
+        return response;
+      } catch (e: unknown) {
+        throw e;
+      }
+    },
+    async toggleUserLock(id: number, isLocked:boolean): Promise<IAPIResponse<object>> {
+      try {
+        const response = await apiService.put<IAPIResponse<object>>(`/Users/ToggleUser?userId=${id}`,{isLocked:isLocked});
+        if (response && response.isSuccessful) {
+          this.users = this.users.filter(s => s.userId !== id);
+        }
+        return response;
+      } catch (e: unknown) {
+        throw e;
+      }
+    },
+
+
     async getAllUsers() {
       try {
         const response = await apiService.get<IAPIResponse<UserDTO[]>>(
@@ -161,6 +185,19 @@ export const useUserStore = defineStore('user', {
         }
       } catch (e: unknown) {
         throw e;
+      }
+    },
+    async updateUser( data: Partial<UserDTO>): Promise<IAPIResponse<UserDTO>> {
+      try {
+        const response = await apiService.put<IAPIResponse<UserDTO>>(`/Users/Update?userId=${data.userId}`, data);
+        const index = this.users.findIndex(s => s.userId === data.userId);
+        if (index !== -1 && response && response.isSuccessful && response.payload) {
+          this.users[index] = response.payload;
+        }
+        return response;
+      } catch (error) {
+        throw error;
+
       }
     },
     async CreateNewUser(userCreationRequest: CreateUsersRequest): Promise<IAPIResponse<object>> {

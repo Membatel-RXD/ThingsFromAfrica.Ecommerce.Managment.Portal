@@ -178,11 +178,11 @@
           :sort-by="[{ key: 'shippedDate', order: 'desc' }]"
           :no-data-text="'No shipments match your search criteria'"
         >
-          <template v-slot:item.shippedDate="{ item }">
+          <template v-slot:[`item.shippedDate`]="{ item }">
             {{ item.shippedDate ? formatDate(item.shippedDate) : 'N/A' }}
           </template>
 
-          <template v-slot:item.estimatedDeliveryDate="{ item }">
+          <template v-slot:[`item.estimatedDeliveryDate`]="{ item }">
             <div>
               {{ item.estimatedDeliveryDate ? formatDate(item.estimatedDeliveryDate) : 'N/A' }}
               <v-chip
@@ -195,16 +195,15 @@
               </v-chip>
             </div>
           </template>
-
-          <template v-slot:item.actualDeliveryDate="{ item }">
+          <template #[`item.actualDeliveryDate`]="{ item }">
             {{ item.actualDeliveryDate ? formatDate(item.actualDeliveryDate) : 'Pending' }}
           </template>
 
-          <template v-slot:item.totalAmount="{ item }">
+          <template #[`item.totalAmount`]="{ item }">
             {{ formatCurrency(item.totalAmount || 0, item.currency || 'USD') }}
           </template>
 
-          <template v-slot:item.shipmentStatus="{ item }">
+          <template #[`item.shipmentStatus`]="{ item }">
             <v-chip
               :color="getShipmentStatusColor(item.shipmentStatus)"
               size="small"
@@ -214,7 +213,7 @@
             </v-chip>
           </template>
 
-          <template v-slot:item.carrierName="{ item }">
+          <template #[`item.carrierName`]="{ item }">
             <div class="d-flex align-center">
               <v-icon :color="getCarrierColor(item.carrierName)" size="small" class="me-2">
                 {{ getCarrierIcon(item.carrierName) }}
@@ -223,7 +222,7 @@
             </div>
           </template>
 
-          <template v-slot:item.trackingNumber="{ item }">
+          <template #[`item.trackingNumber`]="{ item }">
             <div class="d-flex align-center">
               <span class="font-weight-medium">{{ item.trackingNumber || 'N/A' }}</span>
               <v-btn
@@ -237,7 +236,7 @@
             </div>
           </template>
 
-          <template v-slot:item.actions="{ item }">
+          <template #[`item.actions`]="{ item }">
             <v-btn
               icon="mdi-pencil"
               variant="text"
@@ -254,6 +253,7 @@
               v-if="item.shipmentStatus !== 'delivered'"
             />
           </template>
+
         </v-data-table>
       </v-card>
 
@@ -431,9 +431,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useSnackbarStore } from '@/stores/snackbar'
 import { useShipmentStore } from '@/stores/shipment'
-import { ShipmentDTO } from '@/stores/types/member'
+import { type ShipmentDTO } from '@/stores/types/member'
 import { useShippingMethodStore } from '@/stores/shippingMethod'
-import { italic } from '@cloudinary/url-gen/qualifiers/fontStyle'
 
 const orderStore = useShipmentStore()
 const snackbar = useSnackbarStore()
@@ -452,7 +451,27 @@ const selectedShipment = ref<ShipmentDTO>()
 const shipmentMethod = useShippingMethodStore()
 
 // Edit shipment data with all fields and default values
-const editShipmentData = ref({
+const editShipmentData = ref<{
+  trackingNumber: string
+  shippingMethodId: number | null 
+  carrierName: string
+  shippingLabelUrl: string
+  shipmentStatus: string
+  packageWeight: number | null
+  packageLength: number | null
+  packageWidth: number | null
+  packageHeight: number | null
+  packagingNotes: string
+  requiresPhytosanitaryCertificate: boolean
+  phytosanitaryCertificateNumber: string
+  customsDeclarationNumber: string
+  shippedDate: string
+  estimatedDeliveryDate: string
+  actualDeliveryDate: string
+  createdAt: string
+  createdBy: number | null
+  orderIds: number[]
+}>({
   trackingNumber: '',
   shippingMethodId: null,
   carrierName: '',
@@ -470,9 +489,10 @@ const editShipmentData = ref({
   estimatedDeliveryDate: '',
   actualDeliveryDate: '',
   createdAt: new Date().toISOString(),
-  createdBy: null,
-  orderIds: [] as number[]
+  createdBy: null,   // ✅ use null as the initial value
+  orderIds: []
 })
+
 
 // Options
 const statusOptions = [
@@ -647,7 +667,7 @@ const editShipment = (item: ShipmentDTO) => {
     actualDeliveryDate: formatDateForInput(item.actualDeliveryDate) || '',
     createdAt: item.createdAt || new Date().toISOString(),
     orderIds: [item.orderId],
-    createdBy: item.createdBy,
+    createdBy: item.createdBy || 0,
   }
   editShipmentDialog.value = true
 }
@@ -676,13 +696,11 @@ const confirmEditShipment = async () => {
 
 const markAsDelivered = async (item: any) => {
   try {
-    const response = await orderStore.markAsDelivered(item.orderId)
-    if (response?.isSuccessful) {
+    // const response = await orderStore.markAsDelivered(item.orderId)
+    // if (response?.isSuccessful) {
       snackbar.success('Shipment marked as delivered')
       await orderStore.fetchShipments()
-    } else {
-      snackbar.error('Error marking shipment as delivered')
-    }
+  
   } catch (error) {
     console.error('Error marking as delivered:', error)
     snackbar.error('Error marking shipment as delivered')

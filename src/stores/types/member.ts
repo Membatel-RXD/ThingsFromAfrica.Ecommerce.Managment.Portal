@@ -670,7 +670,7 @@ export interface ReviewCreateOrUpdate {
 export interface ShipmentDTO {
   shipmentId: number;
   orderId: number;
-  shippingMethodId: number;
+  shippingMethodId: number | null | undefined;
   trackingNumber: string;
   carrierName: string;
   shippingLabelUrl: string;

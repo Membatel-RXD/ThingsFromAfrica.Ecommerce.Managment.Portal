@@ -154,14 +154,14 @@
               </v-avatar>
             </template>
   
-            <template v-slot:item.artisanName="{ item }">
+            <template v-slot:[`item.artisanName`]="{ item }">
               <div>
                 <div class="font-weight-bold">{{ item.artisanName }}</div>
                 <div class="text-caption text-grey-darken-1">{{ item.village }}, {{ item.region }}</div>
               </div>
             </template>
   
-            <template v-slot:item.yearsOfExperience="{ item }">
+            <template v-slot:[`item.yearsOfExperience`]="{ item }">
               <v-chip
                 :color="getExperienceColor(item.yearsOfExperience)"
                 size="small"
@@ -171,7 +171,7 @@
               </v-chip>
             </template>
   
-            <template v-slot:item.isActive="{ item }">
+            <template v-slot:[`item.isActive`]="{ item }">
               <v-chip
                 :color="item.isActive ? 'green' : 'grey'"
                 size="small"
@@ -181,14 +181,14 @@
               </v-chip>
             </template>
   
-            <template v-slot:item.contactInfo="{ item }">
+            <template v-slot:[`item.contactInfo`]="{ item }">
               <div class="d-flex flex-column">
                 <span class="text-caption">{{ item.contactPhone }}</span>
                 <span class="text-caption text-grey-darken-1">{{ item.contactEmail }}</span>
               </div>
             </template>
   
-            <template v-slot:item.actions="{ item }">
+            <template v-slot:[`item.actions`]="{ item }">
               <v-btn
                 icon="mdi-eye"
                 variant="text"

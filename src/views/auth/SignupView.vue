@@ -299,8 +299,8 @@
   </template>
   
   <script setup lang="ts">
-  import { CreateUsersRequest } from '@/stores/types/member'
-import { ref, computed } from 'vue'
+  import { type CreateUsersRequest } from '@/stores/types/member'
+import { ref } from 'vue'
   
 
   // Form data interface

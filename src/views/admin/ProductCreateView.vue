@@ -1053,7 +1053,7 @@ import { ProductCreationRequestWithImages } from '@/stores/types/member'
 
 // Interface definitions for better type safety
 interface ValidationRule {
-  (value: any): boolean | string
+  (value: unknown): boolean | string
 }
 
 interface StepperItem {
@@ -1107,7 +1107,7 @@ const stepperItems: StepperItem[] = [
 
 // Validation rules with proper typing
 const rules: Record<string, ValidationRule> = {
-  required: (value: any): boolean | string => !!value || 'This field is required',
+  required: (value: unknown): boolean | string => !!value || 'This field is required',
   positive: (value: number): boolean | string => value > 0 || 'Must be greater than 0',
   nonNegative: (value: number): boolean | string => value >= 0 || 'Must be 0 or greater',
   imageSize: (value: File[] | null): boolean | string => {
