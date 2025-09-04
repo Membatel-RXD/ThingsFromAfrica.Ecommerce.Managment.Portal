@@ -768,7 +768,7 @@
               </v-card>
             </template>
 
-            <template v-slot:item.7>
+            <template v-slot:[`item.7`]>
               <v-card flat>
                 <v-card-title class="text-h6 font-weight-bold text-orange-darken-4 pa-6">
                   <v-icon icon="mdi-cog" class="me-2"></v-icon>
@@ -1049,7 +1049,7 @@ import { useSnackbarStore } from '@/stores/snackbar'
 import { useArtisanStore } from '@/stores/artisan'
 import { useUserStore } from '@/stores/user'
 import { useProductStore } from '@/stores/product'
-import { ProductCreationRequestWithImages } from '@/stores/types/member'
+import type { ProductCreationRequestWithImages } from '@/stores/types/member'
 
 // Interface definitions for better type safety
 interface ValidationRule {
@@ -1108,19 +1108,39 @@ const stepperItems: StepperItem[] = [
 // Validation rules with proper typing
 const rules: Record<string, ValidationRule> = {
   required: (value: unknown): boolean | string => !!value || 'This field is required',
-  positive: (value: number): boolean | string => value > 0 || 'Must be greater than 0',
-  nonNegative: (value: number): boolean | string => value >= 0 || 'Must be 0 or greater',
-  imageSize: (value: File[] | null): boolean | string => {
-    if (!value || value.length === 0) return true
-    const maxSize = 5 * 1024 * 1024 // 5MB
-    return value.every(file => file.size <= maxSize) || 'File size must be less than 5MB'
+  
+  positive: (value: unknown): boolean | string => {
+    const num = Number(value);
+    return num > 0 || 'Must be greater than 0';
   },
-  imageType: (value: File[] | null): boolean | string => {
-    if (!value || value.length === 0) return true
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
-    return value.every(file => allowedTypes.includes(file.type)) || 'Only image files are allowed'
+  
+  nonNegative: (value: unknown): boolean | string => {
+    const num = Number(value);
+    return num >= 0 || 'Must be 0 or greater';
+  },
+  
+  imageSize: (value: unknown): boolean | string => {
+    // Type guard to check if value is File array
+    if (!value || !Array.isArray(value) || value.length === 0) return true;
+    
+    // Check if all items in array are Files
+    if (!value.every(item => item instanceof File)) return 'Invalid file type';
+    
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    return value.every(file => file.size <= maxSize) || 'File size must be less than 5MB';
+  },
+  
+  imageType: (value: unknown): boolean | string => {
+    // Type guard to check if value is File array
+    if (!value || !Array.isArray(value) || value.length === 0) return true;
+    
+    // Check if all items in array are Files
+    if (!value.every(item => item instanceof File)) return 'Invalid file type';
+    
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    return value.every(file => allowedTypes.includes(file.type)) || 'Only image files are allowed';
   }
-}
+};
 
 // Computed properties with proper typing
 const categories = computed<Category[]>(() => productCategory.categories)

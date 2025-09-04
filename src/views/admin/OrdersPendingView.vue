@@ -632,7 +632,7 @@ const selectedPriority = ref('')
 // Shipment data
 const shipmentData = ref({
   trackingNumber: '',
-  shippingMethodId: null,
+  shippingMethodId: 0,
   carrierName: '',
   shippingLabelUrl: '',
   shipmentStatus: 'Pending',
@@ -808,7 +808,7 @@ const shipSingleOrder = (item: OrderDto) => {
 const resetShipmentData = () => {
   shipmentData.value = {
     trackingNumber: '',
-    shippingMethodId: null,
+    shippingMethodId: 0,
     carrierName: '',
     shippingLabelUrl: '',
     shipmentStatus: 'Pending',

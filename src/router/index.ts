@@ -83,77 +83,6 @@ const routes: RouteRecordRaw[] = [
       requiresAuth: false,
     },
   },
-  // Customer Protected Routes
-  {
-    path: "/cart",
-    name: "cart",
-    component: () => import("@/views/customer/CartView.vue"),
-    meta: {
-      layout: "default",
-      requiresAuth: true,
-      roles: ["customer"],
-    },
-  },
-  {
-    path: "/wishlist",
-    name: "wishlist",
-    component: () => import("@/views/customer/WishlistView.vue"),
-    meta: {
-      layout: "default",
-      requiresAuth: true,
-      roles: ["customer"],
-    },
-  },
-  {
-    path: "/checkout",
-    name: "checkout",
-    component: () => import("@/views/customer/CheckoutView.vue"),
-    meta: {
-      layout: "default",
-      requiresAuth: true,
-      roles: ["customer"],
-    },
-  },
-  {
-    path: "/orders",
-    name: "orders",
-    component: () => import("@/views/customer/OrdersView.vue"),
-    meta: {
-      layout: "default",
-      requiresAuth: true,
-      roles: ["customer"],
-    },
-  },
-  {
-    path: "/orders/:id",
-    name: "order-detail",
-    component: () => import("@/views/customer/OrderDetailView.vue"),
-    meta: {
-      layout: "default",
-      requiresAuth: true,
-      roles: ["customer"],
-    },
-  },
-  {
-    path: "/profile",
-    name: "profile",
-    component: () => import("@/views/customer/ProfileView.vue"),
-    meta: {
-      layout: "default",
-      requiresAuth: true,
-      roles: ["customer"],
-    },
-  },
-  {
-    path: "/addresses",
-    name: "addresses",
-    component: () => import("@/views/customer/AddressesView.vue"),
-    meta: {
-      layout: "default",
-      requiresAuth: true,
-      roles: ["customer"],
-    },
-  },
   // Admin Routes
   {
     path: "/admin",
@@ -542,51 +471,7 @@ const routes: RouteRecordRaw[] = [
       roles: ["admin", "superadmin"],
     },
   },
-  // Vendor Routes (if applicable)
-  {
-    path: "/vendor",
-    redirect: "/vendor/dashboard",
-  },
-  {
-    path: "/vendor/dashboard",
-    name: "vendor-dashboard",
-    component: () => import("@/views/vendor/DashboardView.vue"),
-    meta: {
-      layout: "vendor",
-      requiresAuth: true,
-      roles: ["vendor"],
-    },
-  },
-  {
-    path: "/vendor/products",
-    name: "vendor-products",
-    component: () => import("@/views/vendor/ProductsView.vue"),
-    meta: {
-      layout: "vendor",
-      requiresAuth: true,
-      roles: ["vendor"],
-    },
-  },
-  {
-    path: "/vendor/orders",
-    name: "vendor-orders",
-    component: () => import("@/views/vendor/OrdersView.vue"),
-    meta: {
-      layout: "vendor",
-      requiresAuth: true,
-      roles: ["vendor"],
-    },
-  },
-  {
-    path: "/vendor/analytics",
-    name: "vendor-analytics",
-    component: () => import("@/views/vendor/AnalyticsView.vue"),
-    meta: {
-      layout: "vendor",
-      requiresAuth: true,
-      roles: ["vendor"],
-    },
-  },
+
   // User Profile Routes
   {
     path: "/user/profile",

@@ -130,11 +130,11 @@
             class="elevation-1"
             :sort-by="[{ key: 'paymentDate', order: 'desc' }]"
           >
-            <template v-slot:item.paymentAmount="{ item }">
+            <template v-slot:[`item.paymentAmount`]="{ item }">
               <span class="font-weight-medium">{{ formatCurrency(item.paymentAmount, item.currency) }}</span>
             </template>
   
-            <template v-slot:item.paymentStatus="{ item }">
+            <template v-slot:[`item.paymentStatus`]="{ item }">
               <v-chip
                 :color="getStatusColor(item.paymentStatus)"
                 size="small"
@@ -144,15 +144,15 @@
               </v-chip>
             </template>
   
-            <template v-slot:item.paymentDate="{ item }">
+            <template v-slot:[`item.paymentDate`]="{ item }">
               {{ formatDate(item.paymentDate) }}
             </template>
   
-            <template v-slot:item.processedDate="{ item }">
+            <template v-slot:[`item.processedDate`]="{ item }">
               {{ item.processedDate ? formatDate(item.processedDate) : 'N/A' }}
             </template>
   
-            <template v-slot:item.actions="{ item }">
+            <template v-slot:[`item.actions`]="{ item }">
               <v-btn
                 icon="mdi-eye"
                 variant="text"
@@ -436,7 +436,7 @@ import { useUserStore } from '@/stores/user'
   
   // Form data
   const formData = ref({
-    paymentId: null as number | null,
+    paymentId: 0,
     orderId: 0,
     paymentMethodId: 0,
     paymentAmount: 0,
@@ -449,7 +449,7 @@ import { useUserStore } from '@/stores/user'
     paymentDate: new Date().toISOString().slice(0, 16),
     processedDate: '',
     createdAt: new Date().toISOString(),
-    createdBy: userStore.user?.userId
+    createdBy: (userStore.user?.userId ?? 0) as number
   })
   
   // Options
@@ -539,7 +539,7 @@ import { useUserStore } from '@/stores/user'
   const openCreateDialog = () => {
     editMode.value = false
     formData.value = {
-      paymentId: null,
+      paymentId: 0,
       orderId: 0,
       paymentMethodId: 0,
       paymentAmount: 0,
@@ -575,7 +575,7 @@ import { useUserStore } from '@/stores/user'
   const closeDialog = () => {
     dialog.value = false
     formData.value = {
-      paymentId: null,
+      paymentId: 0,
       orderId: 0,
       paymentMethodId: 0,
       paymentAmount: 0,
@@ -588,7 +588,7 @@ import { useUserStore } from '@/stores/user'
       paymentDate: new Date().toISOString().slice(0, 16),
       processedDate: '',
       createdAt: new Date().toISOString(),
-      createdBy: userStore.user?.userId
+      createdBy: (userStore.user?.userId) as number
     }
   }
   

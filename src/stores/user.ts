@@ -203,7 +203,7 @@ export const useUserStore = defineStore('user', {
     async CreateNewUser(userCreationRequest: CreateUsersRequest): Promise<IAPIResponse<object>> {
       try {
         const response = await apiService.post<IAPIResponse<object>>(
-          "/Users/Add",
+          "/Users/AdminAddUser",
           userCreationRequest
         );
         if (response !== null) {

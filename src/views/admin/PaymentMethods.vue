@@ -130,7 +130,7 @@
             class="elevation-1"
             :sort-by="[{ key: 'sortOrder', order: 'asc' }]"
           >
-            <template v-slot:item.isActive="{ item }">
+            <template v-slot:[`item.isActive`]="{ item }">
               <v-chip
                 :color="item.isActive ? 'green' : 'grey'"
                 size="small"
@@ -140,7 +140,7 @@
               </v-chip>
             </template>
   
-            <template v-slot:item.isOnline="{ item }">
+            <template v-slot:[`item.isOnline`]="{ item }">
               <v-chip
                 :color="item.isOnline ? 'purple' : 'orange'"
                 size="small"
@@ -150,7 +150,7 @@
               </v-chip>
             </template>
   
-            <template v-slot:item.actions="{ item }">
+            <template v-slot:[`item.actions`]="{ item }">
               <v-btn
                 icon="mdi-pencil"
                 variant="text"
@@ -265,6 +265,7 @@
   import { usePaymentMethodStore } from '@/stores/paymentMethod'
   import { ref, computed, onMounted } from 'vue'
   import { useSnackbarStore } from '@/stores/snackbar'
+import type { PaymentMethodDTO } from '@/stores/types/member'
   
   const paymentMethodStore = usePaymentMethodStore()
   const snackbar = useSnackbarStore()
@@ -279,8 +280,8 @@
   const typeFilter = ref('all')
   
   // Form data
-  const formData = ref({
-    paymentMethodId: null as number | null,
+  const formData = ref<PaymentMethodDTO>({
+    paymentMethodId: 0,
     methodName: '',
     methodCode: '',
     description: '',
@@ -347,7 +348,7 @@
   const openCreateDialog = () => {
     editMode.value = false
     formData.value = {
-      paymentMethodId: null,
+      paymentMethodId: 0,
       methodName: '',
       methodCode: '',
       description: '',
@@ -358,7 +359,7 @@
     dialog.value = true
   }
   
-  const editPaymentMethod = (item: any) => {
+  const editPaymentMethod = (item: PaymentMethodDTO) => {
     editMode.value = true
     formData.value = { ...item }
     dialog.value = true
@@ -367,7 +368,7 @@
   const closeDialog = () => {
     dialog.value = false
     formData.value = {
-      paymentMethodId: null,
+      paymentMethodId: 0,
       methodName: '',
       methodCode: '',
       description: '',
@@ -408,7 +409,7 @@
     }
   }
   
-  const deletePaymentMethod = async (item: any) => {
+  const deletePaymentMethod = async (item: PaymentMethodDTO) => {
     if (confirm(`Are you sure you want to delete ${item.methodName}?`)) {
       try {
         const response = await paymentMethodStore.deletePaymentMethod(item.paymentMethodId)

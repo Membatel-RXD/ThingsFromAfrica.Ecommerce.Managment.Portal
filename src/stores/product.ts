@@ -62,7 +62,7 @@ export const useProductStore = defineStore("product", {
       }
     },
 
-    async createProduct(data: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<IAPIResponse<Product>> {
+    async createProduct(data: Partial<Product>): Promise<IAPIResponse<Product>> {
       try {
         this.loading = true;
         const response = await apiService.post<IAPIResponse<Product>>("/Products/Add", data);

@@ -12,12 +12,12 @@ export const usePaymentMethodStore = defineStore("paymentMethod", {
 
   getters: {
     getPaymentMethods: (state) => state.paymentMethods,
-    getActivePaymentMethods: (state) => state.paymentMethods.filter(pm => pm.isActive),
-    getOnlinePaymentMethods: (state) => state.paymentMethods.filter(pm => pm.isOnline),
+    getActivePaymentMethods: (state) => state.paymentMethods.filter((pm: { isActive: any; }) => pm.isActive),
+    getOnlinePaymentMethods: (state) => state.paymentMethods.filter((pm: { isOnline: any; }) => pm.isOnline),
     getPaymentMethodByCode: (state) => (code: string) =>
-      state.paymentMethods.find(pm => pm.methodCode === code),
+      state.paymentMethods.find((pm: { methodCode: string; }) => pm.methodCode === code),
     getPaymentMethodsByName: (state) => (name: string) =>
-      state.paymentMethods.filter(pm => pm.methodName.toLowerCase().includes(name.toLowerCase())),
+      state.paymentMethods.filter((pm: { methodName: string; }) => pm.methodName.toLowerCase().includes(name.toLowerCase())),
   },
 
   actions: {

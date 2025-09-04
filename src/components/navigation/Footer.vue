@@ -9,18 +9,11 @@
   </v-footer>
 </template>
 
-<script lang="ts">
-export default {
-  name: "FooterComponent",
-  data() {
-    return {};
-  },
-  computed: {
-    isMobile() {
-      return this.$vuetify.breakpoint.xs || this.$vuetify.breakpoint.sm;
-    },
-  },
-};
-</script>
+<script setup lang="ts">
+import { useDisplay } from 'vuetify'
 
-<style></style>
+const { xs, sm, mobile } = useDisplay()
+
+// You can use these reactive properties directly in template
+// xs.value, sm.value, mobile.value are all boolean
+</script>

@@ -717,7 +717,7 @@
   import { ref, computed, onMounted } from 'vue'
   import { useSnackbarStore } from '@/stores/snackbar'
   import { useOrderStore } from '@/stores/orderStore'
-  import type { OrderDto } from '@/stores/types/member'
+  import type { OrderCreationRequest, OrderDto } from '@/stores/types/member'
   import { useCustomerStore } from '@/stores/customer'
   const orderStore = useOrderStore()
   const snackbar = useSnackbarStore()
@@ -742,7 +742,7 @@
   const orderStatus = computed(()=>orderStore.orderStatuses);
   
   // Form data matching OrderCreationRequest interface
-  const formData = ref({
+  const formData = ref<Partial<OrderDto & { orderId?: number }>>({
     customerEmail: '',
     customerPhone: '',
     billingFirstName: '',
@@ -765,7 +765,7 @@
     shippingCountryCode: '',
     subTotal: 0,
     taxAmount: 0,
-    statusId:'',
+    statusId:0,
     shippingAmount: 0,
     discountAmount: 0,
     totalAmount: 0,
@@ -776,7 +776,7 @@
     customerNotes: '',
     adminNotes: '',
     requiredDate: '',
-    customerId: 1
+    customerId: 1,
   })
   
   // Options
@@ -875,13 +875,16 @@ const customerOptions = computed(() => [
   
 
   
-  const editOrder = (item: any) => {
-    editMode.value = true
-    formData.value = { ...item }
-    dialog.value = true
+  const editOrder = (item: OrderDto) => { // Type the parameter properly
+  editMode.value = true
+  formData.value = { 
+    ...item,
+    orderId: item.orderId // Ensure orderId is explicitly set
   }
+  dialog.value = true
+}
   
-  const viewOrder = (item: any) => {
+  const viewOrder = (item: OrderDto) => {
     selectedOrder.value = item
     viewDialog.value = true
   }
@@ -951,7 +954,7 @@ const copyBillingToShipping = () => {
 // You'll also need to update your formData initialization to include all missing fields:
 const initializeFormData = () => {
   return {
-    orderId: null,
+    orderId: undefined, // Change from null to undefined
     customerEmail: '',
     customerPhone: '',
     billingFirstName: '',
@@ -964,7 +967,7 @@ const initializeFormData = () => {
     billingPostalCode: '',
     billingCountryCode: '',
     shippingFirstName: '',
-    statusId:'',
+    statusId:0,
     shippingLastName: '',
     shippingCompany: '',
     shippingAddressLine1: '',
@@ -1011,7 +1014,7 @@ const closeDialog = () => {
   const saveOrder = async () => {
     saving.value = true
     try {
-      if (editMode.value && formData.value.orderId) {
+      if (editMode.value && formData.value.orderId !== undefined) { // Change condition
         // Update existing order
         const response = await orderStore.updateOrder(formData.value.orderId, formData.value)
         if (response.isSuccessful) {
@@ -1021,9 +1024,9 @@ const closeDialog = () => {
           snackbar.error('Error updating order')
         }
       } else {
-        // Create new order
+        const { orderId, ...orderRequest } = formData.value // Destructure to remove orderId
+        const response = await orderStore.createOrder(orderRequest as OrderCreationRequest)
 
-        const response = await orderStore.createOrder(formData.value)
         if (response.isSuccessful) {
           snackbar.success('Order created successfully')
           closeDialog()
@@ -1039,7 +1042,7 @@ const closeDialog = () => {
     }
   }
   
-  const shipOrder = async (item: any) => {
+  const shipOrder = async (item: OrderDto) => {
     try {
       const response = await orderStore.shipOrder(item.orderId)
       if (response.isSuccessful) {
@@ -1053,7 +1056,7 @@ const closeDialog = () => {
     }
   }
   
-  const deliverOrder = async (item: any) => {
+  const deliverOrder = async (item: OrderDto) => {
     try {
       const response = await orderStore.deliverOrder(item.orderId)
       if (response.isSuccessful) {
@@ -1067,7 +1070,7 @@ const closeDialog = () => {
     }
   }
   
-  const cancelOrder = async (item: any) => {
+  const cancelOrder = async (item: OrderDto) => {
     if (confirm(`Are you sure you want to cancel order ${item.orderNumber}?`)) {
       try {
         const response = await orderStore.cancelOrder(item.orderId)
@@ -1083,7 +1086,7 @@ const closeDialog = () => {
     }
   }
   
-  const deleteOrder = async (item: any) => {
+  const deleteOrder = async (item: OrderDto) => {
     if (confirm(`Are you sure you want to delete order ${item.orderNumber}?`)) {
       try {
         const response = await orderStore.deleteOrder(item.orderId)

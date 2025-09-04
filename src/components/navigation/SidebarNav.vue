@@ -30,7 +30,7 @@
             </v-btn>
           </template>
           <v-list>
-            <v-list-item :to="{ name: 'profile' }">
+            <v-list-item :to="{ name: 'user-profile' }">
               <template v-slot:prepend>
                 <v-icon icon="mdi-account" />
               </template>

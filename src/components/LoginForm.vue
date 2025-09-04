@@ -138,7 +138,7 @@
 import {nextTick, ref} from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore} from "@/stores/user";
-import { LoginCredentials, UserRole } from '@/stores/types/member';
+import { type LoginCredentials, UserRole } from '@/stores/types/member';
 
 const router = useRouter();
 
@@ -186,7 +186,7 @@ const handleLogin = async () => {
     } as LoginCredentials;
 
     const loginResponse = await userStore.login(loginCredentials);
-
+console.log(JSON.stringify(loginResponse))
     if (loginResponse.isSuccessful && loginResponse.payload) {
       const authResponse = loginResponse.payload;
 
@@ -217,11 +217,11 @@ const handleLogin = async () => {
         } else {
           // Default fallback for customers
           console.warn(`Unknown role: ${userRole}, redirecting to shop`);
-          await router.push('/shop');
+          await router.push('/admin/dashboard');
         }
 
         // Show success notification
-        showNotification(`Welcome back, ${authResponse.fULLname || userStore.user?.username}!`, 'success');
+        showNotification(`Welcome back, ${authResponse.fullName || userStore.user?.username}!`, 'success');
 
       } catch (navigationError) {
         console.error("Navigation failed:", navigationError);
@@ -261,14 +261,6 @@ const sendResetLink = () => {
   resetEmail.value = '';
 };
 
-// Navigation handlers
-const goToSignup = () => {
-  router.push('/signup');
-};
-
-const continueShopping = () => {
-  router.push('/shop');
-};
 
 // Notification helper
 const showNotification = (text:string, color:string) => {

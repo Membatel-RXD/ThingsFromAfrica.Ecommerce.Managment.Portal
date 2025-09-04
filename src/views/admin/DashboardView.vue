@@ -276,7 +276,7 @@
                 </v-col>
                 <v-col cols="6">
                   <v-btn
-                    :to="{ name: 'orders' }"
+                    :to="{ name: 'admin-orders' }"
                     color="orange-darken-3"
                     variant="elevated"
                     block
@@ -507,11 +507,12 @@ const productHeaders = [
   { title: 'Category', key: 'categoryId' }, // Or 'categoryName' if you map it
   { title: 'Wood Type', key: 'woodType' },
   { title: 'Artisan', key: 'artisanName' },
-  { title: 'Total Sold', key: 'totalQuantitySold', align: 'center' },
-  { title: 'Revenue', key: 'totalRevenue', align: 'center' },
-  { title: 'Orders', key: 'orderCount', align: 'center' },
+  { title: 'Total Sold', key: 'totalQuantitySold', align: 'center' as const },
+  { title: 'Revenue', key: 'totalRevenue', align: 'center' as const },
+  { title: 'Orders', key: 'orderCount', align: 'center' as const },
   { title: 'Actions', key: 'actions', sortable: false }
-];
+] as const;
+
 
 
 // Methods

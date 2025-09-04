@@ -88,6 +88,26 @@ export interface CreateUsersRequest {
   modifiedAt?: string | null
   lastActiveAt?: string | null
 }
+export interface EditProduct {
+  productName?: string;
+  sku?: string;
+  productDescription?: string;
+  touristPrice?: number;
+  localPrice?: number;
+  costPrice?: number;
+  stockQuantity?: number;
+  lowStockThreshold?: number;
+  productStatus?: string;
+  woodTypeId?: number;
+  mainImageUrl?: string;
+  isVisible?: boolean;
+  isFeatured?: boolean;
+  isAuthentic?: boolean;
+  length?: number; // Optional
+  weight?: number; // Optional
+  width?: number;  // Optional
+  height?: number; // Optional
+}
 export interface Product {
   weight: number;
   length: number;
@@ -618,7 +638,7 @@ export interface PaymentDTO {
   paymentDate: string // ISO 8601 date string
   processedDate: string // ISO 8601 date string
   createdAt: string // ISO 8601 date string
-  createdBy: number|null
+  createdBy: number
 }
 export interface CreatePaymentRequest extends Omit<PaymentDTO, 'paymentId' | 'createdAt' | 'processedDate'> {}
 export interface PaymentMethodDTO {
@@ -675,10 +695,10 @@ export interface ShipmentDTO {
   carrierName: string;
   shippingLabelUrl: string;
   shipmentStatus: string;
-  packageWeight: number;
-  packageLength: number;
-  packageWidth: number;
-  packageHeight: number;
+  packageWeight: number | null
+  packageLength: number | null
+  packageWidth: number | null
+  packageHeight: number | null
   packagingNotes: string;
   requiresPhytosanitaryCertificate: boolean;
   phytosanitaryCertificateNumber: string;
@@ -687,7 +707,7 @@ export interface ShipmentDTO {
   estimatedDeliveryDate: string; // ISO 8601 date string
   actualDeliveryDate: string; // ISO 8601 date string
   createdAt: string; // ISO 8601 date string
-  createdBy: number;
+  createdBy: number | null;
   orderNumber:string;
   customerEmail:string;
   totalAmount:number;

@@ -535,7 +535,7 @@
   <script setup lang="ts">
   import { ref, computed, onMounted, nextTick } from 'vue'
   import { useSnackbarStore } from '@/stores/snackbar'
-  import {  CustomerInsight, LocationStats, TopProduct } from '@/stores/types/member'
+  import type { CustomerInsight, LocationStats, TopProduct } from '@/stores/types/member'
   
   // Chart.js types and setup would normally be imported here
   declare const Chart: any

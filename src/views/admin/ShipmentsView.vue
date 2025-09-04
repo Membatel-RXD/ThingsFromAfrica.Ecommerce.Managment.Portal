@@ -694,7 +694,7 @@ const confirmEditShipment = async () => {
   }
 }
 
-const markAsDelivered = async (item: any) => {
+const markAsDelivered = async (item: ShipmentDTO) => {
   try {
     // const response = await orderStore.markAsDelivered(item.orderId)
     // if (response?.isSuccessful) {
