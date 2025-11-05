@@ -549,6 +549,7 @@
                         v-model="productForm.shippingRestrictions"
                         label="Shipping Restrictions"
                         variant="outlined"
+                        :rules="[rules.required]"
                         color="orange-darken-2"
                         rows="2"
                         prepend-inner-icon="mdi-alert-circle"
@@ -582,7 +583,7 @@
                           color="orange-darken-2"
                           prepend-inner-icon="mdi-camera"
                           accept="image/*"
-                          :rules="[rules.imageSize, rules.imageType]"
+                          :rules="[rules.imageSize, rules.imageType,rules.required]"
                           @change="handleMainImageChange"
                           show-size
                           class="text-black"
@@ -620,7 +621,7 @@
                           prepend-inner-icon="mdi-image-multiple"
                           accept="image/*"
                           multiple
-                          :rules="[rules.imageSize, rules.imageType]"
+                          :rules="[rules.imageSize, rules.imageType,rules.required]"
                           @change="handleGalleryImagesChange"
                           show-size
                           class="text-black"
@@ -1126,7 +1127,7 @@ const rules: Record<string, ValidationRule> = {
     // Check if all items in array are Files
     if (!value.every(item => item instanceof File)) return 'Invalid file type';
     
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 1 * 1024 * 1024; // 5MB
     return value.every(file => file.size <= maxSize) || 'File size must be less than 5MB';
   },
   
